@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+    "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="friends">
+
+	<!-- 获取好友的列表  -->
+	<select id="friendsUserList" parameterType="String" resultType="java.util.HashMap" >
+		select 
+		  DISTINCT f_passive_people_id as userId
+        from 
+           tb_friends
+        WHERE 
+           f_initiative_people_id=#{value}  and f_isno_delete=0 and f_passive_people_id!=6
+        
+	</select>
+	
+	<!-- 通过游记ID   用户ID和国家ID  -->
+	<select id="obtainByTravelNotesId" parameterType="String" resultType="java.util.HashMap" >
+		select 
+		   user_id as userId,country_id as countryId,tn_title as title
+        from 
+           tb_travel_notes 
+        WHERE 
+            travel_notes_id=#{value} 
+	</select>
+	
+	
+	<!-- 获取所有人的列表  -->
+	<select id="allUserList"  resultType="java.util.HashMap" >
+		select 
+		   user_id as userId
+        from 
+           tb_user
+	</select>
+	
+	<!-- 插入新添加的游记和国家  
+	<select id="insertTravelNotesRead"  parameterType="java.util.HashMap" >
+	  insert into tb_travel_notes_read 
+       (user_id, country_id, trn_isno_new_notes) 
+      select #{userId} ,#{countryId},1 
+      from 
+        tb_travel_notes_read 
+      where not exists 
+     (
+       select * from 
+         tb_travel_notes_read 
+       where 
+         user_id = #{userId} and country_id =#{countryId}
+      )
+	</select>
+	
+	 -->
+	<!-- 更新阅读关系  -->
+	<select id="updateTravelNotesRead" parameterType="java.util.HashMap" >
+	  update 
+	     tb_travel_notes_read 
+      set
+         trn_isno_new_notes=1 ,trn_notes_num=trn_notes_num+1
+      where
+         user_id = #{userId} and country_id =#{countryId}
+   
+	</select>
+	
+	
+	<!-- 忽略好友请求  -->
+	<delete id="ignoreFriends" parameterType="java.util.HashMap" >
+	 UPDATE
+	     tb_recommend_friends SET delete_flag=1
+	  WHERE 
+	    user_id=#{userId} and passive_people_id=#{passivePeopleId}  
+   
+	</delete>
+	
+	<delete id="deleteUserFried" parameterType="java.util.HashMap">
+	 UPDATE
+	   tb_friends SET f_isno_delete=1,add_time=#{addTime}
+	  where 
+	   f_initiative_people_id=#{userId} and f_passive_people_id=#{friendUserId}
+	</delete>
+	
+	<delete id="deleteUserFried2" parameterType="java.util.HashMap">
+	 UPDATE
+	   tb_friends SET f_isno_delete=1,add_time=#{addTime}
+	  where 
+	   f_initiative_people_id=#{friendUserId} and f_passive_people_id=#{userId}
+	</delete>
+	
+	
+	<!-- 判断是否为好友   继续在这里-->
+	<select id="judgeFriends" parameterType="java.util.HashMap"  resultType="Integer">
+     select 
+	     count(*) 
+     FROM
+       tb_friends
+     WHERE
+       (f_initiative_people_id=#{userId} and f_passive_people_id=#{passivePeopleId} and f_isno_delete=0)
+	</select>
+	
+   <!-- 判断是否为好友  ,被动和主动的情况-->
+	<select id="judgeFriends2" parameterType="java.util.HashMap"  resultType="Integer">
+     select 
+	     count(*) 
+     FROM
+       tb_friends
+     WHERE
+       (f_initiative_people_id=#{passivePeopleId} and f_passive_people_id= #{userId} and f_isno_delete=0 )
+	</select>
+	
+	
+	
+	<!-- 添加好友  -->
+	<insert id="addFriends" parameterType="java.util.HashMap" >
+	 INSERT INTO 
+       tb_friends(f_initiative_people_id,f_passive_people_id,add_time) values(#{userId},#{passivePeopleId},#{addTime})
+	</insert>
+	
+	<!-- 添加好友 被动和主动的情况  -->
+	<insert id="addFriends2" parameterType="java.util.HashMap" >
+	 INSERT INTO 
+       tb_friends(f_initiative_people_id,f_passive_people_id,add_time) values(#{passivePeopleId},#{userId},#{addTime})
+	</insert>
+	
+	<!-- 已经添加好友删除推荐的 -->
+	<delete id="addedDeleteFriends" parameterType="java.util.HashMap" >
+	  UPDATE
+       tb_recommend_friends SET delete_flag=1
+      WHERE
+        user_id=#{userId}  AND passive_people_id=#{passivePeopleId}
+	</delete>
+
+   <!-- 已经添加好友删除推荐的 被动和主动的 -->
+	<delete id="addedDeleteFriends2" parameterType="java.util.HashMap" >
+	  UPDATE
+       tb_recommend_friends SET delete_flag=1
+      WHERE
+        user_id=#{passivePeopleId}  AND passive_people_id=#{userId}
+	</delete>
+	
+	<!-- 判断微博好友 -->
+	<select id="judgeWeiboFriends" parameterType="java.util.HashMap" resultType="Integer">
+	 select 
+	     count(*) 
+     FROM
+       tb_recommend_friends
+     WHERE
+      user_id=#{userId} and third_id=#{thirdId}
+	</select>
+	
+	<!-- 找到好友的Id -->
+	<select id="isnoMember" parameterType="java.util.HashMap" resultType="String">
+	  select 
+	     user_id
+     FROM
+       tb_user
+     WHERE
+      u_sina_id=#{thirdId}
+      LIMIT 0,1
+	</select>
+	
+	<!--增加该微博ID -->
+	<insert id="addWeiboFriends" parameterType="java.util.HashMap">
+	  INSERT INTO
+       tb_recommend_friends(user_id,third_id,passive_people_id,rf_type,isno_member,add_time)
+       values(#{userId},#{thirdId},#{passiveId},#{type},#{isnoMember},#{addTime})
+	</insert>
+	
+	
+	<!-- 找到facebook的Id -->
+	<select id="isnoMemberFacebook" parameterType="java.util.HashMap" resultType="String">
+	  select 
+	     user_id
+     FROM
+       tb_user
+     WHERE
+      u_facebook_id=#{thirdId}
+     LIMIT 0,1
+	</select>
+	
+	<!-- 找到通讯录的Id -->
+	<select id="isnoMemberAddress" parameterType="java.util.HashMap" resultType="String">
+	  select 
+	     user_id
+     FROM
+       tb_user
+     WHERE
+      u_phone=#{thirdId}
+     LIMIT 0,1
+	</select>
+	
+	
+	<!-- 要增加判断，如果是朋友圈新的国家也要推送 -->
+	<select id="obtainnewCountryNum" parameterType="java.util.HashMap" resultType="Integer">
+	  select 
+	     count(*)
+     FROM
+       tb_friends as f,tb_travel_notes as tn
+     WHERE
+       f.f_passive_people_id=tn.user_id AND f.f_initiative_people_id=#{userId}
+       AND f.f_isno_delete=0 AND tn.country_id=#{countryId}
+      
+	</select>
+	
+	
+		
+	<!-- 判断删除的是否是官方 -->
+	<select id="isnogovUserFried" parameterType="java.util.HashMap" resultType="Integer">
+    SELECT count(*)
+    FROM 
+    tb_user 
+    WHERE tb_user.u_type='2' and (user_id=#{userId} OR user_id=#{friendUserId} )
+	</select>
+	
+	<!-- 判断删除的是否是推荐的 -->
+	<!--<select id="isnogovUserFried2" parameterType="java.util.HashMap" resultType="Integer">-->
+        <!--SELECT count(*) -->
+        <!--FROM tb_user -->
+        <!--WHERE -->
+        <!--user_id=#{friendUserId} AND u_beinvitation_code IN (SELECT u_invitation_code FROM tb_user WHERE user_id=#{userId})-->
+	<!--</select>-->
+	 <!--&lt;!&ndash; 判断删除的是否是推荐的 &ndash;&gt;-->
+	<!--<select id="isnogovUserFried3" parameterType="java.util.HashMap" resultType="Integer">-->
+        <!--SELECT count(*) -->
+        <!--FROM tb_user -->
+        <!--WHERE -->
+        <!--user_id=#{friendUserId} AND u_invitation_code IN (SELECT u_beinvitation_code FROM tb_user WHERE user_id=#{userId})-->
+	<!--</select>-->
+	
+	
+	
+	<!-- 判断是否为好友   继续在这里-->
+	<select id="juageFriendsRecommend1" parameterType="java.util.HashMap"  resultType="Integer">
+     select 
+	     count(*) 
+     FROM
+        tb_recommend_friends
+     WHERE
+       (user_id=#{userId} and passive_people_id=#{passivePeopleId})
+	</select>
+	
+   <!-- 判断是否为好友  ,被动和主动的情况-->
+	<select id="juageFriendsRecommend2" parameterType="java.util.HashMap"  resultType="Integer">
+     select 
+	     count(*) 
+     FROM
+        tb_recommend_friends
+     WHERE
+       (user_id=#{passivePeopleId} and passive_people_id= #{userId} )
+	</select>
+	
+	
+	<!-- 添加推荐里的值  我加别人 -->
+	<update id="updateFriendsRecommend1" parameterType="java.util.HashMap" >
+	  UPDATE  tb_recommend_friends SET status=0,add_time=#{addTime} 
+	  WHERE user_id=#{userId} AND passive_people_id=#{passivePeopleId}
+	 
+	</update>
+	
+	<!-- 添加推荐里的值  别人加我  -->
+	<update id="updateFriendsRecommend2" parameterType="java.util.HashMap" >
+       UPDATE  tb_recommend_friends SET status=1,add_time=#{addTime} 
+       WHERE user_id=#{passivePeopleId} AND passive_people_id=#{userId}
+
+	</update>
+	
+	<!-- 添加推荐里的值  我加别人 -->
+	<insert id="insertFriendsRecommend1" parameterType="java.util.HashMap" >
+	   INSERT INTO 
+       tb_recommend_friends(user_id,passive_people_id,add_time,isno_member,status) 
+       values(#{userId},#{passivePeopleId},#{addTime},1,0)
+	</insert>
+	
+	<!-- 添加推荐里的值  别人加我  -->
+	<insert id="insertFriendsRecommend2" parameterType="java.util.HashMap" >
+	   INSERT INTO 
+       tb_recommend_friends(user_id,passive_people_id,add_time,isno_member,status) 
+       values(#{passivePeopleId},#{userId},#{addTime},1,1)
+	</insert>
+	
+	
+		
+	<!-- 获取yolobooID-->
+	<select id="obtainYolobooId"  resultType="String">
+       SELECT DISTINCT user_id FROM tb_user where u_type=2
+	</select>
+	
+	<!-- 获取obtainRecommendPeopleId-->
+	<select id="obtainRecommendPeopleId" parameterType="String"  resultType="String">
+       SELECT DISTINCT u.user_id FROM tb_user as u
+       where u.u_invitation_code IN (SELECT uu.u_beinvitation_code FROM tb_user as uu WHERE uu.user_id=#{value})
+	</select>
+
+	<update id="deleteRecommend" parameterType="java.util.HashMap">
+		UPDATE tb_recommend_friends SET delete_flag=1 WHERE user_id=#{userId} AND passive_people_id=#{recommendId}
+	</update>
+	<update id="deleteRecommend2" parameterType="java.util.HashMap">
+		UPDATE tb_recommend_friends SET delete_flag=1 WHERE user_id=#{recommendId} AND passive_people_id=#{userId}
+	</update>
+
+	<!--#################################2.0新增##################################-->
+
+
+	<select id="selectFriendsIdList" parameterType="String" resultType="java.util.HashMap">
+		select
+		  DISTINCT f_passive_people_id as userId
+        from
+           tb_friends
+        WHERE
+           f_initiative_people_id=#{value}  and f_isno_delete=0
+           and f_passive_people_id NOT IN (SELECT user_id FROM tb_user WHERE u_type=2)
+	</select>
+	<select id="judgeIsFriends" parameterType="java.util.HashMap" resultType="java.lang.Integer">
+		 SELECT
+	     	count(1)
+		 FROM
+		   tb_friends
+		 WHERE
+		   f_initiative_people_id=#{userId} and f_passive_people_id=#{friendId} and f_isno_delete=0
+	</select>
+	<insert id="addFriendById" parameterType="java.util.HashMap">
+		INSERT INTO tb_friends(f_initiative_people_id,f_passive_people_id,add_time)
+		VALUES (#{userId},#{friendId},#{addTime})
+	</insert>
+	<insert id="addFriendByPassiveId" parameterType="java.util.HashMap">
+		INSERT INTO tb_friends(f_initiative_people_id,f_passive_people_id,add_time)
+		VALUES (#{friendId},#{userId},#{addTime})
+	</insert>
+
+	<update id="deleteRecommnedFriendById" parameterType="java.util.HashMap">
+		UPDATE tb_recommend_friends SET delete_flag=1 WHERE user_id=#{userId} AND passive_people_id=#{friendId}
+	</update>
+	<update id="deleteRecommnedFriendByPassiveId" parameterType="java.util.HashMap">
+		UPDATE tb_recommend_friends SET delete_flag=1 WHERE user_id=#{friendId} AND passive_people_id=#{userId}
+	</update>
+	<select id="obtainMyFriends" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+		DISTINCT u.u_picture as picture, u.user_id as userId,u.u_type as userType, u.u_nickname as nickName, u.u_last_time as lastTime, f.friends_id
+		from
+		tb_friends as f
+		left join tb_user as u ON u.user_id =f.f_passive_people_id
+		WHERE
+		f.f_initiative_people_id=#{userId} and  u.user_id IS NOT NULL and f.f_isno_delete=0 AND u.delete_flag=0
+		<if test="content!=null">
+			and u.u_nickname like '%${content}%'
+		</if>
+		order by
+		f.friends_id desc
+		limit
+		${startIndex},${size}
+	</select>
+	<select id="obtainMyFriendsCount" parameterType="java.util.HashMap" resultType="Long">
+		SELECT
+		count(*)
+		from
+		tb_friends as f
+		left join tb_user as u ON u.user_id =f.f_passive_people_id
+		WHERE
+		f.f_initiative_people_id=#{userId} and  u.user_id IS NOT NULL and f.f_isno_delete=0 AND u.delete_flag=0
+	</select>
+
+	<select id="obtainRecommendFriends" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+		DISTINCT  u.user_id as userId,u.u_picture as picture,u.u_nickname as nickName ,u.u_last_time as lastTime
+		,u.u_type as userType,u.u_beinvitation_code as beinvitationCode,f.status,f.recommend_friends_id
+		from
+		tb_recommend_friends as f
+		left join tb_user as u ON u.user_id =f.passive_people_id
+		WHERE
+		f.user_id=#{userId}
+		<if test="type!=null">
+			and f.rf_type=#{type}
+		</if>
+		and f.delete_flag=0 and  u.user_id IS NOT NULL AND u.delete_flag=0 and f.isno_member=1
+		order by
+		f.status  desc,
+		f.recommend_friends_id desc
+		limit
+		${startIndex},${size}
+	</select>
+
+	<select id="obtainFriendsListById" parameterType="String" resultType="java.util.HashMap">
+		SELECT f_passive_people_id as userId
+		FROM
+			tb_friends
+		WHERE f_initiative_people_id=#{value} AND f_isno_delete=0
+	</select>
+
+	<sql id="friendsSql">
+		SELECT DISTINCT f_passive_people_id AS user_id FROM tb_friends WHERE f_initiative_people_id = #{userId} and f_isno_delete=0
+	</sql>
+
+	<sql id="talentedAndFriendsSql">
+		SELECT DISTINCT(user_id) FROM (
+	  	SELECT user_id FROM tb_user WHERE u_type=3 or user_id=#{userId}
+	  	UNION
+	  	SELECT f_passive_people_id AS user_id FROM tb_friends WHERE f_initiative_people_id = #{userId} and f_isno_delete=0) AS TB_TALENTED_USER_FRIENDS
+	</sql>
+
+	<sql id="talentedFriendsAndMeSql">
+		SELECT DISTINCT(user_id) FROM (
+		SELECT user_id FROM tb_user WHERE u_type=3 OR user_id = #{userId}
+		UNION
+		SELECT f_passive_people_id AS user_id FROM tb_friends WHERE f_initiative_people_id = #{userId} and f_isno_delete=0) AS TB_TALENTED_USER_FRIENDS
+	</sql>
+
+	<select id="judgeU_ASK_PASSIVE" parameterType="java.util.HashMap"  resultType="Integer">
+		select
+		count(*)
+		FROM
+		tb_recommend_friends
+		WHERE
+		(user_id=#{userId} and passive_people_id=#{passivePeopleId}) and status = 0
+	</select>
+
+	<select id="judgePASSIVE_ASK_U" parameterType="java.util.HashMap"  resultType="Integer">
+		select
+		count(*)
+		FROM
+		tb_recommend_friends
+		WHERE
+		(user_id=#{passivePeopleId} and passive_people_id=#{userId}) and status = 0
+	</select>
+
+
+</mapper>

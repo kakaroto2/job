@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+    "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="travel">
+
+
+	<select id="findNoteCountryIdByNotesId" parameterType="String"
+		resultType="Long">
+		select country_id from tb_travel_notes where travel_notes_id=#{value}
+	</select>
+	
+	<select id="findNoteCountryIdByPictureId" parameterType="String" resultType="Long">
+		select country_id from tb_travel_notes where 
+		travel_notes_id=(select travel_notes_id from tb_picture where picture_id=#{value})
+	</select>
+	
+	<select id="findTravelNotesIdByPictureId" parameterType="String" resultType="Long">
+		select DISTINCT travel_notes_id from tb_picture where picture_id=#{value}
+	</select>
+	
+	
+	<!-- 获取旅行风格 英文 简体 繁体 -->
+	<select id="obtainTravelStyle" resultType="java.util.HashMap">
+		select
+		travel_style_id as travel_style_id,ts_name as
+		name,ts_simple_name as simpleName,ts_traditional_name as traditionalName,
+		ts_noclick_picture as noclickPicture,ts_click_picture as clickPicture,
+		ts_black_picture as blackPicture,ts_white_picture as whitePicture,
+		ts_grey_picture as greyPicture
+		from
+		tb_travel_style
+	</select>
+
+	<!-- 获取国家首页 英文 简体 繁体 -->
+	<select id="obtainCountryList" parameterType="java.util.HashMap"
+		resultType="java.util.HashMap">
+		select
+		tbc.fc_isno_new_notes as isnoRead,tbc.fc_notes_num as notesNum, tbc.country_id as
+		countryId,
+		tc.c_english as countryName,tc.c_simple as simpleName,tc.c_traditional as
+		traditionalName,tc.c_picture as countryPicture
+		from
+		tb_first_country as tbc,tb_country as tc
+		WHERE
+		user_id=#{userId}
+		and
+		tbc.country_id=tc.country_id
+		ORDER BY(tc.c_first_letter)
+	</select>
+
+	<!-- 获取旅行主题 英文 简体 繁体 -->
+	<select id="obtainTravelTheme" resultType="java.util.HashMap">
+		select
+		theme_id as themeId,t_name as
+		name,t_simple_name as simpleName,t_traditional_name as traditionalName,
+		t_noclick_picture as noclickPicture,t_click_picture as clickPicture,
+		t_white_picture as whitePicture,t_black_picture as blackPicture
+		from
+		tb_theme
+	</select>
+
+	<!-- 常用地址查询 -->
+	<select id="inputAddressQuery" parameterType="String"
+		resultType="java.util.HashMap">
+		select
+		ca_name as name
+		from
+		tb_common_address where ca_name like '${value}%'
+	</select>
+
+	<!-- 获取贴士标签 英文 简体 繁体 -->
+	<select id="obtainNotesTips" resultType="java.util.HashMap">
+		select
+		travel_tips_id as travelTipsId,tt_name as
+		name,tt_simple_name as simpleName,tt_traditional_name as
+		traditionalName,tt_noclick_picture as noclickPicture,tt_click_picture
+		as clickPicture
+		from
+		tb_travel_tips
+	</select>
+
+	<!-- 获取心情标签 英文 简体 繁体 -->
+	<select id="obtainMoodTips" resultType="java.util.HashMap">
+		select
+		mood_tips_id as moodTipsId,mt_name as
+		name,mt_simple_name as simpleName,mt_traditional_name as
+		traditionalName,mt_noclick_picture as noclickPicture,mt_click_picture
+		as clickPicture
+		from
+		tb_mood_tips
+	</select>
+
+
+	<!--游记插入 -->
+	<insert id="insertTravelNotes" parameterType="java.util.HashMap">
+		insert into
+		tb_travel_notes(country_id,tn_date,tn_isno_complete,tn_isno_delete,user_id,theme_id,string_id,tn_title
+		,tn_newtime)
+		values(#{countryId},#{date},0,0,#{userId},#{travelThemeId},#{stringId},#{countryName}
+		,#{newtime})
+	</insert>
+
+	<!-- 获取游记ID -->
+	<select id="obtainTravelNotesId" parameterType="java.util.HashMap"
+		resultType="Long">
+		select
+		travel_notes_id as travelNotesId
+		from
+		tb_travel_notes
+		where
+		string_id=#{stringId}
+	</select>
+
+	<!--贴士插入 -->
+	<insert id="newPictureTips" parameterType="java.util.HashMap">
+		insert into
+		tb_picture(p_date,p_address,p_picture,p_isno_cover,string_id,p_description,travel_notes_id
+		)
+		values(#{pictureDate},#{address},#{picture},#{isnocover},#{stringId},#{description},#{travelNotesId}
+		)
+	</insert>
+
+
+	<!-- 获取贴士ID -->
+	<select id="obtainPictureTipsId" parameterType="java.util.HashMap"
+		resultType="String">
+		select
+		picture_id as pictureTipsId
+		from
+		tb_picture
+		where
+		string_id=#{stringId}
+
+	</select>
+
+
+
+	<!-- 获得问题是否是国家贴士，是的话保存该条数据 -->
+	<select id="obtainQuestionType" parameterType="String"
+		resultType="java.util.HashMap">
+		select
+		q_type as qType,country_tips_id as countryTipsId
+		from
+		tb_question
+		where
+		question_id=#{value}
+
+	</select>
+
+	<!-- 获得贴士标签是否是国家贴士，是的话保存该条数据 -->
+	<select id="obtainTipsPictureType" parameterType="String"
+		resultType="java.util.HashMap">
+		select
+		tt_type as ttType,country_tips_id as countryTipsId
+		from
+		tb_travel_tips
+		where
+		travel_tips_id=#{value}
+
+	</select>
+
+	<!--新增心情比标签和贴士关系 -->
+	<insert id="moodTipsPicture" parameterType="java.util.HashMap">
+		insert into
+		tb_picture_mood(picture_id,mood_id,mood_name
+		)
+		values(#{pictureTipsId},#{moodId},#{moodName}
+		)
+	</insert>
+
+
+	<!--新增贴士标签和贴士关系 -->
+	<insert id="notesTipsPicture" parameterType="java.util.HashMap">
+		insert into
+		tb_travel_tips_picture(travel_tips_id,travel_tips_name,picture_id
+		)
+		values(#{travelTipsId},#{travelTipsName},#{pictureTipsId}
+		)
+	</insert>
+
+
+	<!-- 删除图片 软删除 ok -->
+	<update id="deletePictureTips" parameterType="java.util.HashMap">
+		update tb_picture set p_isno_delete=1 where picture_id=#{pictureId}
+	</update>
+
+
+	<!-- 编辑贴士 ok -->
+	<update id="modifyPictureTips" parameterType="java.util.HashMap">
+		update
+		tb_picture
+		set
+		p_date=#{pictureDate},p_address=#{address}, p_description=#{description},p_isno_cover=#{isnocover}
+		<if test="picture!=null">
+			,p_picture=#{picture}
+		</if>
+		<if test="commentsNum!=null">
+			,p_comments_num=#{commentsNum}
+		</if>
+		<if test="praiseNum!=null">
+			,p_praise_num=#{praiseNum}
+		</if>
+		where
+		picture_id=#{pictureTipsId}
+	</update>
+
+	<!-- 把所有的游记的贴士ID改为0 -->
+	<update id="editIsnocoverTravel" parameterType="String">
+		update
+		tb_picture
+		set
+		p_isno_cover=0
+		where
+		travel_notes_id=#{value}
+	</update>
+	
+	<!-- 把所有的游记的贴士ID改为0  是根据贴士ID -->
+	<select id="TravelIdByTipsId" parameterType="String" resultType="String">
+		SELECT  
+		DISTINCT 
+		travel_notes_id 
+		FROM tb_picture  
+		WHERE  picture_id=#{value} 
+	</select>
+
+
+	<!-- 把这个贴士改为游记的封面 -->
+	<update id="editIsnocoverPicture" parameterType="String">
+		update
+		tb_picture
+		set
+		p_isno_cover=1
+		where
+		picture_id=#{value}
+	</update>
+
+	<!-- 删除所有与贴士相关的心情标签 ok -->
+	<delete id="deleteNotesTipsPicture" parameterType="java.util.HashMap">
+		delete from tb_travel_tips_picture where picture_id=#{pictureTipsId}
+	</delete>
+
+	<!-- 删除所有与贴士相关的贴士标签ok -->
+	<delete id="deleteMoodTipsPicture" parameterType="java.util.HashMap">
+		delete from tb_picture_mood where picture_id=#{pictureTipsId}
+	</delete>
+
+	<!-- 编辑游记 ok -->
+	<update id="modifyNotes" parameterType="java.util.HashMap">
+		update
+		tb_travel_notes
+		set
+		tn_isno_delete=0,tn_title=#{title}
+		<if test="countryId!=null">
+			,country_id=#{countryId}
+		</if>
+		<if test="date!=null">
+			,tn_date=#{date}
+		</if>
+		<if test="travelThemeId!=null">
+			,theme_id=#{travelThemeId}
+		</if>
+		<if test="isnoComplete!=null">
+			,tn_isno_complete=#{isnoComplete}
+		</if>
+		where
+		travel_notes_id=#{travelNotesId}
+	</update>
+
+	<!-- 问题 -->
+	<select id="obtainQuestion" resultType="java.util.HashMap">
+		select
+		country_tips_id as countryTipsId, q_type as type,question_id as questionId,q_content
+		as content,qa_content_simple as contentSimple,qa_content_traditional
+		as contentTraditional
+		from
+		tb_question
+		order by rand() limit 11
+
+	</select>
+
+	<!--问题答案 -->
+	<insert id="questionAnswer" parameterType="java.util.HashMap">
+		insert into
+		tb_question_answer(qa_content,question_id,qa_answer,user_id
+		)
+		values(#{content},#{questionId},#{answer},#{userId}
+		)
+	</insert>
+	<select id="findPicturePath" parameterType="String" resultType="String">
+	 select p_picture from tb_picture where picture_id=#{value}
+	</select>
+
+</mapper>

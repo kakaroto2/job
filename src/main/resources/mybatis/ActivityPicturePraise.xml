@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="ActivityPicturePraiseDao">
+    <resultMap id="ActivityPicturePraiseMap" type="com.yoloboo.models.ActivityPicturePraiseModel">
+        <id column="id" property="id" jdbcType="NUMERIC"/>
+        <result column="p_id" property="p_id" jdbcType="NUMERIC"/>
+        <result column="user_id" property="user_id" jdbcType="NUMERIC"/>
+        <result column="date" property="date" jdbcType="TIMESTAMP"/>
+        <result column="userName" property="userName" jdbcType="VARCHAR"/>
+        <result column="picture" property="picture" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_ActivityPicturePraiseList">
+        app_id AS id, user_id, picture_id AS p_id, date,u_picture as picture,u_nickname as userName
+    </sql>
+
+    <insert id="addActivityPicturePraise" parameterType="com.yoloboo.controller.bean.ActivityBean">
+        INSERT INTO tb_activity_picture_praise(user_id,picture_id,date,u_nickname,u_picture)
+        VALUES (#{userId},#{apId},#{date},#{userName},#{userPicture})
+    </insert>
+
+    <delete id="cancelActivityPicturePraise" parameterType="com.yoloboo.controller.bean.ActivityBean">
+        DELETE FROM tb_activity_picture_praise
+        WHERE user_id=#{userId} and picture_id=#{apId}
+    </delete>
+
+    <select id="getActivityPicturePraiseListByApId" parameterType="java.lang.Long" resultMap="ActivityPicturePraiseMap">
+        SELECT
+        <include refid="Base_ActivityPicturePraiseList"/>
+        FROM tb_activity_picture_praise
+        WHERE picture_id = #{apId}
+    </select>
+    <select id="getPictureId" resultMap="ActivityPicturePraiseMap">
+      select distinct picture_id as p_id  from  tb_activity_picture_praise
+    </select>
+
+    <select id="getPictureById" resultMap="ActivityPicturePraiseMap"  parameterType="java.lang.Long" >
+     select distinct user_id from tb_activity_picture_praise  where picture_id =#{value}
+    </select>
+
+    <select id="getModel" resultMap="ActivityPicturePraiseMap"  parameterType="com.yoloboo.models.ActivityPicturePraiseModel" >
+       select    <include refid="Base_ActivityPicturePraiseList"/> from tb_activity_picture_praise where  user_id=#{user_id} and picture_id=#{p_id} order by date desc limit 1
+    </select>
+
+
+    <delete id="deleteData" parameterType="com.yoloboo.models.ActivityPicturePraiseModel">
+        DELETE FROM tb_activity_picture_praise
+        WHERE user_id=#{user_id} and picture_id=#{p_id}
+    </delete>
+
+    <insert id="insertModel" parameterType="com.yoloboo.models.ActivityPicturePraiseModel">
+        INSERT INTO tb_activity_picture_praise(app_id,user_id,picture_id,date,u_nickname,u_picture)
+        VALUES (#{id},#{user_id},#{p_id},#{date},#{userName},#{picture})
+    </insert>
+</mapper>

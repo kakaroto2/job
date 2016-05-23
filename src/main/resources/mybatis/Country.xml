@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+    "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="country">
+
+	<resultMap id="CountryMap" type="com.yoloboo.models.CountryModel">
+		<id column="countryId" property="countryId" jdbcType="NUMERIC"/>
+		<result column="nameEn" property="nameEn" jdbcType="VARCHAR"/>
+		<result column="nameCn" property="nameCn" jdbcType="VARCHAR"/>
+		<result column="nameTw" property="nameTw" jdbcType="VARCHAR"/>
+		<result column="abbr" property="abbr" jdbcType="VARCHAR"/>
+		<result column="code" property="code" jdbcType="VARCHAR"/>
+		<result column="firstLetter" property="firstLetter" jdbcType="VARCHAR"/>
+		<result column="picture" property="picture" jdbcType="VARCHAR"/>
+		<result column="firstLetterCn" property="firstLetterCn" jdbcType="VARCHAR"/>
+		<result column="foreignCode" property="foreignCode" jdbcType="VARCHAR"/>
+	</resultMap>
+
+	<sql id="Base_Country_List">
+		country_id AS countryId, c_english AS nameEn, c_simple AS nameCn, c_traditional AS nameTw,
+		c_ab AS abbr, c_code AS code, c_first_letter AS firstLetter,
+		c_picture AS picture, c_first_letter_china AS firstLetterCn, c_foreign_code AS foreignCode
+	</sql>
+
+	<select id="getModelByPK" resultMap="CountryMap" parameterType="java.lang.Long">
+		SELECT
+		<include refid="Base_Country_List"/>
+		FROM tb_country
+		WHERE country_id = #{value}
+	</select>
+
+	<!-- 获得国家列表  -->
+	<select id="obtainCountry"   resultType="java.util.HashMap">
+		select 
+		  c.country_id as countryId,c.c_english as countryName ,c.c_simple as simpleName,
+		  c.c_traditional as traditionalName,c.c_first_letter  as firstLetter,c.c_first_letter_china  as firstLetterChina
+		from 
+		  tb_country as c
+	    order by
+		  c.c_first_letter
+	</select>
+
+	<!-- 获取便签列表页某一便签的天数 -->
+	<select id="obtainOneCountryNotesDays" parameterType="Long" resultType="Integer">
+		SELECT count(tp.picture_id) as oneCountryNotesDays from tb_picture tp where  tp.travel_notes_id=#{travelNotesId} and tp.p_isno_delete=0
+	</select>
+	<select id="obtainOneNotesDays" parameterType="Long" resultType="java.util.HashMap">
+		select tp.p_date as pDate from tb_picture tp  where  tp.travel_notes_id=#{travelNotesId} and tp.p_isno_delete=0
+	</select>
+	<!-- 获取便签列表页某一便签的贴士数--> 
+	<select id="obtainOneNotesTipsNumber" parameterType="Long" resultType="Integer">
+		select count(ttc.country_tips_id) from tb_tips_column ttc where ttc.tc_belong_id=#{travelNotesId} AND ttc.tc_type=2
+	</select>
+	
+	
+	<!-- 获得首页国家列表 -->
+	<select id="obtainCountryList" parameterType="java.util.HashMap"
+		resultType="java.util.HashMap">
+
+		select DISTINCT (select count(tn2.travel_notes_id) from tb_travel_notes tn2 where tn2.tn_isno_delete=0 and tn2.country_id=c.country_id and 
+		tn2.user_id in(SELECT user_id FROM tb_user u WHERE u_type=2 or u_type=3 OR user_id=#{userId} or exists(SELECT f.f_passive_people_id
+		FROM tb_friends as f where f.f_isno_delete=0 and f.f_initiative_people_id=#{userId} and f.f_passive_people_id=u.user_id
+ ))) as notesNum,
+ (select count(ttc.country_tips_id) from tb_tips_column ttc,tb_travel_notes tbtn
+	  where ttc.tc_belong_id=tbtn.travel_notes_id AND tbtn.tn_isno_delete=0 AND ttc.country_id=c.country_id AND
+		ttc.user_id in(SELECT user_id FROM tb_user u WHERE u_type=2 or u_type=3 OR user_id=#{userId}
+or exists(SELECT f.f_passive_people_id
+		FROM tb_friends as f where f.f_isno_delete=0 and f.f_initiative_people_id=#{userId}
+		and f.f_passive_people_id=u.user_id
+ ))) as tipsNum,
+		c.country_id as countryId,c.c_english as countryName ,c.c_simple as simpleName,
+		c.c_traditional as traditionalName,c.c_picture as countryPicture, tn.tn_newtime
+		from tb_country c LEFT JOIN  
+		  (SELECT DISTINCT country_id ,tn_newtime,user_id,tn_isno_delete FROM tb_travel_notes	ORDER BY tn_newtime DESC ) tn 
+         on c.country_id=tn.country_id  and tn.tn_isno_delete=0 
+		where tn.user_id=#{userId} and tn.tn_isno_delete=0
+		or exists(select f.f_passive_people_id from tb_friends f where
+		f.f_initiative_people_id=#{userId} and
+		f.f_passive_people_id=tn.user_id and f.f_isno_delete=0)
+
+		or exists(select u.user_id from tb_user u where u.user_id=tn.user_id and
+		u.delete_flag=0 and (u.u_type=2 or u.u_type=3))
+		ORDER BY tn.tn_newtime desc limit ${startIndex},${size}
+		
+
+	</select>
+
+	<!-- 获得首页国家列表 数量 -->
+	<select id="obtainCountryListCount" parameterType="java.util.HashMap"
+		resultType="Integer">
+
+		select count( DISTINCT tn.country_id) from tb_travel_notes as tn INNER JOIN
+		tb_country c on tn.country_id=c.country_id where tn.user_id=#{userId}
+		or exists(select f.f_passive_people_id from tb_friends f where
+		f.f_initiative_people_id=#{userId} and
+		f.f_passive_people_id=tn.user_id and f.f_isno_delete=0)
+		or exists(select u.user_id from tb_user u where u.user_id=tn.user_id and
+		u.delete_flag=0 and u.u_type=2)
+
+	</select>
+
+    <!--初始化时候的列表，某个国家下面的， -->
+	<select id="obtainOneCountryTipsList1" parameterType="java.util.HashMap"
+		resultType="java.util.HashMap">
+		SELECT
+		tn.tn_date as travelNotesNewTime,tn.travel_notes_id as travelNotesId, tn.tn_isno_complete as isnoComplete ,
+		tn.tn_comments_num as commentsNum, tn.tn_praise_num as praiseNum,
+		tn.user_id as userId ,tn.tn_title as title
+		FROM
+		tb_travel_notes as tn
+		WHERE
+		tn.country_id=#{countryId} AND tn.tn_isno_delete=0
+	 
+		AND (
+		(user_id IN
+		(SELECT f.f_passive_people_id
+		FROM tb_friends as f ,tb_user_travel_style as trs
+		WHERE f.f_isno_delete=0 and f.f_initiative_people_id=#{userId}
+		and trs.user_id=f.f_passive_people_id
+	 
+		))
+		or
+		(user_id IN
+		(		
+		SELECT 
+		 u.user_id 
+		FROM 
+          tb_user as u  
+         WHERE u.delete_flag=0 and (u.u_type=2 or u.u_type=3 OR u.user_id=#{userId})
+          
+      )))
+		order by
+		tn.travel_notes_id DESC
+		limit
+		${startIndex},${size}
+	</select>
+	
+	<!-- 获得某个国家下面的贴士列表 自己的好友的贴士，达人的贴士，官方的贴士，， -->
+	<select id="obtainOneCountryTipsList" parameterType="java.util.HashMap"
+		resultType="java.util.HashMap">
+		SELECT
+		tn.tn_newtime as travelNotesNewTime,tn.travel_notes_id as travelNotesId, tn.tn_isno_complete as isnoComplete ,
+		tn.tn_comments_num as commentsNum, tn.tn_praise_num as praiseNum,
+		tn.user_id as userId ,tn.tn_title as title
+		FROM
+		tb_travel_notes as tn
+		WHERE
+		tn.country_id=#{countryId} AND tn.tn_isno_delete=0
+		<if test="themeId!=null">
+			and tn.theme_id=#{themeId}
+		</if>
+		AND (
+		(user_id IN
+		(SELECT f.f_passive_people_id
+		FROM tb_friends as f ,tb_user_travel_style as trs
+		WHERE f.f_isno_delete=0 and f.f_initiative_people_id=#{userId}
+		and trs.user_id=f.f_passive_people_id
+		<if test="travelStyleId!=null">
+			and trs.travel_style_id=#{travelStyleId}
+		</if>
+		))
+		or
+		(user_id IN
+		(		
+		SELECT 
+		 u.user_id 
+		FROM 
+          tb_user as u ,tb_user_travel_style as trs
+        WHERE u.delete_flag=0 and (u.u_type=2 or u.u_type=3 OR u.user_id=#{userId})
+          and trs.user_id=u.user_id
+     <if test="travelStyleId!=null">
+       and trs.travel_style_id=#{travelStyleId}
+     </if>
+      )))
+		order by
+		tn.travel_notes_id DESC
+		limit
+		${startIndex},${size}
+	</select>
+
+	<!-- 获得某个国家下面的贴士列表 -->
+	<select id="obtainOneCountryTipsCount" parameterType="java.util.HashMap"
+		resultType="Integer">
+		SELECT
+		count(*)
+		FROM
+		tb_travel_notes as tn
+		WHERE
+		tn.country_id=#{countryId} AND tn.tn_isno_delete=0
+		<if test="themeId!=null">
+			and tn.theme_id=#{themeId}
+		</if>
+		AND (
+		(user_id IN
+		(SELECT f.f_passive_people_id
+		FROM tb_friends as f ,tb_user_travel_style as trs
+		WHERE f.f_isno_delete=0 and f.f_initiative_people_id=#{userId}
+		and trs.user_id=f.f_passive_people_id
+		<if test="travelStyleId!=null">
+			and trs.travel_style_id=#{travelStyleId}
+		</if>
+		))
+		or
+		(user_id IN
+		(SELECT 
+		 u.user_id 
+		FROM 
+          tb_user as u ,tb_user_travel_style as trs
+        WHERE u.delete_flag=0 and (u.u_type=2 or u.u_type=3 OR u.user_id=#{userId})
+          and trs.user_id=u.user_id
+     <if test="travelStyleId!=null">
+       and trs.travel_style_id=#{travelStyleId}
+     </if>)
+		))
+
+
+
+		
+	</select>
+
+
+
+
+	<!-- 获得封面  -->
+	<select id="obtainCoverPicture"  parameterType="Long" resultType="java.util.HashMap">
+		SELECT 
+		  p_picture,p_width,p_height
+		FROM 
+		  tb_picture
+		WHERE 
+		  travel_notes_id=#{value} AND p_isno_cover=1 AND p_isno_delete = 0
+		limit
+		0,1
+	</select>
+
+	<select id="obtainFakeCoverPicture" resultType="java.util.HashMap" parameterType="java.lang.Long">
+		SELECT
+			p_picture,p_width,p_height
+		FROM tb_picture
+		WHERE p_isno_delete = 0 AND p_isno_cover = 0 AND travel_notes_id = #{value}
+		ORDER BY p_date DESC
+		limit 0,1
+	</select>
+
+	<!-- 获得用户 -->
+	<select id="obtainUserInfo" parameterType="Long" resultType="java.util.HashMap">
+		SELECT
+		u_nickname as nickname, u_picture as headPicture, user_id as userId
+		FROM
+		tb_user
+		WHERE
+		user_id=#{value}
+		limit
+		0,1
+	</select>
+
+	<!-- 获得贴士图片 -->
+	<select id="obtainTipsInfoPic" parameterType="Long" resultType="java.util.HashMap">
+		SELECT p_picture as headPicture,p_width,p_height
+		FROM tb_picture
+		WHERE picture_id=#{value}
+	</select>
+
+	<!-- 获得活动图片 -->
+	<select id="obtainActivityInfoPic" parameterType="Long" resultType="java.util.HashMap">
+	    SELECT ap_picture as ap_picture
+		FROM tb_activity_picture
+		WHERE ap_id=#{value}
+	</select>
+
+	<!-- 获得旅游风格 -->
+	<select id="obtainStyleList" parameterType="Long" resultType="java.util.HashMap">
+		SELECT
+		ts_black_picture as stylePicture, travel_style_id as styleId
+		FROM
+		tb_travel_style
+		WHERE
+		travel_style_id
+		in
+		(SELECT travel_style_id FROM tb_user_travel_style WHERE user_id=#{value})
+	</select>
+
+
+
+	<!-- 获取游记的某些信息 -->
+	<select id="obtainNotesInfoToTips" parameterType="String"
+		resultType="java.util.HashMap">
+		SELECT
+		tn.user_id as userId,tn.tn_isno_complete as isnoComplete,tn.tn_title as
+		title,tn.tn_date as notesDate, t.t_name as name, t.t_simple_name as
+		simpleName, t.t_traditional_name as traditionalName
+		,
+		t.t_noclick_picture as noclickPicture,t.t_click_picture as
+		clickPicture,
+		t.t_white_picture as whitePicture,t.t_black_picture as blackPicture,tn.country_id as
+		countryId
+		FROM
+		tb_travel_notes as tn LEFT JOIN tb_theme as t on tn.theme_id=t.theme_id
+		WHERE
+		tn.travel_notes_id=#{value}
+		limit
+		0,1
+	</select>
+
+
+	<!-- 获得游记下面的贴士 -->
+	<select id="obtainOneNotesTipsList" parameterType="java.util.HashMap"
+		resultType="java.util.HashMap">
+
+		SELECT
+		p.picture_id as tipsId,p.p_address as address,p.p_description as
+		content,p.p_picture as tipsPicture,p_width,p_height
+		,p.p_praise_num as praiseNum,p.p_comments_num as commentsNum,p_date as
+		tipsDate,p.p_isno_cover as isnoCover,
+		ifnull(
+		(select
+		sum( tt.tt_type)
+		from tb_travel_tips as tt
+		where tt.travel_tips_id in
+		(select travel_tips_id from tb_travel_tips_picture as ttp where
+		ttp.picture_id=p.picture_id) ),0) as type,
+		(select count(*) from tb_praise pr where pr.user_id=#{userId} and
+		pr.picture_id=p.picture_id) as isPraised
+		FROM
+		tb_picture as p
+		WHERE
+		p.travel_notes_id=#{travelNotesId} AND p.p_isno_delete=0
+		order by   sort asc
+-- 		p.p_date asc
+		limit
+		${startIndex},${size}
+	</select>
+
+	<!-- 获得游记下面的贴士总数 -->
+	<select id="obtainOneNotesTipsCount" parameterType="java.util.HashMap"
+		resultType="Integer">
+		SELECT
+		count(*)
+		FROM
+		tb_picture as p,tb_travel_tips as tt
+		WHERE
+		p.travel_notes_id=#{travelNotesId} AND p.p_isno_delete=0 and tt.travel_tips_id in
+		(select travel_tips_id from tb_travel_tips_picture as ttp where
+		ttp.picture_id=p.picture_id)
+	</select>
+	<!-- 获得游记下的点赞总数 -->
+
+	<!-- 获取贴士下面的评论 真删除 -->
+	<select id="obtainTipsCommentsList" parameterType="java.util.HashMap"
+		resultType="java.util.HashMap">
+		<!-- SELECT
+		c.comments_id as commentsId,c.c_content as commentsContent,c.user_id as userId,c.c_userId as userId2,c.c_nickname as nickname
+		,u.u_picture as userPicture,u.u_nickname as userName,c.c_time as
+		commentTime
+		FROM
+		tb_comments as c,tb_user as u
+		WHERE
+		c.picture_id=#{tipsId} and u.user_id=c.user_id
+		order by
+		c.comments_id 
+		limit ${startIndex},${size}
+		  -->
+		
+		SELECT
+		c.comments_id as commentsId,c.c_content as commentsContent,c.user_id as userId,c.c_userId as c_userId,c.c_nickname as c_nickname
+		,u.u_picture as userPicture,u.u_nickname as userName,c.c_time as
+		commentTime
+		FROM
+		tb_comments as c,tb_user as u
+		WHERE
+		c.picture_id=#{tipsId} and u.user_id=c.user_id
+		order by
+		c.comments_id DESC
+		limit
+		${startIndex},${size}
+	</select>
+
+
+
+	<!-- 获取贴士下面的评论 总数量 -->
+	<select id="obtainTipsCommentsCount" parameterType="java.util.HashMap"
+		resultType="Integer">
+		SELECT
+		count(*)
+		FROM
+		tb_comments as c
+		WHERE
+		c.picture_id=#{tipsId}
+	</select>
+
+	  
+	<insert id="addTipsComments" parameterType="java.util.HashMap">
+		 insert INTO
+		tb_comments(c_content,c_time,picture_id,user_id,c_userId,c_nickname) VALUES (#{commentsContent},#{commentsTime},#{tipsId},#{userId},#{c_userId},#{c_nickname})
+	</insert>
+	<!--
+	<select id="obtainC_userId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select * from tb_comments where user_id=#{user_id}
+	</select>
+	-->
+	
+	
+	<insert id="addTipsComments2" parameterType="java.util.HashMap">
+		insert INTO
+		tb_comments(c_content,c_time,picture_id,user_id) VALUES (#{commentsContent},#{commentsTime},#{tipsId},#{userId})
+	</insert>
+	
+	
+	<!-- 更新评论数量 -->
+	<update id="updateTipsCommentsNum" parameterType="java.util.HashMap">
+		update tb_picture set p_comments_num=p_comments_num+${commentNum}
+		where picture_id=#{tipsId}
+	</update>
+	<update id="updateNotesCommentsNum" parameterType="java.util.HashMap">
+		update tb_travel_notes set tn_comments_num =
+		tn_comments_num+${commentNum}
+		where travel_notes_id = (select
+		travel_notes_id from tb_picture where picture_id=#{tipsId})
+	</update>
+
+	<!-- 点赞 -->
+	<insert id="addTipsPraise" parameterType="java.util.HashMap">
+		insert INTO
+		tb_praise(p_time,picture_id,user_id)
+		VALUES(#{praiseTime},#{tipsId},#{userId})
+	</insert>
+
+	<!-- 取消点赞 -->
+	<delete id="cancelTipsPraise" parameterType="java.util.HashMap">
+		DELETE FROM tb_praise
+		WHERE picture_id = #{tipsId} AND user_id = #{userId}
+	</delete>
+
+	<!-- 更新图片点赞数量 -->
+	<update id="updateTipsPraiseNum" parameterType="java.util.HashMap">
+		update tb_picture set p_praise_num=p_praise_num+${praiseNum} where
+		picture_id=#{tipsId}
+	</update>
+	<!-- 更新游记点赞数量 -->
+	<update id="updateNotesPraiseNum" parameterType="java.util.HashMap">
+		update tb_travel_notes set tn_praise_num = tn_praise_num+${praiseNum}
+		where travel_notes_id = (select travel_notes_id from tb_picture where
+		picture_id=#{tipsId})
+	</update>
+	<!-- 获取主动ID -->
+	<select id="obtainInitiativeId" parameterType="String"
+		resultType="String">
+		SELECT
+		tn.user_id as userId
+		FROM
+		tb_picture as p,tb_travel_notes as tn
+		WHERE
+		p.travel_notes_id=tn.travel_notes_id and p.picture_id=#{value}
+		limit
+		0,1
+	</select>
+	<!-- 获取主动ID即活动照片的上传者 -->
+	<select id="obtainActivityInitiativeId" parameterType="Long"
+			resultType="String">
+		select user_id from tb_activity_picture where ap_id=#{value}
+	</select>
+
+	<!-- 根据验证码获取主动ID -->
+	<select id="obtainInitiativeIdByCode" parameterType="String"
+		resultType="Long">
+		SELECT
+		user_id
+		FROM
+		tb_user
+		WHERE
+		u_invitation_code=#{value}
+		limit
+		0,1
+	</select>
+
+
+
+
+	<!-- 保存上面的消息到推送表中 -->
+	<insert id="addNotificationMessage" parameterType="java.util.HashMap">
+		insert INTO
+		tb_notification_list
+		SET
+		user_id=#{initiativeId},picture=#{headPicture},type=#{type},
+		content=#{content},time=#{addTime},passive_id=#{userId}
+		<if test="tipsId!=null">
+		,picture_id=#{tipsId}
+		</if>
+	</insert>
+
+	<!-- 保存上面的消息到推送表中 -->
+	<insert id="addActivityNotificationMessage" parameterType="java.util.HashMap">
+		insert INTO
+		tb_notification_list
+		SET
+		user_id=#{initiativeId},picture=#{ap_picture},type=#{type},
+		content=#{content},time=#{addTime},passive_id=#{userId}
+		<if test="apId!=null">
+			,picture_id=#{apId}
+		</if>
+	</insert>
+
+
+	<!-- 获取国家名称 英文 -->
+	<select id="obtainCountryName" parameterType="String"
+		resultType="String">
+		SELECT
+		c_english as englishName
+		FROM
+		tb_country
+		WHERE
+		country_id=#{value}
+	</select>
+
+	<!-- 获取国家名称 英 中文 -->
+	<select id="obtainCountrySimpleName" parameterType="String"
+		resultType="String">
+		SELECT
+		c_simple as simpleName
+		FROM
+		tb_country
+		WHERE
+		country_id=#{value}
+	</select>
+
+	<!-- 获取国家名称 英 繁体 -->
+	<select id="obtainCountryTraditionalName" parameterType="String"
+		resultType="String">
+		SELECT
+		c_traditional as traditionalName
+		FROM
+		tb_country
+		WHERE
+		country_id=#{value}
+	</select>
+	<select id="findNoteMoodList" parameterType="String" resultType="HashMap">
+		select pm.mood_id as id,
+
+		CASE WHEN 10000>pm.mood_id THEN
+		mt.mt_name
+		ELSE
+		pm.mood_name
+		END as name,
+		CASE WHEN 10000>pm.mood_id THEN
+		mt.mt_simple_name
+		ELSE
+		pm.mood_name
+		END as simpleName,
+		CASE WHEN 10000>pm.mood_id THEN
+		mt.mt_traditional_name
+		ELSE
+		pm.mood_name
+		END as traditionalName
+
+		from tb_picture_mood pm LEFT JOIN tb_mood_tips mt on
+		pm.mood_id=mt.mood_tips_id
+		where pm.picture_id=#{value}
+	</select>
+	
+	<select id="findNotePraiseList" parameterType="String" resultType="java.util.HashMap">
+		select tp.user_id as userId,tu.u_nickname as nickname ,tu.u_picture as picture
+		 	from tb_praise tp,tb_user tu 
+		 	where tp.user_id=tu.user_id and picture_id=#{value} 
+	</select>
+	
+   <select id="findNoteStyleList" parameterType="String" resultType="HashMap">
+		select tp.travel_tips_id  as id,
+
+CASE WHEN 10000>tp.travel_tips_id THEN
+tt.tt_name
+ELSE 
+tp.travel_tips_name
+END as name,
+CASE WHEN 10000>tp.travel_tips_id THEN
+tt.tt_simple_name
+ELSE 
+tp.travel_tips_name
+END as simpleName,
+CASE WHEN 10000>tp.travel_tips_id THEN
+tt.tt_traditional_name
+ELSE 
+tp.travel_tips_name
+END as traditionalName
+
+from tb_travel_tips_picture tp LEFT JOIN tb_travel_tips tt on tp.travel_tips_id=tt.travel_tips_id
+where tp.picture_id=#{value}
+	</select>
+	
+	 
+	<!-- 更新把空格去掉  -->
+	<update id="updateRecommendFriendsListGang" >
+		update tb_recommend_friends set third_id=replace(third_id,'-','')
+	</update>
+	 
+	<!-- 更新把空格去掉-->
+	<update id="findNoteStyleListKongge">
+		update tb_recommend_friends set third_id=replace(third_id,' ','')
+	</update>
+	 
+	<!-- 更新把空格去掉 -->
+	<update id="findNoteStyleListJiahao">
+		update tb_recommend_friends set third_id=replace(third_id,'+','')
+	</update>
+	
+	<!-- 遍历用户信息 -->
+	<select id="obtainUserList"  resultType="java.util.HashMap">
+		select user_id  as userId,u_phone as phone ,country_code as countryCode from tb_user  WHERE u_type in (1,3)  and delete_flag=0
+	</select>
+	
+    <!-- 如果手机号码是一致的直接变化--> 
+	<update id="updateRecommendFriendsListNum" parameterType="java.util.HashMap">
+		update tb_recommend_friends SET passive_people_id=#{userId}
+		WHERE (third_id=#{phone} OR third_id=#{countryCode}) AND rf_type=2
+	</update>
+	 
+	
+	<!-- 获取好友的好友 -->
+	<select id="obtainFriendListByRecommend"  parameterType="String" resultType="java.util.HashMap">
+		select DISTINCT f1.f_passive_people_id  as friendFriendId 
+		FROM tb_friends as f1  
+		WHERE  f1.f_initiative_people_id 
+		IN(SELECT  f.f_passive_people_id 
+		from tb_friends as f  
+		 WHERE  f.f_initiative_people_id=#{value} AND f.f_isno_delete=0 and f.f_passive_people_id !=6) 
+		AND f1.f_isno_delete=0 and f1.f_passive_people_id !=#{value} and f1.f_passive_people_id !=6
+	</select>
+	
+	
+	
+   <!-- 判断是好友 -->
+	<select id="judgeFriendCountry"  parameterType="java.util.HashMap" resultType="Integer">
+		select COUNT(*)   
+		FROM tb_friends    
+		WHERE f_initiative_people_id =#{userId} 
+		AND f_passive_people_id =#{friendFriendId}
+		AND f_isno_delete=0
+	
+	</select>
+	
+	
+	 <!-- 判断推荐好友中是否有 -->
+	<select id="judgeReconmmendCountry"  parameterType="java.util.HashMap" resultType="Integer">
+		select COUNT(*)   
+		FROM tb_recommend_friends   
+		WHERE user_id =#{userId}   
+		AND passive_people_id =#{friendFriendId} and delete_flag=0
+	
+	</select>
+	
+   <!-- 在推荐表中添加数据 好友的好友-->
+	<insert id="insertRecommendFriendsFriends" parameterType="java.util.HashMap">
+		
+         insert INTO
+		 tb_recommend_friends
+		   (user_id,passive_people_id,rf_type,isno_member,add_time)
+		 VALUES
+		   (#{userId},#{friendFriendId},3,1,#{nowtime})
+	</insert>
+	<!--在推荐表中添加数据-->
+		
+	
+	<!-- 获取完成时最后一张头像-->
+	<select id="obtainHeadPictureByTravelNotesId"  parameterType="String" resultType="java.util.HashMap">
+	  
+    select  
+        p_picture as headPicture,p_width,p_height
+      FROM 
+        tb_picture 
+     WHERE 
+      travel_notes_id=#{value}  AND p_isno_delete=0 and p_isno_cover=1
+      ORDER BY picture_id DESC
+      LIMIT 1
+ 
+	</select>
+
+	<select id="obtainCountryById" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT  tc.c_simple as simpleName,tc.c_traditional as traditionalName,tc.c_english as englishName from tb_country as tc where tc.country_id=#{countryId}
+
+	</select>
+	<!--判断是否存在推荐好友表中-->
+	<select id="judgeIsExistReconmmend" parameterType="java.util.HashMap" resultType="java.lang.Integer">
+		SELECT  COUNT(1) FROM tb_recommend_friends WHERE user_id=#{userId} and passive_people_id=#{recommendId} and rf_type=#{type} and delete_flag=0
+	</select>
+
+
+	<select id="obtainNotesDelete" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT tn.tn_isno_delete as tn_isno_delete FROM tb_travel_notes as tn,tb_picture as p WHERE tn.travel_notes_id=p.travel_notes_id and picture_id=#{pictureId}
+	</select>
+
+
+	<select id="insertManage">
+		INSERT INTO tb_user_travel_notes VALUES (1,2,3)
+	</select>
+	<!--##################新增2.0#####################-->
+	<select id="obtainCountryIdByName" parameterType="String" resultType="String">
+		SELECT country_id FROM tb_country WHERE c_simple=#{value} OR c_traditional=#{value} OR c_english=#{value}
+	</select>
+
+	<select id="isYouOrRecent" parameterType="String" resultType="Long">
+		    select passive_id from tb_notification_list where  notification_list_id=#{value}
+	</select>
+
+	<!-- 忽略好友请求  -->
+	<delete id="deleteActivityPicturePraiseNotification" parameterType="java.util.HashMap" >
+		delete from tb_notification_list where
+		user_id=#{initiativeId} and type=#{type}  and
+		picture_id=#{apId} and passive_id=#{userId}
+	</delete>
+</mapper>

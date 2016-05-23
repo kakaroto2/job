@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="ActivityPictureDao">
+    <resultMap id="ActivityPictureMap" type="com.yoloboo.models.ActivityPictureModel">
+        <id column="id" property="id" jdbcType="NUMERIC"/>
+        <result column="a_id" property="a_id" jdbcType="NUMERIC"/>
+        <result column="user_id" property="user_id" jdbcType="NUMERIC"/>
+        <result column="pic_url" property="pic_url" jdbcType="VARCHAR"/>
+        <result column="pic_square_url" property="pic_square_url" jdbcType="VARCHAR"/>
+        <result column="date" property="date" jdbcType="TIMESTAMP"/>
+        <result column="praise_num" property="praise_num" jdbcType="NUMERIC"/>
+        <result column="comment_num" property="comment_num" jdbcType="NUMERIC"/>
+        <result column="awards_id" property="awards_id" jdbcType="NUMERIC"/>
+        <result column="address" property="address" jdbcType="VARCHAR"/>
+        <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="u_nickname" property="u_nickname" jdbcType="VARCHAR"/>
+        <result column="u_picture" property="u_picture" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_ActivityPictureList">
+        ap_id AS id, activity_id AS a_id, user_id, ap_picture AS pic_url, ap_picture_square AS pic_square_url,
+        ap_date AS date, ap_praise_num AS praise_num, commennum AS comment_num, awards_id AS awards_id, address, content
+    </sql>
+
+    <sql id="Base_GetActivityPictureList">
+        t.ap_id AS id, t.activity_id AS a_id, t.user_id, t.ap_picture AS pic_url, t.ap_picture_square AS pic_square_url,
+        t.ap_date AS date, t.ap_praise_num AS praise_num, t.commennum AS comment_num, t.awards_id AS awards_id, t.address, t.content
+        ,s.u_nickname,s.u_picture
+        FROM tb_activity_picture t,tb_user s
+    </sql>
+
+    <select id="getModelByPK" resultMap="ActivityPictureMap" parameterType="java.lang.Long">
+        SELECT
+        <include refid="Base_ActivityPictureList"/>
+        FROM tb_activity_picture
+        WHERE ap_id = #{value}
+    </select>
+
+    <select id="getActivityPictureListByAId0" parameterType="com.yoloboo.controller.bean.ActivityBean" resultMap="ActivityPictureMap">
+        (SELECT
+        <include refid="Base_GetActivityPictureList"/>
+        WHERE activity_id = #{aId}
+        and t.user_id=s.user_id and s.user_id in (${userId})
+        order by ap_date desc limit 9999999)
+
+        union
+
+        (SELECT
+        <include refid="Base_GetActivityPictureList"/>
+        WHERE activity_id = #{aId}
+        and t.user_id=s.user_id and s.user_id not in(${userId})
+        order by ap_praise_num desc limit 9999999)
+
+        limit ${startIndex},${size}
+    </select>
+
+    <select id="getActivityPictureListByAId1" parameterType="com.yoloboo.controller.bean.ActivityBean" resultMap="ActivityPictureMap">
+        SELECT
+        t.ap_id AS id, t.activity_id AS a_id, t.user_id, t.ap_picture AS pic_url, t.ap_picture_square AS pic_square_url,
+        t.ap_date AS date, t.ap_praise_num AS praise_num, t.commennum AS comment_num, t.awards_id AS awards_id, t.address, t.content
+        ,s.u_nickname,s.u_picture
+        FROM tb_activity_picture t,tb_user s
+        WHERE activity_id = #{aId}
+        and t.user_id=s.user_id
+        order by awards_id desc
+        ,ap_praise_num desc
+        limit ${startIndex},${size}
+    </select>
+
+    <select id="getActivityPictureListByAId2" parameterType="com.yoloboo.controller.bean.ActivityBean" resultMap="ActivityPictureMap">
+        SELECT
+        t.ap_id AS id, t.activity_id AS a_id, t.user_id, t.ap_picture AS pic_url, t.ap_picture_square AS pic_square_url,
+        t.ap_date AS date, t.ap_praise_num AS praise_num, t.commennum AS comment_num, t.awards_id AS awards_id, t.address, t.content
+        ,s.u_nickname,s.u_picture
+        FROM tb_activity_picture t,tb_user s
+        WHERE activity_id = #{aId}
+        and t.user_id=s.user_id
+        order by ap_praise_num desc
+        ,ap_date desc
+        limit ${startIndex},${size}
+    </select>
+
+    <select id="cntAwardedPic" parameterType="Long" resultType="Integer">
+        select count(ap_id) from tb_activity_picture
+        where activity_id = #{aId} and awards_id is not null
+    </select>
+
+
+    <select id="isPariseByUser" parameterType="java.lang.Object" resultType="Integer">
+        SELECT COUNT(*)  from tb_activity_picture_praise  where user_id=#{user_id} and picture_id=#{picture_id}
+    </select>
+
+
+    <insert id="addActivityPicture">
+        INSERT INTO tb_activity_picture(activity_id,user_id,ap_picture,ap_picture_square,ap_date,address,content)
+        VALUES (#{aId},#{userId},#{picture},#{picture_square},#{date},#{address},#{pictureContent})
+    </insert>
+
+    <select id="getLastInsertEntity" resultMap="ActivityPictureMap">
+        SELECT
+        <include refid="Base_ActivityPictureList"/>
+        FROM tb_activity_picture
+        WHERE ap_id = (select max(ap_id) from tb_activity_picture)
+    </select>
+
+    <update id="addPcomments" parameterType="com.yoloboo.controller.bean.ActivityBean">
+        update tb_activity_picture set commennum=commennum+1 where ap_id=#{apId}
+    </update>
+
+    <update id="cancelPcomments" parameterType="com.yoloboo.controller.bean.ActivityBean">
+        update tb_activity_picture set commennum=commennum-1 where ap_id=#{apId}
+    </update>
+
+    <update id="deletePcomments" parameterType="java.lang.Long">
+        update tb_activity_picture set commennum=commennum-1 where ap_id=
+        (select activity_picture_id from tb_activity_picture_comments where apc_id = #{apcId})
+    </update>
+
+    <update id="addPraise" parameterType="com.yoloboo.controller.bean.ActivityBean">
+        update tb_activity_picture set ap_praise_num=ap_praise_num+1 where ap_id=#{apId}
+    </update>
+
+    <update id="cancelPraise" parameterType="com.yoloboo.controller.bean.ActivityBean">
+        update tb_activity_picture set ap_praise_num=ap_praise_num-1 where ap_id=#{apId}
+    </update>
+
+    <select id="getNotificationById" resultType="java.util.HashMap" parameterType="java.lang.String">
+        select * from tb_notification_list where notification_list_id=#{notificationListId}
+    </select>
+
+</mapper>

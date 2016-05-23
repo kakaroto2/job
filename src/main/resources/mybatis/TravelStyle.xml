@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="TravelStyleDao">
+
+    <resultMap id="TravelStyleMap" type="com.yoloboo.models.TravelStyleModel">
+        <id column="id" property="id" jdbcType="NUMERIC"/>
+        <result column="nameEn" property="nameEn" jdbcType="VARCHAR"/>
+        <result column="whitePicture" property="whitePicture" jdbcType="VARCHAR"/>
+        <result column="blackPicture" property="blackPicture" jdbcType="VARCHAR"/>
+        <result column="greyPicture" property="greyPicture" jdbcType="VARCHAR"/>
+        <result column="noclickPicture" property="noclickPicture" jdbcType="VARCHAR"/>
+        <result column="clickPicture" property="clickPicture" jdbcType="VARCHAR"/>
+        <result column="bgPicture" property="bgPicture" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_column_List">
+        travel_style_id AS id, ts_name AS nameEn,
+        ts_white_picture AS whitePicture, ts_black_picture AS blackPicture, ts_grey_picture AS greyPicture,
+        ts_noclick_picture AS noclickPicture, ts_click_picture AS clickPicture, ts_bg_picture AS  bgPicture
+    </sql>
+
+    <select id="selectUserTravelStyle" resultMap="TravelStyleMap" parameterType="java.lang.Long">
+        SELECT  tts.travel_style_id AS id, ts_name AS nameEn,
+        ts_white_picture AS whitePicture, ts_black_picture AS blackPicture, ts_grey_picture AS greyPicture,
+        ts_noclick_picture AS noclickPicture, ts_click_picture AS clickPicture, ts_bg_picture
+        FROM tb_travel_style as tts LEFT JOIN tb_user_travel_style as tuts ON tts.travel_style_id = tuts.travel_style_id
+        WHERE tuts.user_id = #{userId}
+    </select>
+
+    <select id="getModelByPK" resultMap="TravelStyleMap" parameterType="java.lang.Long">
+        SELECT
+        <include refid="Base_column_List"/>
+        FROM tb_travel_style
+        WHERE travel_style_id = #{value}
+
+    </select>
+
+</mapper>

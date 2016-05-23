@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="PraiseDao">
+    <resultMap id="BaseResultMap" type="com.yoloboo.models.PraiseModel">
+        <id column="praiseId" property="id" jdbcType="NUMERIC"/>
+        <result column="pictureId" property="pictureId" jdbcType="NUMERIC"/>
+        <result column="userId" property="userId" jdbcType="NUMERIC"/>
+        <result column="userPicture" property="userPicture" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getPraiseModelsByPictureId" resultMap="BaseResultMap" parameterType="com.yoloboo.controller.bean.PraiseBean">
+        SELECT tu.user_id as userId,tu.u_picture as userPicture
+        FROM
+          tb_praise as tp ,tb_user as tu
+        WHERE tp.picture_id=#{pictureId} AND tp.user_id=tu.user_id
+        ORDER BY tp.p_time DESC
+        limit ${startIndex},${size}
+    </select>
+    <select id="getPraiseModelsNormal" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT tu.user_id as userId,tu.u_picture as userPicture
+        FROM
+          tb_praise as tp ,tb_user as tu
+        WHERE tp.picture_id=#{value} AND tp.user_id=tu.user_id
+        ORDER BY tp.p_time DESC
+    </select>
+</mapper>

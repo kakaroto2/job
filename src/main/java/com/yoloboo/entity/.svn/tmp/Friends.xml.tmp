@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+    "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="friends">
+
+	<!-- 获取好友的列表  -->
+	<select id="friendsUserList" parameterType="String" resultType="java.util.HashMap" >
+		select 
+		  DISTINCT f_passive_people_id as userId
+        from 
+           tb_friends
+        WHERE 
+           f_initiative_people_id=#{value} 
+        
+	</select>
+	
+	<!-- 通过游记ID   用户ID和国家ID  -->
+	<select id="obtainByTravelNotesId" parameterType="String" resultType="java.util.HashMap" >
+		select 
+		   user_id as userId,country_id as countryId
+        from 
+           tb_travel_notes 
+        WHERE 
+            travel_notes_id=#{value} 
+	</select>
+	
+	
+	<!-- 获取所有人的列表  -->
+	<select id="allUserList"  resultType="java.util.HashMap" >
+		select 
+		   user_id as userId
+        from 
+           tb_user
+	</select>
+	
+	<!-- 插入新添加的游记和国家  -->
+	<select id="insertTravelNotesRead"  parameterType="java.util.HashMap" >
+	  insert into tb_travel_notes_read 
+       (user_id, country_id, trn_isno_new_notes) 
+      select #{userId} ,#{countryId},1 
+      from 
+        tb_travel_notes_read 
+      where not exists 
+     (
+       select * from 
+         tb_travel_notes_read 
+       where 
+         user_id = #{userId} and country_id =#{countryId}
+      )
+	</select>
+	
+	
+	<!-- 更新阅读关系  -->
+	<select id="updateTravelNotesRead" parameterType="java.util.HashMap" >
+	  update 
+	     tb_travel_notes_read 
+      set
+         trn_isno_new_notes=1 ,trn_notes_num=trn_notes_num+1
+      where
+         user_id = #{userId} and country_id =#{countryId}
+   
+	</select>
+	
+	
+	<!-- 忽略好友请求  -->
+	<delete id="ignoreFriends" parameterType="java.util.HashMap" >
+	 DELETE FROM 
+	     tb_recommend_friends 
+	  WHERE 
+	    user_id=#{userId} and passive_people_id=#{passivePeopleId}  
+   
+	</delete>
+	
+	<!-- 判断是否为好友   继续在这里-->
+	<select id="judgeFriends" parameterType="java.util.HashMap"  resultType="Integer">
+     select 
+	     count(*) 
+     FROM
+       tb_friends
+     WHERE
+       f_initiative_people_id=#{userId} and f_passive_people_id=#{passivePeopleId}
+   
+	</select>
+	
+	<!-- 添加好友  -->
+	<insert id="addFriends" parameterType="java.util.HashMap" >
+	 INSERT INTO 
+<<<<<<< .mine
+       tb_friends 
+     SET 
+       f_initiative_people_id=#{userId} 
+       ,
+       f_passive_people_id=#{passivePeopleId}
+=======
+       tb_friends(f_initiative_people_id,f_passive_people_id) values(#{userId},#{passivePeopleId})
+>>>>>>> .r91
+	</insert>
+	
+	<!-- 已经添加好友删除推荐的 -->
+	<update id="addedDeleteFriends" parameterType="java.util.HashMap" >
+	  update  
+       tb_recommend_friends
+      set
+       delete_flag=1
+      WHERE 
+        user_id=#{userId}  AND passive_people_id=#{passivePeopleId}
+	</update>
+	
+	
+	<!-- 判断微博好友 -->
+	<select id="judgeWeiboFriends" parameterType="java.util.HashMap" resultType="Integer">
+	 select 
+	     count(*) 
+     FROM
+       tb_recommend_friends
+     WHERE
+      user_id=#{userId} and third_id=#{thirdId}
+	</select>
+	
+	<!-- 找到好友的Id -->
+	<select id="isnoMember" parameterType="java.util.HashMap" resultType="String">
+	  select 
+	     user_id
+     FROM
+       tb_user
+     WHERE
+      u_sina_id=#{thirdId}
+      LIMIT 0,1
+	</select>
+	
+	<!--增加该微博ID -->
+	<insert id="addWeiboFriends" parameterType="java.util.HashMap">
+	  INSERT INTO
+       tb_recommend_friends(user_id,third_id,passive_people_id,rf_type,isno_member)
+       values(#{userId},#{thirdId},#{passiveId},#{type},#{isnoMember})
+	</insert>
+	
+	
+	<!-- 找到facebook的Id -->
+	<select id="isnoMemberFacebook" parameterType="java.util.HashMap" resultType="String">
+	  select 
+	     user_id
+     FROM
+       tb_user
+     WHERE
+      u_facebook_id=#{thirdId}
+     LIMIT 0,1
+	</select>
+	
+	<!-- 找到通讯录的Id -->
+	<select id="isnoMemberAddress" parameterType="java.util.HashMap" resultType="String">
+	  select 
+	     user_id
+     FROM
+       tb_user
+     WHERE
+      u_phone=#{thirdId}
+     LIMIT 0,1
+	</select>
+	
+	
+	<!-- 要增加判断，如果是朋友圈新的国家也要推送 -->
+	<select id="obtainnewCountryNum" parameterType="java.util.HashMap" resultType="Integer">
+	  select 
+	     count(*)
+     FROM
+       tb_friends as f,tb_travel_notes as tn
+     WHERE
+       f.f_passive_people_id=tn.user_id AND f.f_initiative_people_id=#{userId}
+       AND f.f_isno_delete=0 AND tn.country_id=#{countryId}
+      
+	</select>
+	
+	
+	
+</mapper>

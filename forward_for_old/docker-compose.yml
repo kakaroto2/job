@@ -1,0 +1,4 @@
+yolobooapi:
+   build: .
+   ports:
+      - "9999:80"

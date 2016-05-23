@@ -1,0 +1,297 @@
+package com.yoloboo.service.impl;
+
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.common.Commonparam;
+import com.common.ExceptionMyself;
+import com.common.HttpXmlUtil;
+import com.json.BaseBean;
+import com.yoloboo.service.TravelManager;
+
+@Service
+@Transactional
+public class TravelManagerImpl implements TravelManager {
+	@Autowired
+	private SqlSessionTemplate sqlSession;
+
+	public TravelManagerImpl() {
+	}
+ 
+		
+	//编辑是否是封面
+	@Override
+	public void editIsnocover(HashMap param) {
+		sqlSession.update("travel.editIsnocoverTravel", param.get("travelNotesId"));//把所有的游记是封面取消
+		sqlSession.update("travel.editIsnocoverPicture", param.get("pictureTipsId"));//把这个贴士改为游记的封面
+	}
+		
+	// 获得旅行风格
+	@SuppressWarnings("rawtypes")
+	@Override
+	public List obtainTravelStyle() {
+		return (List) sqlSession.selectList("travel.obtainTravelStyle");
+	}
+
+	
+	// 获得旅行主题
+	@SuppressWarnings("rawtypes")
+	@Override
+	public List obtainTravelTheme() {
+		return (List) sqlSession.selectList("travel.obtainTravelTheme");
+	}
+ 
+	// 常用地址查询
+	@SuppressWarnings("rawtypes")
+	@Override
+	public List inputAddressQuery(String content) {
+		return (List) sqlSession.selectList("travel.inputAddressQuery",content);
+	}
+
+	// 获取贴士标签
+	@SuppressWarnings("rawtypes")
+	@Override
+	public List obtainNotesTips() {
+		return (List) sqlSession.selectList("travel.obtainNotesTips");
+	}
+
+	// 获取心情标签
+	@SuppressWarnings("rawtypes")
+	@Override
+	public List obtainMoodTips() {
+		return (List) sqlSession.selectList("travel.obtainMoodTips");
+	}
+	
+	//添加游记并获得游记ID
+	@SuppressWarnings("rawtypes")
+	@Override
+	public synchronized Long addTravelNotes(HashMap param) {
+		sqlSession.insert("travel.insertTravelNotes", param);
+		return (Long) sqlSession.selectOne("travel.obtainTravelNotesId",param);
+	}
+
+	
+	//添加贴士并且获得到贴士ID
+	@SuppressWarnings("rawtypes")
+	@Override
+	public String newPictureTips(HashMap param) {
+		sqlSession.insert("travel.newPictureTips", param);
+		return (String) sqlSession.selectOne("travel.obtainPictureTipsId",param);
+	}
+	 
+	
+	//新增心情比标签和贴士关系
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void moodTipsPicture(HashMap param) {
+		sqlSession.insert("travel.moodTipsPicture", param);
+	}
+	 
+	//新增贴士标签和贴士关系
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void notesTipsPicture(HashMap param) {
+		sqlSession.insert("travel.notesTipsPicture", param);
+	}
+
+	//删除贴士
+	@Override
+	public void deletePictureTips(HashMap param) {
+		sqlSession.update("travel.deletePictureTips", param);
+	}
+	
+	
+	//编辑贴士
+	@Override
+	public void modifyPictureTips(HashMap param) {
+		sqlSession.update("travel.modifyPictureTips", param);
+	}
+	
+	
+	
+	//删除所有与贴士相关的心情标签和贴士标签
+	@Override
+	public void deleteNotesMoodTipsPicture(HashMap param) {
+		sqlSession.delete("travel.deleteNotesTipsPicture", param);
+		sqlSession.delete("travel.deleteMoodTipsPicture", param);
+	}
+	 
+	
+	//编辑游记
+	@Override
+	public void modifyNotes(HashMap param) {
+		sqlSession.update("travel.modifyNotes", param);
+	}
+	
+	// 问题
+	@SuppressWarnings("rawtypes")
+	@Override
+	public HashMap obtainQuestion() {
+		return (HashMap) sqlSession.selectOne("travel.obtainQuestion");
+	}
+
+
+	// 问题答案
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void questionAnswer(HashMap param) {
+		 sqlSession.insert("travel.questionAnswer",param);
+	}
+	
+	
+	// 把游记阅读关系表改一下，每个好友的都改一下
+	
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void travelNotesRead(HashMap param) {
+		//判断是不是达人，或者官方账号，如果是的，把所有的全部修改了
+		//如果是达人或者官方，需要把所有会员的阅读改为未读，如果这个好友还没有数据阅读过该国家，还应该再去新增一条记录，如果不是应该是好友的
+		//userId=param.get("userId");
+		Integer uType= (Integer) sqlSession.selectOne("User.judgeMaster",param.get("userId"));//查询是否是达人或者官方账号
+		List<HashMap> userIdList;
+		if(uType==1){//读取好友的
+			userIdList=(List<HashMap>) sqlSession.selectList("friends.friendsUserList",param.get("userId"));
+		}
+		else
+		{//读取所有的
+		   userIdList=(List<HashMap>) sqlSession.selectList("friends.allUserList");
+		}
+		HashMap param1= new HashMap();
+		//把所有需要阅读关系都更新了
+		for(int i=0;i<userIdList.size();i++){
+			param1.clear();
+			param1.put("userId", userIdList.get(i).get("userId"));
+			param1.put("countryId", param.get("countryId"));
+			sqlSession.insert("friends.insertTravelNotesRead",param1);
+			sqlSession.update("friends.updateTravelNotesRead",param1);
+		}
+		
+		 
+	}
+	
+	//获得问题是否是国家贴士，是的话保存该条数据
+	@SuppressWarnings("rawtypes")
+	@Override
+	public HashMap obtainQuestionType(String questionId) {
+		return (HashMap) sqlSession.selectOne("travel.obtainTipsPictureType",questionId);
+	} 
+	
+	
+	//添加贴士列表内容
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void addTipsDataContent(HashMap param) {
+		 sqlSession.insert("tips.addTipsDataContent",param);
+	}
+
+	//贴士贴士到贴士列表中，这个是 图片的
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void addPitureToTipsDataContent(HashMap param) {
+		 sqlSession.insert("tips.addPitureToTipsDataContent",param);
+	}
+	
+	
+	
+	//把每个好友中的通知全部放到这个里面
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public void addNotificationMessageWithFriends(HashMap param) {
+			
+		 
+			List<HashMap> userIdList=(List<HashMap>) sqlSession.selectList("friends.friendsUserList",param.get("userId"));
+			HashMap param2=(HashMap) sqlSession.selectOne("country.obtainUserInfo",param.get("userId"));
+			
+			HashMap param1= new HashMap();
+			for(int i=0;i<userIdList.size();i++){
+				param1.clear();
+				param1.put("initiativeId", userIdList.get(i).get("userId"));
+				param1.put("userId", param.get("userId"));
+				param1.put("praiseTime", Commonparam.Date2Str());
+				String content;
+				content=param2.get("nickname")+"[replace]"+param.get("countryName")+"[replace2]";
+				param1.put("content",content);
+				param1.put("type", 5);
+				param1.put("headPicture", param.get("picture"));
+				
+				sqlSession.insert("country.addNotificationMessage",param1);
+			}
+		}
+		
+		//新建贴士的时候把每个好友中的通知全部放到这个里面
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public void addNotificationTipsWithFriends(HashMap param) {
+			//获取用户ID
+			HashMap param3= (HashMap) sqlSession.selectOne("friends.obtainByTravelNotesId",param.get("travelNotesId"));
+			List<HashMap> userIdList= (List<HashMap>) sqlSession.selectList("friends.friendsUserList",param3.get("userId"));
+			HashMap param2=(HashMap) sqlSession.selectOne("country.obtainUserInfo",param3.get("userId"));
+			
+			HashMap param1= new HashMap();
+			for(int i=0;i<userIdList.size();i++){
+				param1.clear();
+				param1.put("initiativeId", userIdList.get(i).get("userId"));
+				param1.put("userId", param3.get("userId"));
+				param1.put("praiseTime", Commonparam.Date2Str());
+				String content;
+				content=param2.get("nickname")+"[replace]["+param3.get("countryId")+"][replace2]";
+				param1.put("content",content);
+				param1.put("type", 6);
+				param1.put("headPicture", param.get("picture"));
+				
+				sqlSession.insert("country.addNotificationMessage",param1);
+			}
+		}
+		
+		
+		//完成游记把每个好友中的通知全部放到这个里面
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public void addNotificationCompeleteWithFriends(HashMap param) {
+			//获取用户ID
+			HashMap param3= (HashMap) sqlSession.selectOne("friends.obtainByTravelNotesId",param.get("travelNotesId"));
+			List<HashMap> userIdList= (List<HashMap>) sqlSession.selectList("friends.friendsUserList",param3.get("userId"));
+			HashMap param2=(HashMap) sqlSession.selectOne("country.obtainUserInfo",param3.get("userId"));
+			HashMap countryNumMap= new HashMap();
+			HashMap param1= new HashMap();
+			for(int i=0;i<userIdList.size();i++){
+				param1.clear();
+				param1.put("initiativeId", userIdList.get(i).get("userId"));
+				param1.put("userId", param3.get("userId"));
+				param1.put("praiseTime", Commonparam.Date2Str());
+				String content;
+				content=param2.get("nickname")+"[replace]["+param3.get("countryId")+"][replace2]";
+				param1.put("content",content);
+				param1.put("type", 7);
+				param1.put("headPicture", param.get("picture"));
+				
+				sqlSession.insert("country.addNotificationMessage",param1);
+				
+				//要增加判断，如果是朋友圈新的国家也要推送
+				countryNumMap.put("userId", userIdList.get(i));
+				countryNumMap.put("countryId", param3.get("countryId"));
+				Integer newCountryNum=(Integer) sqlSession.selectOne("friends.obtainnewCountryNum",countryNumMap);
+				if(newCountryNum==0){
+					param1.put("type", 8);
+					sqlSession.insert("country.addNotificationMessage",param1);
+				}
+
+			}
+		}
+		
+		
+		
+	
+
+}

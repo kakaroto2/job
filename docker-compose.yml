@@ -1,0 +1,8 @@
+yolobooapi:
+   build: .
+   ports:
+      - "9004:8080"
+   environment:
+      jdbc.url: jdbc:mysql://202.196.1.168:3306/yoloboo?useUnicode=true&amp;characterEncoding=UTF-8&amp;autoReconnect=true
+      jdbc.username: yoloboo
+      jdbc.password: yoloboo@test

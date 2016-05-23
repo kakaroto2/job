@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="ThemeDao">
+
+    <resultMap id="BaseResultMap" type="com.yoloboo.models.ThemeModel">
+        <id column="id" property="id" jdbcType="NUMERIC"/>
+        <result column="nameEn" property="nameEn" jdbcType="VARCHAR"/>
+        <result column="nameCn" property="nameCn" jdbcType="VARCHAR"/>
+        <result column="nameTw" property="nameTw" jdbcType="VARCHAR"/>
+        <result column="noclickPicture" property="noclickPicture" jdbcType="VARCHAR"/>
+        <result column="clickPicture" property="clickPicture" jdbcType="VARCHAR"/>
+        <result column="blackPicture" property="blackPicture" jdbcType="VARCHAR"/>
+        <result column="whitePicture" property="whitePicture" jdbcType="VARCHAR"/>
+        <result column="picture" property="picture" jdbcType="VARCHAR"/>
+        <result column="allTopicPicture" property="allTopicPicture" jdbcType="VARCHAR"/>
+        <result column="descriptionEn" property="descriptionEn" jdbcType="VARCHAR"/>
+        <result column="descriptionCh" property="descriptionCh" jdbcType="VARCHAR"/>
+        <result column="descriptionTw" property="descriptionTw" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_column_List">
+        theme_id AS id, t_name AS nameEn, t_simple_name AS nameCn, t_traditional_name AS nameTw,
+        t_noclick_picture AS noclickPicture, t_click_picture AS clickPicture, t_black_picture AS blackPicture,
+        t_white_picture AS whitePicture, t_picture AS picture, t_all_topic_picture AS allTopicPicture,
+        t_description_en AS descriptionEn, t_description_ch AS descriptionCh, t_description_tw AS descriptionTw
+    </sql>
+
+    <select id="getModelByPK" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT
+        <include refid="Base_column_List"/>
+        FROM tb_theme
+        WHERE theme_id = #{value}
+    </select>
+
+</mapper>

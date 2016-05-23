@@ -1,0 +1,77 @@
+package com.yoloboo.service;
+
+import java.util.HashMap;
+import java.util.List;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import com.json.BaseBean;
+
+
+public interface TravelManager {
+
+    void editIsnocover(HashMap param);//修改封面
+
+	List obtainTravelStyle();//获得旅行风格
+
+	List obtainTravelTheme();//获得旅行主题
+	
+	List inputAddressQuery(String content);//常用地址查询
+	
+	List obtainNotesTips();//获取贴士标签
+	
+	List obtainMoodTips();//获取心情标签
+	
+	Long addTravelNotes(HashMap param);//添加旅行游记
+
+	String newPictureTips(HashMap param);//新增贴士
+	
+	void moodTipsPicture(HashMap param);//新增心情比标签和贴士关系
+
+	void notesTipsPicture(HashMap param);//新增贴士标签和贴士关系
+	
+	void deletePictureTips(HashMap param);//删除图片
+	
+	
+	void modifyPictureTips(HashMap param);//编辑贴士
+	
+	void deleteNotesTips(HashMap param);//删除所有与贴士相关的心情标签和贴士标签
+	void deleteNotesMoodTips(HashMap param);//删除所有与贴士相关的心情标签和贴士标签
+	
+	void modifyNotes(HashMap param);//编辑游记
+	
+	 List<HashMap> obtainQuestion();//问题
+
+//	void travelNotesRead(HashMap param);//把游记阅读关系表改一下，每个好友的都改一下
+	
+	HashMap obtainQuestionType(String questionId);//获得问题是否是国家贴士，是的话保存该条数据
+	
+	void addTipsDataContent(HashMap param);//添加贴士列表内容
+	
+	void addPitureToTipsDataContent(HashMap param); //贴士贴士到贴士列表中，这个是 图片的
+	
+	void editPitureToTipsDataContent(HashMap param); //编辑图片
+	
+	void addNotificationMessageWithFriends(HashMap param);//把每个好友中的通知全部放到这个里面
+	
+	void addNotificationTipsWithFriends(HashMap param);//新建贴士时候--把每个好友中的通知全部放到这个里面
+	
+	void addNotificationCompeleteWithFriends(HashMap param);//完成贴士的时候，可能有两种可能，一种是完成了，还有可能是新的国家，如果是朋友圈中新的国家新国家也要显示
+
+	void questionAnswer(String userId, String travelNotesId, String countyId,String answerList);//问题答案
+
+	void addCommoneAddress(String address);
+
+	Object findNoteCountryIdByNotesId(String travelNotesId);
+
+	Object findNoteCountryIdByPictureId(String pictureTipsId);
+	
+	Object findTravelNotesIdByPictureId(String pictureTipsId);
+
+	void deletePitureToTipsDataContent(HashMap param2);
+
+	Object findPicturePath(String pictureTipsId);
+	
+	
+}

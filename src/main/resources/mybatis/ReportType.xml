@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="ReportTypeDao">
+    <resultMap id="ReportTypeMap" type="com.yoloboo.models.ReportTypeModel">
+        <id column="id" property="id" jdbcType="NUMERIC"/>
+        <result column="name_en" property="name_en" jdbcType="VARCHAR"/>
+        <result column="name_cn" property="name_cn" jdbcType="VARCHAR"/>
+        <result column="name_tw" property="name_tw" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_ReportType_List">
+        ts_id AS id,  ts_status AS status, ts_name_en AS name_en, ts_name_cn AS name_cn,
+        ts_name_tw AS name_tw
+    </sql>
+
+    <select id="getReportTypeList" resultMap="ReportTypeMap">
+        SELECT
+        <include refid="Base_ReportType_List"/>
+        FROM tb_report_type
+    </select>
+
+</mapper>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="TravelTipsDao">
+
+    <resultMap id="TravelTipsMap" type="com.yoloboo.models.TravelTipsModel">
+        <id column="id" property="id" jdbcType="NUMERIC"/>
+        <result column="nameEn" property="nameEn" jdbcType="VARCHAR"/>
+        <result column="nameCn" property="nameCn" jdbcType="VARCHAR"/>
+        <result column="nameTw" property="nameTw" jdbcType="VARCHAR"/>
+
+        <result column="noclickPicture" property="noclickPicture" jdbcType="VARCHAR"/>
+        <result column="clickPicture" property="clickPicture" jdbcType="VARCHAR"/>
+        <result column="countryTipsId" property="countryTipsId" jdbcType="NUMERIC"/>
+        <result column="type" property="type" jdbcType="NUMERIC"/>
+    </resultMap>
+
+    <sql id="Base_TravelTips_Sql">
+        travel_tips_id as id,tt_name as nameEn,tt_simple_name as nameCn,tt_traditional_name as nameTw,
+        tt_noclick_picture as noclickPicture,tt_click_picture as clickPicture,country_tips_id as countryTipsId,
+        tt_type as type
+    </sql>
+
+    <select id="selectTravelTipsByCountryTip" resultMap="TravelTipsMap" parameterType="java.lang.Long">
+        SELECT <include refid="Base_TravelTips_Sql"/>
+        FROM tb_travel_tips
+        WHERE country_tips_id = #{countryTipId}
+    </select>
+
+    <select id="selectTravelTipsByPicture" resultMap="TravelTipsMap" parameterType="java.lang.Long">
+        SELECT
+        IFNULL(tt.travel_tips_id,tp.travel_tips_id) as id
+        ,IFNULL(tt.tt_name,tp.travel_tips_name) as nameEn
+        ,IFNULL(tt.tt_simple_name,tp.travel_tips_name) as nameCn
+        ,IFNULL(tt.tt_traditional_name,tp.travel_tips_name) as nameTw,
+        tt.tt_noclick_picture as noclickPicture,tt.tt_click_picture as clickPicture,tt.country_tips_id as countryTipsId,
+        tt.tt_type as type
+        from tb_travel_tips_picture tp LEFT JOIN tb_travel_tips tt on tp.travel_tips_id=tt.travel_tips_id
+        where tp.picture_id =  #{pictureId}
+    </select>
+
+    <select id="selectRelationTravelTipsByCountry" resultType="java.lang.Long" parameterType="com.yoloboo.controller.BaseBean.PictureBean">
+        SELECT travel_tips_id FROM tb_travel_tips_picture
+        WHERE picture_id IN (SELECT p.picture_id FROM tb_picture as p
+        LEFT JOIN tb_travel_notes AS tn on p.travel_notes_id = tn.travel_notes_id
+        WHERE p.p_isno_delete=0 AND tn.country_id = #{countryId}
+        AND tn.user_id IN(
+        <include refid="friends.talentedFriendsAndMeSql"/>
+        ))
+    </select>
+
+    <select id="selectRelationTravelTipsByLocationAndCountryTip" resultMap="TravelTipsMap" parameterType="com.yoloboo.controller.BaseBean.PictureBean">
+        SELECT <include refid="Base_TravelTips_Sql"/>
+        FROM tb_travel_tips
+        WHERE country_tips_id = #{countryTipId} AND travel_tips_id IN (
+        SELECT travel_tips_id FROM tb_travel_tips_picture
+        WHERE picture_id IN (SELECT p.picture_id FROM tb_picture as p
+        LEFT JOIN tb_travel_notes AS tn on p.travel_notes_id = tn.travel_notes_id
+        WHERE p.p_isno_delete=0 AND tn.location_id = #{locationId}
+        AND tn.user_id IN(
+        <include refid="friends.talentedFriendsAndMeSql"/>
+        )))
+    </select>
+
+    <select id="selectRelationCountryTips" resultType="java.lang.Long" parameterType="java.lang.Long">
+        SELECT DISTINCT(tt.country_tips_id)
+        FROM tb_travel_tips_picture AS tp RIGHT JOIN tb_travel_tips AS tt
+        ON tt.travel_tips_id = tp.travel_tips_id
+        WHERE tp.picture_id IN (
+        SELECT p.picture_id FROM tb_picture as p
+        LEFT JOIN tb_travel_notes AS tn on p.travel_notes_id = tn.travel_notes_id
+        WHERE p.p_isno_delete=0 AND tn.location_id IS NOT NULL AND tn.user_id IN (
+        <include refid="friends.talentedFriendsAndMeSql"/>
+        ))
+    </select>
+
+</mapper>

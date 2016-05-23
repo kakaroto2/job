@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="topic">
+
+    <resultMap id="TopicMap" type="com.yoloboo.models.TopicModel">
+        <id column="id" property="id" jdbcType="NUMERIC"/>
+        <result column="themeId" property="themeId" jdbcType="NUMERIC"/>
+        <result column="nameEn" property="nameEn" jdbcType="VARCHAR"/>
+        <result column="nameCn" property="nameCn" jdbcType="VARCHAR"/>
+        <result column="nameTw" property="nameTw" jdbcType="VARCHAR"/>
+        <result column="picture" property="picture" jdbcType="VARCHAR"/>
+        <result column="notes_num" property="notesNum" jdbcType="NUMERIC"/>
+        <result column="user_nick_name" property="creatorName" jdbcType="VARCHAR"/>
+        <association property="theme" column="themeId" select="ThemeDao.getModelByPK"/>
+    </resultMap>
+
+    <sql id="Base_Topic_Sql">
+         t_id AS id, t_name_en AS nameEn, t_name_cn AS nameCn, t_name_tw AS nameTw, t_picture AS picture, user_nick_name,theme_id as themeId
+    </sql>
+
+    <insert id="insertNewTopic" parameterType="java.util.HashMap">
+        INSERT INTO
+        tb_topic(theme_id,t_name_cn,t_name_en,t_name_tw,t_picture,user_id, user_nick_name,create_time)
+        VALUES
+        (#{themeId},#{topicName},#{topicName},#{topicName},#{qiniukey}, #{userId}, #{nickName},#{addTime})
+    </insert>
+
+    <select id="selectInsertTopicId" resultType="String">
+        SELECT max(t_id) FROM tb_topic
+    </select>
+
+    <select id="obtainLastTopicById" parameterType="java.util.HashMap" resultMap="TopicMap">
+        SELECT
+        <include refid="Base_Topic_Sql"/>
+        FROM tb_topic
+        WHERE theme_id=#{themeId} and user_id=#{userId} ORDER BY create_time DESC limit 0,2
+    </select>
+
+    <select id="obtainFriendsLastTopic" parameterType="java.util.HashMap" resultMap="TopicMap">
+        SELECT
+        <include refid="Base_Topic_Sql"/>
+        FROM tb_topic
+        WHERE theme_id=#{themeId} and user_id in (<include refid="friends.friendsSql"/>) ORDER BY create_time DESC limit 0,1
+    </select>
+
+    <select id="obtainSystemHotestTopic" parameterType="String" resultMap="TopicMap">
+        SELECT
+        <include refid="Base_Topic_Sql"/>
+        FROM tb_topic
+        WHERE  user_id = 6 and theme_id=#{themeId}
+    </select>
+
+    <select id="getTopicCountByTheme" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        SELECT count(t_id) FROM tb_topic
+        WHERE theme_id=#{value}
+    </select>
+
+    <select id="selectCategoryTopicList" parameterType="com.yoloboo.controller.BaseBean.TopicBean" resultMap="TopicMap">
+        SELECT
+        <include refid="Base_Topic_Sql"/>
+        ,(SELECT count(travel_notes_id) FROM tb_travel_notes WHERE topic_id = t_id and tn_isno_delete = 0) AS notes_num
+        FROM tb_topic
+        WHERE theme_id = #{themeId}
+        ORDER BY notes_num DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+
+    <select id="selectTopicById" parameterType="java.lang.Long" resultMap="TopicMap">
+        SELECT
+        <include refid="Base_Topic_Sql"/>
+        FROM tb_topic
+        WHERE t_id = #{value}
+    </select>
+
+</mapper>

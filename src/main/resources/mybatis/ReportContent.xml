@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+    
+<mapper namespace="ReportContentDao">
+    <resultMap id="ReportContentMap" type="com.yoloboo.models.ReportContentModel">
+        <id column="id" property="id" jdbcType="NUMERIC"/>
+        <result column="reportTypeId" property="reportTypeId" jdbcType="NUMERIC"/>
+        <result column="userId" property="userId" jdbcType="NUMERIC"/>
+        <result column="editorId" property="editorId" jdbcType="NUMERIC"/>
+        <result column="travelNoteId" property="travelNoteId" jdbcType="NUMERIC"/>
+        <result column="date" property="date" jdbcType="TIMESTAMP"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="pId" property="pId" jdbcType="NUMERIC"/>
+        <result column="pType" property="pType" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_ReportContent_List">
+      ts_id AS id, ts_report_type_id AS reportTypeId, ts_user_id AS userId,
+      ts_editor_id AS editorId, ts_travel_note_id AS travelNoteId,
+      ts_date AS date, ts_status AS status, picture_id AS pId, picture_type AS pType
+    </sql>
+
+    <insert id="addReportContent">
+        INSERT INTO tb_report_content(ts_user_id,ts_editor_id,ts_travel_note_id,ts_date,ts_status,ts_report_type_id,picture_id,picture_type)
+        VALUES (#{userId},#{editorId},#{travelNoteId},#{date},#{status},#{reportTypeId},#{pId},#{pType})
+    </insert>
+
+    <delete id="deleteReportContent">
+        DELETE FROM tb_report_content
+        WHERE ts_id = #{rId}
+    </delete>
+
+</mapper>

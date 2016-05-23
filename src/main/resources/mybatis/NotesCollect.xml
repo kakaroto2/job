@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="NotesCollectDao">
+
+    <resultMap id="BaseResultMap" type="com.yoloboo.models.NotesCollectModel">
+        <id column="id" property="id" jdbcType="NUMERIC"/>
+        <result column="userId" property="userId" jdbcType="NUMERIC"/>
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP"/>
+        <association property="travelNote" column="noteId" select="TravelNoteDao.getModelForHomePage"/>
+    </resultMap>
+
+    <sql id="Base_column_List">
+        nc_id AS id, note_id AS noteId, user_id AS userId, nc_date AS createTime
+    </sql>
+
+    <insert id="insetNoteCollect" parameterType="com.yoloboo.controller.BaseBean.NotesCollectBean">
+        INSERT INTO tb_notes_collect(note_id, user_id, nc_date)
+        VALUES(#{noteId}, #{userId}, sysdate())
+    </insert>
+
+    <select id="getModelByNoteAndUser" resultMap="BaseResultMap" parameterType="com.yoloboo.controller.BaseBean.NotesCollectBean">
+        SELECT
+        <include refid="Base_column_List"/>
+        FROM tb_notes_collect
+        WHERE note_id = #{noteId} AND user_id = #{userId}
+    </select>
+
+    <select id="getModelsByUser" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT
+        nc.nc_id AS id, nc.note_id AS noteId, nc.user_id AS userId, nc.nc_date AS createTime, tn.tn_views_num AS  viewNum
+        FROM tb_notes_collect as nc INNER JOIN tb_travel_notes as tn on nc.note_id = tn.travel_notes_id
+        WHERE nc.user_id = #{userId} and tn.tn_isno_delete = 0
+        ORDER  BY nc.nc_date DESC
+    </select>
+
+    <delete id="removeNoteCollect" parameterType="com.yoloboo.controller.BaseBean.NotesCollectBean">
+        DELETE FROM tb_notes_collect WHERE user_id = #{userId}
+        <if test="null != id">
+            AND nc_id = #{id}
+        </if>
+        <if test="null != noteId">
+            AND note_id = #{noteId}
+        </if>
+    </delete>
+
+</mapper>

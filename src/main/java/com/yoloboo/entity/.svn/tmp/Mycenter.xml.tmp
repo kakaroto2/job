@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+    "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mycenter">
+	
+	
+ 
+	<!-- 获得旅行风格 -->
+	<select id="obtainTravelStyle" parameterType="String" resultType="java.util.HashMap">
+		SELECT 
+		  uts.user_travel_style_id as travelStyleId,ts.ts_click_picture AS picture 
+        from 
+          tb_user_travel_style as uts, tb_travel_style as ts  
+        WHERE 
+          uts.user_id=#{value}  and uts.travel_style_id=ts.travel_style_id
+	</select>
+
+	<!-- 获得旅行主题数量  -->
+	<select id="obtainMyTravelNotesNum" parameterType="String" resultType="Long" >
+       SELECT 
+        SUM(tn.tn_comments_num) 
+      from 
+         tb_travel_notes as tn  
+      WHERE 
+         tn.user_id=#{value} and tn_isno_delete=0
+
+	</select>
+	
+	
+	<!-- 去过国家数量  -->
+	<select id="obtainMyCountryNum" parameterType="String" resultType="Long">
+	  SELECT 
+        SUM(tn.tn_praise_num) 
+      from 
+         tb_travel_notes as tn  
+      WHERE 
+         tn.user_id=#{value} and tn_isno_delete=0
+	</select>
+	
+	
+	<!-- 我的游记列表  -->
+	<select id="obtainMyNotesList" parameterType="String" resultType="java.util.HashMap">
+		SELECT 
+		  tn.travel_notes_id as travelNotesId,tn.tn_comments_num as commentsNum, tn.tn_praise_num as praiseNum,  
+          tn.tn_date as  notesDate,p.p_picture as notesPicture,tn.tn_title as title
+         from 
+           tb_travel_notes as tn ,tb_picture as p
+         WHERE 
+           tn.user_id=#{userId} and  tn.travel_notes_id=p.travel_notes_id and tn.tn_isno_delete=0   
+           and  p.travel_notes_id=tn.travel_notes_id and p.p_isno_cover=1  
+         order by
+		   tn.travel_notes_id desc
+		limit
+		${startIndex},${size}
+		
+	</select>
+	
+	<!-- 获取语言等个人信息  -->
+	<select id="obtainlanguageCountryBirthday" parameterType="String" resultType="java.util.HashMap">
+		SELECT 
+		  u.u_birthday as birthday, u_language as language,   c.c_english as englishName,
+		  c.country_id as countryId,  c.c_simple as simpleName,	 c.c_traditional as	traditionalName 
+         from 
+           tb_user as u 
+            left join tb_country as c  ON c.country_id =u.country_id 
+         WHERE 
+           user_id=#{value} 
+	</select>
+	
+	<!-- 删除旅行风格-->
+	<delete id="deletetravelStyleId" parameterType="String" >
+		DELETE FROM tb_user_travel_style  
+		WHERE 
+           user_id=#{value} 
+	</delete>
+	
+	<!-- 插入旅行风格-->
+	<insert id="insertTravelStyleId" parameterType="java.util.HashMap" >
+		insert INTO 
+		   tb_user_travel_style  
+		SET  
+           user_id=#{userId}, travel_style_id=#{travelStyleId}
+	</insert>
+	
+	
+    <!-- 保存个人信息-->
+	<insert id="saveMyInfo" parameterType="java.util.HashMap" >
+		insert INTO 
+		   tb_user_travel_style  
+		SET  
+           user_id=#{userId}, travel_style_id=#{travelStyleId}
+	</insert>
+	
+	
+	<!-- 获取好友列表-->
+	<select id="obtainMyFriends" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		 SELECT 
+		      u.u_picture as picture, u.user_id as userId,   u.u_nickname as nickName ,u.u_last_time as lastTime   
+         from 
+           tb_friends as f
+            left join tb_user as u ON u.user_id =f.f_passive_people_id
+         WHERE 
+           f.f_initiative_people_id=#{userId} and f.f_isno_delete=0
+           <if test="content!=null">
+             and u.u_nickname like '%${content}%'
+           </if> 
+        order by
+		   u.user_id
+		limit
+		   ${startIndex},${size}
+	</select>
+	
+	<!-- 获取好友列表数量-->
+	<select id="obtainMyFriendsCount" parameterType="java.util.HashMap" resultType="Long">
+		 SELECT 
+		      count(*) 
+         from 
+           tb_friends  
+         WHERE 
+           f_initiative_people_id=#{userId} and f_isno_delete=0 
+	</select>
+	
+	
+	
+	<!-- 获取通知列表-->
+	<select id="obtainNotificationList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+
+		 SELECT 
+		    nl.picture as picture,nl.content AS content,nl.time as time,nl.type as type
+               ,u.u_picture as userPicture
+         from 
+            tb_notification_list as nl 
+            left join tb_user as u ON u.user_id =nl.passive_id
+         WHERE 
+           nl.user_id=#{userId}
+        order by
+		    time
+		limit 
+		   ${startIndex},${size}
+	</select>
+	
+	<!-- 获取通知列表数量-->
+	<select id="obtainNotificationListCount" parameterType="java.util.HashMap" resultType="Long">
+		 SELECT 
+		    count(*)
+         from 
+            tb_notification_list
+         WHERE 
+           user_id=#{userId}
+      
+	</select>
+	
+
+	
+	
+	
+</mapper>

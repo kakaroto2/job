@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="ActivityCommentsDao">
+
+    <resultMap id="ActivityCommentsMap" type="com.yoloboo.models.ActivityCommentsModel">
+        <id column="id" property="id" jdbcType="NUMERIC"/>
+        <result column="commentsContent" property="commentsContent" jdbcType="VARCHAR"/>
+        <result column="userId" property="userId" jdbcType="NUMERIC"/>
+        <result column="aId" property="aId" jdbcType="NUMERIC"/>
+        <result column="date" property="date" jdbcType="TIMESTAMP"/>
+        <result column="c_userId" property="c_userId" jdbcType="NUMERIC"/>
+        <result column="c_nickname" property="c_nickname" jdbcType="VARCHAR"/>
+        <result column="userName" property="userName" jdbcType="VARCHAR"/>
+        <result column="userPicture" property="userPicture" jdbcType="VARCHAR"/>
+
+    </resultMap>
+
+    <sql id="Base_ActivityComments_List">
+        ac_id AS id, ac_content AS commentsContent,
+        user_id AS userId, activity_id AS aId,
+        ac_date AS date,c_user_id AS c_userId,
+        c_nickname As c_nickname,
+        u_picture as userPicture,u_nickname as userName
+    </sql>
+
+    <select id="getActivityCommentsListByAId" parameterType="com.yoloboo.controller.bean.ActivityBean" resultMap="ActivityCommentsMap">
+        SELECT
+        <include refid="Base_ActivityComments_List"/>
+        FROM tb_activity_comments
+        WHERE activity_id = #{aId}
+        ORDER BY ac_date asc
+        limit ${startIndex},${size}
+    </select>
+
+    <insert id="addActivityComments" parameterType="com.yoloboo.controller.bean.ActivityBean">
+        INSERT INTO tb_activity_comments(ac_content,user_id,activity_id,ac_date,c_user_id,c_nickname,u_nickname,u_picture)
+        VALUES (#{commentsContent}, #{userId}, #{aId}, #{date}, #{c_userId}, #{c_nickname}, #{userName}, #{userPicture})
+    </insert>
+
+    <delete id="deleteActivityComments" parameterType="java.lang.Long">
+        DELETE FROM tb_activity_comments
+        WHERE ac_id = #{acId}
+    </delete>
+
+</mapper>

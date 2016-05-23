@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<configuration scan="true" scanPeriod="3 seconds">
+
+  <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
+
+  <appender name="STDOUT"
+            class="ch.qos.logback.core.ConsoleAppender">
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <pattern>
+        %d{yyyy/MM/dd-HH:mm:ss.SSS} [%thread] %-5level %logger{32} - %msg%n
+      </pattern>
+    </layout>
+  </appender>
+  
+  <appender name="FILE"
+            class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <File>/logs/logFile.log</File>
+    <rollingPolicy
+            class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <FileNamePattern>
+        /logs/logFile.%d{yyyy-MM-dd}.log.zip
+      </FileNamePattern>
+    </rollingPolicy>
+
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <Pattern>
+        %d{yyyy/MM/dd-HH:mm:ss.SSS} [%thread] %-5level %logger{32} - %msg%n
+      </Pattern>
+    </layout>
+  </appender>
+
+   <logger name="org.springframework" level="${logback.level.springframework:-ERROR}" />
+   <logger name="org.mybatis" level="${logback.level.mybatis:-DEBUG}" />
+
+<!-- level:
+用来设置打印级别，大小写无关：TRACE, DEBUG, INFO, WARN, ERROR, ALL 和 OFF，不能设置为INHERITED或者同义词NULL。
+默认是DEBUG。
+ -->
+    <root level="${logback.level:-DEBUG}">
+         <appender-ref ref="${spring.profiles.active:-STDOUT}"/>
+    </root>
+
+</configuration>

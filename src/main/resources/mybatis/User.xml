@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+    "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="User">
+	<resultMap type="com.yoloboo.models.UserModel" id="UserMap">
+		<result column="user_id" property="userId" />
+		<result column="u_phone" property="uPhone" />
+		<result column="u_nickname" property="uNickname" />
+		<result column="u_picture" property="uPicture" />
+		<result column="u_type" property="uType" />
+		<result column="u_token" property="uToken" />
+		<result column="u_language" property="uLanguage" />
+	</resultMap>
+
+	<resultMap id="UserWithTravelStyleMap" type="com.yoloboo.models.UserModel" extends="UserMap">
+		<association property="travelStyleList" column="user_id" select="TravelStyleDao.selectUserTravelStyle"/>
+	</resultMap>
+
+	<select id="selectUserByPrimaryKey" resultMap="UserWithTravelStyleMap">
+		select user_id, u_phone, u_nickname, u_picture, u_type, u_language from tb_user
+		WHERE user_id = #{userId}
+	</select>
+
+	<select id="getModelByPK" parameterType="java.lang.Long" resultType="java.util.HashMap">
+		select * from tb_user where user_id=#{userId}
+	</select>
+
+	<!-- 更换背景图片-->
+	<update id="updateBackPicture" parameterType="java.util.HashMap">
+		update tb_user set u_user_picture=#{qiniukey} where user_id=#{userId}
+	</update>
+	 
+	<!-- 更新token值 -->
+	<update id="updateUserLoginToken" parameterType="java.util.HashMap">
+		update tb_user
+		set u_token=#{loginToken} where user_id=#{userId}
+	</update>
+	<update id="updateUserLanguage" parameterType="java.util.HashMap">
+		update tb_user
+		set u_language=#{language} where user_id=#{userId}
+	</update>
+	<update id="updateUserPassword" parameterType="java.util.HashMap">
+	   update tb_user set u_password=#{password} where concat(country_code,u_phone) LIKE concat('%',#{phone})
+	</update>
+	<select id="findUserCountByPhone" parameterType="java.util.HashMap" resultType="Long">
+	 select count(1) from tb_user where concat(country_code,u_phone) LIKE concat('%',#{phone})and delete_flag=0
+	</select>
+	<select id="findUserCodeCountByPhone" parameterType="java.util.HashMap" resultType="Long">
+	   select count(*) from tb_verification_code where locate(vc_phone,#{phone})>0 and vc_verification_code=#{code}
+	   and vc_verification_code_time>=#{nowTime}
+	</select>
+	
+	<!-- 记录登录时候的时间和token -->
+	<update id="recordLogin" parameterType="java.util.HashMap">
+		update tb_user set
+		u_token=#{uToken},u_last_time=#{lastTime} where
+		user_id=#{userId}
+	</update>
+
+	<!-- 登录 -->
+	<select id="loginApp" parameterType="java.util.HashMap"
+		resultType="java.util.HashMap">
+		select user_id as userId,u_nickname as
+		uNickname,u_phone as
+		uPhone,u_picture as uPicture,u_user_picture as userPicture,
+		u_facebook_id as facebookId,u_sina_id as sinaId,
+		u_weixin_id as weixinId,u_token as uToken,u_language as language
+		from tb_user
+		where
+
+		delete_flag=0
+		and ((concat(country_code,u_phone) = concat(#{uPhone}))
+		or (u_phone=#{uPhone}))
+		and u_password=#{uPassword}
+	</select>
+
+	<!--获取国家代码 -->
+	<select id="obtainCode" parameterType="java.util.HashMap"
+		resultType="String">
+		select c_code as cCode
+		from tb_country
+		where c_ab=#{ab}
+	</select>
+
+	<!--意见反馈 -->
+	<insert id="insertFeedbackInfo" parameterType="HashMap">
+		insert into
+		tb_opinion_feedback(user_id,of_content,of_time
+		)
+		values(#{userId},#{feedbackContent},#{feedbackTime}
+		)
+	</insert>
+
+	<!--校验验证码 -->
+	<select id="checkVerificationCode" parameterType="java.util.HashMap"
+		resultType="Integer">
+		select count(*)
+		from tb_verification_code
+		where
+		vc_phone=#{uPhone} and vc_verification_code=#{code}
+	</select>
+
+	<!--校验邀请码 -->
+	<select id="checkInvitationCode" parameterType="java.util.HashMap"
+		resultType="Integer">
+		select count(*)
+		from tb_user
+		where u_invitation_code=#{code}  and delete_flag=0
+	</select>
+
+	<!--校验6位邀请码 -->
+	<select id="checkInvitationCodeByEmail" parameterType="java.util.HashMap"
+			resultType="Integer">
+		select count(*)
+		from tb_user_invitation
+		where invitation_code=#{code} and is_send=1
+	</select>
+
+
+	<!--校验批量的6位邀请码 -->
+	<select id="checkInvitationCodeByBatch" parameterType="java.util.HashMap"
+			resultType="Integer">
+		select count(*)
+		from tb_invitation_code
+		where invitation_code=#{code} and is_use=1
+	</select>
+
+	<!--校验6位邀请码的使用次数-->
+	<select id="findUseageCount" parameterType="java.util.HashMap"
+			resultType="Integer">
+		select count(*)
+		from tb_user
+		where u_beinvitation_code=#{code}
+	</select>
+
+	<!--注册 -->
+	<insert id="register" parameterType="HashMap">
+		insert into
+		tb_user(u_phone,u_password,u_picture,u_nickname,u_beinvitation_code,u_register_time,u_invitation_code,u_token,country_code,u_language
+		<if test="registerType==2">
+			,u_facebook_id,u_facebook_name
+		</if>
+		<if test="registerType==3">
+			,u_sina_id,u_sina_name
+		</if>
+		<if test="registerType==4">
+			,u_weixin_id,u_weixin_name
+		</if>
+		)
+		values(#{phone},#{password},#{picture},#{nickname},#{code},#{registerTime},#{invitationCode},#{token},#{countryCode},#{language}
+		<if test="registerType!=1">
+			,#{threeId},#{nickname}
+		</if>
+		)
+	</insert>
+
+
+	<!--获得邀请码的数量 -->
+	<select id="checkCodeCount" parameterType="String" resultType="Integer">
+		select count(*)
+		from tb_user
+		where u_invitation_code=#{value}
+	</select>
+
+	<!--获得用户信息 -->
+	<select id="obtainUserId" parameterType="String" resultType="java.util.HashMap">
+	select user_id as userId,u_nickname as
+		uNickname,u_phone as
+		uPhone,u_picture as uPicture,u_user_picture as userPicture,
+		u_facebook_id as facebookId,u_sina_id as sinaId,
+		u_weixin_id as weixinId,u_token as uToken
+		from tb_user
+		where
+		delete_flag=0 and u_phone=#{value}
+	</select>
+	<!--获得用户信息 -->
+	<select id="findUserById" parameterType="String" resultType="java.util.HashMap">
+	select user_id as userId,u_nickname as
+		uNickname,u_phone as
+		uPhone,u_picture as uPicture,
+		u_facebook_id as facebookId,u_sina_id as sinaId,u_user_picture as userPicture,
+		u_weixin_id as weixinId,u_token as uToken
+		from tb_user
+		where
+		user_id=#{userId}
+	</select>
+	
+	<select id="obtainUserByThreeId" parameterType="java.util.HashMap"
+		resultType="java.util.HashMap">
+		select user_id as userId,u_nickname as
+		uNickname,u_phone as
+		uPhone,u_picture as uPicture,u_user_picture as userPicture,
+		u_facebook_id as facebookId,u_sina_id as sinaId,
+		u_weixin_id as weixinId,u_token as uToken,u_language as language
+		from tb_user
+		where
+		delete_flag=0
+		<if test="registerType==1">
+			and u_phone=#{threeId} 
+		</if>
+		<if test="registerType==2">
+			and u_facebook_id=#{threeId} 
+		</if>
+		<if test="registerType==3">
+			and u_sina_id=#{threeId}
+		</if>
+		<if test="registerType==4">
+			and u_weixin_id=#{threeId}
+		</if>
+
+	</select>
+	<update id="updateUserAllAcountStatus" parameterType="HashMap">
+	 update tb_user set 
+	    <if test="registerType==1">
+			 u_phone=#{threeId},u_password=#{password}
+		</if>
+	 	<if test="registerType==2">
+			 u_facebook_id=#{threeId}
+		</if>
+		<if test="registerType==3">
+			 u_sina_id=#{threeId}
+		</if>
+		<if test="registerType==4">
+			 u_weixin_id=#{threeId}
+		</if>
+	 where user_id=#{userId}
+	 
+	</update>
+	<!--旅行风格插入 -->
+	<insert id="updatetravelStyle" parameterType="HashMap">
+		insert into
+		tb_user_travel_style(user_id,travel_style_id
+		)
+		values(#{userId},#{travelStyleId})
+	</insert>
+
+	<!--更新用户的背景图片 -->
+	<update id="updateUserbackground" parameterType="HashMap">
+		UPDATE
+		tb_user
+		SET u_user_picture=
+		(SELECT ts_bg_picture FROM tb_travel_style WHERE
+		travel_style_id=#{travelStyleId})
+		WHERE user_id=#{userId}
+	</update>
+
+	<!--获得手机号码是否唯一 -->
+	<select id="obtainPhoneCount" parameterType="String" resultType="Integer">
+		select count(*)
+		from tb_user
+		where u_phone=#{value}
+	</select>
+
+	<!--判断是否是达人或者官方账号 2和3 -->
+	<select id="judgeMaster" parameterType="String" resultType="Integer">
+		select u_type
+		from tb_user
+		where user_id=#{value}
+	</select>
+
+	<!--在好友推荐表中，把是否是会员 改为是 -->
+	<update id="isnoMemeberContentUpdatePhone" parameterType="java.util.HashMap">
+	
+	    update
+		tb_recommend_friends
+		set
+		isno_member=1,passive_people_id=#{userId},rf_type=2,add_time=#{addTime}
+		WHERE
+		third_id=#{phone}
+	</update>
+
+	<!--在好友推荐表中，把是否是会员 改为是 -->
+	<update id="isnoMemeberContentUpdateThree" parameterType="java.util.HashMap">
+		update
+		tb_recommend_friends
+		set
+		isno_member=1,passive_people_id=#{userId},rf_type=0,add_time=#{addTime}
+		WHERE
+		third_id=#{threeId}
+	</update>
+
+
+
+	<select id="findNotifyMsgList" parameterType="java.util.HashMap"
+		resultType="java.util.HashMap">
+		select nl.notification_list_id as
+		notificationListId,nl.type, nl.content,(select u.u_ios_token from
+		tb_user u where
+		u.user_id=nl.user_id) as pushToken,(select u.u_language from
+		tb_user u where
+		u.user_id=nl.user_id) as language,(SELECT u2.u_nickname FROM tb_user u2 WHERE nl.passive_id=u2.user_id) as userName from
+		tb_notification_list nl where
+		notification_status=0
+		and exists(select
+		user_id from tb_user u1 where u1.user_id=nl.user_id and
+		u1.u_ios_token
+		is not null)
+		ORDER BY time asc
+		limit ${startIndex},${size}
+	</select>
+
+	<update id="updateNotifyPushStatus" parameterType="java.util.HashMap">
+		update tb_notification_list set notification_status=1 where
+		notification_list_id = #{notificationListId}
+	</update>
+	<update id="updateUserPushToken" parameterType="java.util.HashMap">
+	  update tb_user set u_ios_token=#{pushToken} where user_id=#{userId}
+	</update>
+	<insert id="addCommoneAddress" parameterType="java.util.HashMap">
+	 insert into tb_common_address(ca_name,common_address_id)
+	 values(#{value},1)
+	</insert>
+
+	<select id="isCommeneAddress" parameterType="java.lang.String" resultType="java.lang.Integer">
+		SELECT count(1) FROM tb_common_address WHERE ca_name=#{value}
+	</select>
+
+
+	<update id="updateUserPicture" parameterType="java.util.HashMap">
+		UPDATE tb_user SET u_picture=#{qiniukey}WHERE user_id=#{userId}
+	</update>
+
+	<!--########2.0新增########-->
+	<select id="judgeIsOfficalAccount" parameterType="String" resultType="java.lang.Integer">
+		SELECT count(1) FROM tb_user WHERE u_type=2 AND user_id=#{value}
+	</select>
+
+	<select id="checkIsUser" parameterType="String" resultType="java.util.HashMap">
+		SELECT u_phone,country_code FROM tb_user WHERE concat(country_code,u_phone) LIKE concat('%',#{value})
+	</select>
+	<update id="setSystemNotification2" parameterType="java.util.HashMap">
+		update tb_system_notification SET
+		 picture_receive_praise =#{pictureReceivePraise} ,picture_receive_comments =#{pictureReceiveComments} ,new_friends_invitation =#{newFriendsInvitation} ,
+		 friends_receive_my_invitation =#{friendsReceiveMyInvitation},friends_new_notes =#{friendsNewNotes},
+		 official_notification =#{officialNotification},reply_friends=#{replyFriends},
+		 friends_new_topic=#{friendsNewTopic},new_activity=#{newActivity},push_choice=#{pushChoice},
+		 star_person=#{starPerson},you_push_choice=#{youPushChoice},you_star_person=#{youStarPerson},award=#{award}
+       WHERE
+         user_id=#{userId}
+	</update>
+	<select id="obtainSystemNotification" parameterType="String" resultType="java.util.HashMap">
+		SELECT
+		 picture_receive_praise as pictureReceivePraise,picture_receive_comments as pictureReceiveComments,new_friends_invitation as newFriendsInvitation,
+		 friends_receive_my_invitation as friendsReceiveMyInvitation,friends_new_notes as friendsNewNotes,
+		 new_activity as newActivity,push_choice as pushChoice
+
+    FROM
+        tb_system_notification
+    WHERE
+         user_id=#{value}
+	</select>
+	<select id="selectOfficialAccount" resultType="java.util.HashMap">
+		SELECT user_id as friendId FROM tb_user WHERE u_type=2 and delete_flag=0
+	</select>
+
+	<update id="updateUserInfo" parameterType="java.util.HashMap">
+		update
+		tb_user
+		set
+		delete_flag=0
+		<if test="picture!=null">
+			, u_picture=#{picture}
+		</if>
+		<if test="nickName!=null">
+			,u_nickname=#{nickName}
+		</if>
+		<if test="zodiac!=null">
+			,zodiac=#{zodiac}
+		</if>
+		<if test="birthday!=null">
+			,u_birthday=#{birthday}
+		</if>
+		<if test="language!=null">
+			,u_language=#{language}
+		</if>
+		<if test="description!=null">
+			,u_description=#{description}
+		</if>
+		<if test="areaName!=null">
+			,area_name=#{areaName}
+		</if>
+		WHERE
+		user_id=#{userId}
+	</update>
+	<select id="selectUserInfoById" parameterType="String" resultType="java.util.HashMap">
+		SELECT u.u_nickname as nickName,u.u_picture as picture ,u.u_type as userType,u.u_language as language,u.u_description as description,
+				u.area_name as areaName,tz.z_name_en as z_name_en,tz.z_name_cn as z_name_cn,tz.z_name_tw as z_name_tw
+				,u.u_birthday as birthday,area_name as areaName
+			FROM tb_user as u
+				LEFT JOIN tb_zodiac as tz ON tz.z_id=u.zodiac
+			WHERE delete_flag=0 and user_id=#{userId}
+	</select>
+
+	<update id="updateUserRead" parameterType="java.util.HashMap">
+		UPDATE tb_user SET notes_read=notes_read-(
+			SELECT tn_views_num FROM tb_travel_notes WHERE travel_notes_id=#{travelNoteId})
+			WHERE user_id=#{userId}
+	</update>
+
+	<update id="addUserRead" parameterType="String">
+		UPDATE tb_user SET notes_read=notes_read+1 WHERE user_id=#{value}
+	</update>
+	<select id="obtainNickNameById" parameterType="String" resultType="String">
+		SELECT u_nickname FROM tb_user WHERE user_id=#{value}
+	</select>
+	<update id="recordLogin_version2" parameterType="java.util.HashMap">
+		UPDATE tb_user SET u_last_time=#{lastTime} WHERE user_id=#{userId}
+	</update>
+
+	<update id="modifyTalentStatus" parameterType="java.util.HashMap">
+		UPDATE tb_user SET talent_status=#{choice}
+		 <if test="choice == 3">
+			 ,n_decline_talent = n_decline_talent + 1
+		 </if>
+		<if test="choice == 1">
+			,u_type=3
+		</if>
+		 WHERE user_id=#{userId}
+	</update>
+	
+	<select id="getDeclineTalent" parameterType="java.lang.Long" resultType="java.lang.Integer">
+		select n_decline_talent from tb_user
+		where user_id=#{userId}
+	</select>
+
+	<select id="selectUserByPicture" resultMap="UserMap" parameterType="java.lang.Long">
+		select user_id, u_phone, u_nickname, u_picture, u_type from tb_user AS u
+		WHERE u.user_id = (
+		SELECT tn.user_id FROM tb_travel_notes tn LEFT JOIN tb_picture p ON tn.travel_notes_id = p.travel_notes_id
+		WHERE p.picture_id = #{pictureId})
+	</select>
+
+	<update id="logout" parameterType="java.lang.Long">
+		  update tb_user set u_ios_token = null where user_id = #{value}
+	</update>
+	<insert id="insertInvitationCode" parameterType="HashMap">
+	        insert into
+			tb_invitation_code(is_use,invitation_code
+			)
+			values('2',#{invitationCode}
+			)
+	</insert>
+
+
+	<insert id="insertUserInvitationCode" parameterType="HashMap">
+		insert into
+		tb_user_invitation(email,is_send,invitation_code,sex,application_reason,apply_newtime
+		)
+		values(#{email},'0',#{invitationCode},#{sex},#{applicationReasons},#{newtime}
+		)
+	</insert>
+
+	<!--获得6位邀请码的数量 -->
+	<select id="checkEmailCodeCount" parameterType="String" resultType="Integer">
+		select count(*)
+		from tb_invitation_code
+		where invitation_code=#{value}
+	</select>
+
+	<select id="getBirthDayByUserId" parameterType="HashMap" resultType="HashMap">
+		SELECT u_birthday,u_description FROM tb_user WHERE user_id=#{userId}
+	</select>
+
+</mapper>

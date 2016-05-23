@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="comments">
+    <resultMap id="BaseResultMap" type="com.yoloboo.models.CommentModel">
+        <id column="commentsId" property="id" jdbcType="NUMERIC"/>
+        <result column="pictureId" property="pictureId" jdbcType="NUMERIC"/>
+        <result column="userId" property="userId" jdbcType="NUMERIC"/>
+        <result column="nickName" property="nickName" jdbcType="VARCHAR"/>
+        <result column="c_userId" property="c_userId" jdbcType="NUMERIC"/>
+        <result column="c_nickName" property="c_nickName" jdbcType="VARCHAR"/>
+        <result column="userPicture" property="userPicture" jdbcType="VARCHAR"/>
+        <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="commentTime" property="commentTime" jdbcType="VARCHAR"/>
+    </resultMap>
+    <select id="getComments"   resultType="java.util.HashMap">
+        select
+        comments_id as commentsId, c_content as content
+        from
+        tb_comments
+    </select>
+    
+    <select id="getCommentModelsByPictureId" parameterType="com.yoloboo.controller.bean.CommentBean" resultMap="BaseResultMap">
+        SELECT c_content as content,u.user_id as userId,u.u_nickname as nickName ,u.u_picture as userPicture,
+                c_time as commentTime,c_userId,c_nickname as c_nickName
+        FROM tb_comments as tc,tb_user as u
+        WHERE
+        tc.picture_id=#{pictureId} and u.user_id=tc.user_id
+		order by
+		tc.comments_id DESC
+        limit ${startIndex},${size}
+    </select>
+    <select id="getCommentModelsNormal" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT c_content as content,u.user_id as userId,u.u_nickname as nickName ,u.u_picture as userPicture,
+                c_time as commentTime,c_userId,c_nickname as c_nickName
+        FROM tb_comments as tc,tb_user as u
+        WHERE
+        tc.picture_id=#{value} and u.user_id=tc.user_id
+		order by
+		tc.comments_id DESC
+    </select>
+</mapper>

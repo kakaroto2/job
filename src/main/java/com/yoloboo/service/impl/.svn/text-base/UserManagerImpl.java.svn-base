@@ -1,0 +1,213 @@
+package com.yoloboo.service.impl;
+
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.yoloboo.service.UserManager;
+import com.common.Commonparam;
+import com.common.ExceptionMyself;
+import com.common.HttpXmlUtil;
+import com.json.BaseBean;
+
+@Service
+@Transactional
+public class UserManagerImpl implements UserManager {
+	@Autowired
+	private SqlSessionTemplate sqlSession;
+
+	public UserManagerImpl() {
+	}
+	
+	// 登录
+	@SuppressWarnings("rawtypes")
+	@Override
+	public HashMap loginApp(HashMap param) {
+		return (HashMap) sqlSession.selectOne("User.loginApp", param);
+	}
+	
+ 
+	@Override
+	public void recordLogin(HashMap param) {
+		sqlSession.update("User.recordLogin", param);
+	}
+	
+	@Override
+	public void updateUserLoginToken(HashMap param) {
+		sqlSession.update("User.updateUserLoginToken", param);
+	}
+	
+	//调用国家代码
+	@Override
+	public String obtainCode(HashMap param) {
+		return (String) sqlSession.selectOne("User.obtainCode", param);
+	}
+
+	//意见反馈
+	@Override
+	public void updateFeedbackInfo(HashMap param) {
+		sqlSession.insert("User.insertFeedbackInfo", param);
+	}
+	
+	//校验验证码
+	@Override
+	public Integer checkVerificationCode(HashMap param) {
+		return (Integer) sqlSession.selectOne("User.checkVerificationCode", param);
+	}
+	
+	//校验邀请码
+	@Override
+	public Integer checkInvitationCode(HashMap param) {
+		return (Integer) sqlSession.selectOne("User.checkInvitationCode", param);
+	}
+	
+	
+	//注册
+	@Override
+	public void register(HashMap param) {
+		sqlSession.insert("User.register", param);
+	}
+	
+	//校验随机码
+	@Override
+	public Integer checkCodeCount(String invitationCode) {
+		return (Integer) sqlSession.selectOne("User.checkCodeCount", invitationCode);
+	}
+	
+	
+	//获得用户ID
+	@Override
+	public HashMap obtainUserId(String phone) {
+		return (HashMap) sqlSession.selectOne("User.obtainUserId", phone);
+	}
+	
+	
+	//保存旅行风格
+	@Override
+	public void updatetravelStyle(HashMap param) {
+		sqlSession.insert("User.updatetravelStyle", param);
+		sqlSession.update("User.updateUserbackground", param);//更新个人信息的背景图片
+	}
+ 
+	//判断手机号码是否唯一
+	@Override
+	public Integer obtainPhoneCount(String phone) {
+		return (Integer) sqlSession.selectOne("User.obtainPhoneCount", phone);
+	}
+	
+	//在好友推荐表中，把是否是会员  改为是 手机
+	@Override
+	public void isnoMemeberContentUpdatePhone(HashMap param) {
+		sqlSession.update("User.isnoMemeberContentUpdatePhone", param);
+	}
+
+	
+	//在好友推荐表中，把是否是会员  改为是 第三方
+	@Override
+	public void isnoMemeberContentUpdateThree(HashMap param) {
+		sqlSession.update("User.isnoMemeberContentUpdateThree", param);
+	}
+
+
+	@Override
+	public void obtainVerificationCode(HashMap param) {
+		// TODO Auto-generated method stub
+		sqlSession.insert("system.insertPhoneCode", param);
+	}
+
+	@Override
+	public HashMap obtainUserByThreeId(String threeId, Integer registerType) {
+		// TODO Auto-generated method stub
+		HashMap param = new HashMap();
+		param.put("threeId", threeId);
+		param.put("registerType", registerType);
+		return (HashMap) sqlSession.selectOne("User.obtainUserByThreeId", param);
+	}
+	
+	@Transactional(propagation=Propagation.NOT_SUPPORTED,readOnly=true) 
+	@Override
+	public List<HashMap<String, Object>> findNotifyMsgList(HashMap param) {
+		// TODO Auto-generated method stub
+		return (List<HashMap<String, Object>>) sqlSession.selectList("User.findNotifyMsgList", param);
+	}
+	@Override
+	public void updateNotifyPushStatus(HashMap msg) {
+		// TODO Auto-generated method stub
+		sqlSession.update("User.updateNotifyPushStatus", msg);
+	}
+
+	@Override
+	public void updateUserPushToken(HashMap param) {
+		// TODO Auto-generated method stub
+		sqlSession.update("User.updateUserPushToken", param);
+	}
+
+	@Override
+	public void insertSysNotifySetting(HashMap user) {
+		// TODO Auto-generated method stub
+		sqlSession.update("system.insertSysNotifySetting", user);
+	}
+
+	@Override
+	public synchronized void updateUserAllAcountStatus(BaseBean bean,HashMap param) {
+		// TODO Auto-generated method stub
+		if(param.get("threeId").toString().length()>0){
+			//重新绑定检查账号是否已绑定
+			HashMap user = (HashMap) sqlSession.selectOne("User.obtainUserByThreeId", param);
+			if(user!=null){
+				bean.setStatus(401);
+				bean.setMsg("已绑定其他账号！");
+			}
+			else{
+				sqlSession.update("User.updateUserAllAcountStatus", param);
+				bean.setStatus(200);
+			}
+		}
+		else{
+			sqlSession.update("User.updateUserAllAcountStatus", param);
+			bean.setStatus(200);
+		}
+		
+	}
+
+	@Override
+	public void updateUserPassword(BaseBean bean, HashMap<String, Object> param) {
+		// TODO Auto-generated method stub
+		Long count = (Long) sqlSession.selectOne("User.findUserCountByPhone", param);
+		if(count==0){
+			bean.setStatus(401);
+			bean.setMsg("手机未注册");
+		}
+		else{
+			Long userCodeCount = (Long) sqlSession.selectOne("User.findUserCodeCountByPhone", param);
+			if(userCodeCount==0){
+				bean.setStatus(402);
+				bean.setMsg("验证码不正确！");
+			}
+			else{
+				sqlSession.update("User.updateUserPassword", param);
+				bean.setStatus(200);
+				bean.setMsg("设置成功");
+			}
+		}
+		
+	}
+
+	@Override
+	public void updateUserLanguage(HashMap param) {
+		// TODO Auto-generated method stub
+		sqlSession.update("User.updateUserLanguage", param);
+	}
+	 
+}

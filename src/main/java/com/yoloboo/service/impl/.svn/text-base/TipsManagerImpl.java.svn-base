@@ -1,0 +1,71 @@
+package com.yoloboo.service.impl;
+
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.common.Commonparam;
+import com.common.ExceptionMyself;
+import com.common.HttpXmlUtil;
+import com.json.BaseBean;
+import com.yoloboo.service.TipsManager;
+
+@Service
+@Transactional
+public class TipsManagerImpl implements TipsManager {
+	@Autowired
+	private SqlSessionTemplate sqlSession;
+
+	public TipsManagerImpl() {
+	}
+	
+	
+
+	//增加贴士列表中的数据
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void addTipsData(HashMap param) {
+		 sqlSession.insert("tips.addTipsData",param);
+	}
+	
+	//获得贴士列表的数据
+	@SuppressWarnings("rawtypes")
+	@Override
+	public List obtainTipsDataList(HashMap param) {
+		return(List) sqlSession.selectList("tips.obtainTipsDataList",param);
+	}
+	
+	//获得贴士列表中的数据总数
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Long obtainTipsDataListCount(HashMap param) {
+		return(Long) sqlSession.selectOne("tips.obtainTipsDataListCount",param);
+	}
+	
+	//获得国家贴士标签列表的数据
+	@SuppressWarnings("rawtypes")
+	@Override
+	public List obtainCountryTipsList(HashMap param) {
+		return(List) sqlSession.selectList("tips.obtainCountryTipsList",param);
+	}
+	
+	//获得国家贴士标签列表中的数据总数
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Long obtainCountryTipsListCount(HashMap param) {
+		return(Long) sqlSession.selectOne("tips.obtainCountryTipsListCount",param);
+	}
+	
+	 
+	
+}

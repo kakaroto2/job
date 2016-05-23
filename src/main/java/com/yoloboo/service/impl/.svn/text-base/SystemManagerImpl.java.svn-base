@@ -1,0 +1,103 @@
+package com.yoloboo.service.impl;
+
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.common.Commonparam;
+import com.common.ExceptionMyself;
+import com.common.HttpXmlUtil;
+import com.json.BaseBean;
+import com.yoloboo.service.SystemManager;
+
+@Service
+@Transactional
+public class SystemManagerImpl implements SystemManager {
+	@Autowired
+	private SqlSessionTemplate sqlSession;
+
+	public SystemManagerImpl() {
+	}
+	
+	// 意见反馈
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void suggestion(HashMap param) {
+		sqlSession.insert("system.suggestion",param);
+	}
+
+	// 获取系统通知设置情况
+	@SuppressWarnings("rawtypes")
+	@Override
+	public HashMap systemNotificationSet(String userId) {
+		return (HashMap)sqlSession.selectOne("system.systemNotificationSet",userId);
+	}
+	
+	//设置系统通知
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void setSystemNotification(HashMap param) {
+		 sqlSession.update("system.setSystemNotification",param);
+	}
+	
+	//修改手机号码
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void editPhone(HashMap param) {
+		 sqlSession.update("system.editPhone",param);
+	}
+	
+	//编辑密码
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void editPassword(HashMap param) {
+		 sqlSession.update("system.editPassword",param);
+	}
+ 
+	//绑定情况获取
+	@SuppressWarnings("rawtypes")
+	@Override
+	public HashMap accountBound(String userId) {
+		 return (HashMap)sqlSession.selectOne("system.accountBound",userId);
+	}
+	
+	//设置绑定的情况
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void setAccountBound(HashMap param) {
+		 sqlSession.update("system.setAccountBound",param);
+	}
+ 
+	//获得该用户邀请码
+	@SuppressWarnings("rawtypes")
+	@Override
+	public String obtainInvitationCode(String userId) {
+		return (String)sqlSession.selectOne("system.obtainInvitationCode",userId);
+	}
+	
+	//获取分享的内容
+	@SuppressWarnings("rawtypes")
+	@Override
+	public HashMap shareContent(String userId) {
+		return (HashMap)sqlSession.selectOne("system.shareContent",userId);
+	}
+
+	@Override
+	public HashMap obtainUser(HashMap userParamHashMap) {
+		// TODO Auto-generated method stub
+		return (HashMap)sqlSession.selectOne("User.obtainUserByThreeId",userParamHashMap);
+	}
+	
+	 
+
+}

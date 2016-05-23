@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+    "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="tips">
+
+	<resultMap id="TravelTipsMap" type="com.yoloboo.models.TravelTipsModel">
+		<id column="id" property="id" jdbcType="NUMERIC"/>
+		<result column="nameEn" property="nameEn" jdbcType="VARCHAR"/>
+		<result column="nameCn" property="nameCn" jdbcType="VARCHAR"/>
+		<result column="nameTw" property="nameTw" jdbcType="VARCHAR"/>
+
+		<result column="noclickPicture" property="noclickPicture" jdbcType="VARCHAR"/>
+		<result column="clickPicture" property="clickPicture" jdbcType="VARCHAR"/>
+		<result column="countryTipsId" property="countryTipsId" jdbcType="NUMERIC"/>
+		<result column="type" property="type" jdbcType="NUMERIC"/>
+	</resultMap>
+
+	<resultMap id="CountryTipsMap" type="com.yoloboo.models.CountryTipsModel">
+		<id column="id" property="id" jdbcType="NUMERIC"/>
+		<result column="nameEn" property="nameEn" jdbcType="VARCHAR"/>
+		<result column="nameCn" property="nameCn" jdbcType="VARCHAR"/>
+		<result column="nameTw" property="nameTw" jdbcType="VARCHAR"/>
+
+		<result column="noclickPicture" property="noclickPicture" jdbcType="VARCHAR"/>
+		<result column="clickPicture" property="clickPicture" jdbcType="VARCHAR"/>
+		<result column="stringId" property="stringId" jdbcType="VARCHAR"/>
+	</resultMap>
+
+	<sql id="Base_TravelTips_List">
+		travel_tips_id as id,tt_name as nameEn,tt_simple_name as nameCn,tt_traditional_name as nameTw,
+		tt_noclick_picture as noclickPicture,tt_click_picture as clickPicture,country_tips_id as countryTipsId,
+		tt_type as type
+	</sql>
+
+	<sql id="Base_CountryTips_List">
+		country_tips_id as id,ct_name as nameEn,ct_simple_name as nameCn,ct_traditional_name as nameTw,
+		ct_noclick_picture as noclickPicture,ct_click_picture as clickPicture,
+		string_id as stringId
+	</sql>
+
+	<select id="getCountryTipByTravelTip" resultMap="CountryTipsMap" parameterType="java.lang.Long">
+		SELECT
+		<include refid="Base_CountryTips_List"/>
+		FROM tb_country_tips
+		WHERE country_tips_id = (select country_tips_id from tb_travel_tips WHERE travel_tips_id = #{id})
+	</select>
+
+	<select id="getModelByPK" resultMap="TravelTipsMap" parameterType="java.lang.Long">
+		SELECT
+		<include refid="Base_TravelTips_List"/>
+		FROM tb_travel_tips
+		WHERE travel_tips_id = #{id}
+	</select>
+
+	<select id="getSimilarTips" resultMap="TravelTipsMap" parameterType="java.lang.Long">
+		SELECT
+		<include refid="Base_TravelTips_List"/>
+		FROM tb_travel_tips
+		WHERE country_tips_id = (select country_tips_id from tb_travel_tips WHERE travel_tips_id = #{id})
+	</select>
+	<!--  添加贴士数据 属于3类的  -->
+	<insert id="addTipsData"  parameterType="java.util.HashMap" >
+		insert INTO
+		  tb_tips_column(country_tips_id,user_id,tc_picture,tc_tips_content,tc_date,tc_type,country_id)
+        VALUES(#{countryTipsId},#{userId},#{picture},#{description},#{tcDate},3,#{countryId})
+	</insert>
+
+
+	<!-- 获得贴士数据列表  -->
+	<select id="obtainTipsDataList"  parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	  
+
+	    select tcc.*,u.user_id as userId,u.u_nickname as userName, u.u_picture as userPicture, ct.ct_name as name, ct.ct_simple_name as simpleName, ct.ct_traditional_name as traditionalName  from 
+       ( SELECT  
+        tc.tips_column_id, tc.user_id,tc.tc_picture as picture,tc.tc_tips_content as description,tc.tc_date as tipsDate,tc.tc_tips_name as tipsName,ifnull(tc.tc_address,"") as address,
+        tc.country_tips_id as countryTipsId,ifnull(tc.tc_belong_id,0) as travelNotesId
+        
+      FROM 
+        tb_tips_column as tc,tb_travel_notes as tbtn
+
+      WHERE   
+        tc.tc_belong_id=tbtn.travel_notes_id and tbtn.tn_isno_delete=0 and tc.country_id=#{countryId} and
+       (EXISTS(SELECT f.f_initiative_people_id from tb_friends f where f.f_isno_delete=0 and f.f_initiative_people_id=#{userId} AND f.f_passive_people_id=tc.user_id)
+       OR  tc.user_id=#{userId} or exists(select us.user_id from tb_user us where us.u_type in(2,3) and us.user_id=tc.user_id))
+                 
+    )  tcc 
+        
+         LEFT JOIN tb_user u on u.user_id=tcc.user_id
+         LEFT JOIN tb_country_tips ct ON  ct.country_tips_id= tcc.countryTipsId  ORDER BY    ct.country_tips_id    ,tipsDate    DESC
+         LIMIT ${startIndex},${size}
+        
+	
+	</select>
+	
+
+    <!-- 获得贴士数据列表总数  -->
+	<select id="obtainTipsDataListCount"  parameterType="java.util.HashMap" resultType="Long">
+	   SELECT count(tc.tips_column_id)
+      FROM 
+        tb_tips_column as tc,tb_travel_notes as tbtn
+
+      WHERE   
+        tc.tc_belong_id=tbtn.travel_notes_id and tbtn.tn_isno_delete=0 AND tc.country_id=#{countryId} and
+       (EXISTS(SELECT f.f_initiative_people_id from tb_friends f where  f.f_initiative_people_id=#{userId} AND f.f_passive_people_id=tc.user_id)
+       OR  tc.user_id=#{userId} or exists(select us.user_id from tb_user us where us.u_type in(2,3)))
+	</select>
+	
+	
+	<!--  添加贴士数据  属于1类的，回答问题类的-->
+	<insert id="addTipsDataContent"  parameterType="java.util.HashMap" >
+		insert INTO
+		  tb_tips_column(country_tips_id,user_id,tc_tips_content,tc_date,tc_type,tc_belong_id,country_id)
+        VALUES(#{countryTipsId},#{userId},#{tipsContent},#{tcDate},1,#{travelNotesId},#{countryId})
+        
+	</insert>
+ 
+ 	<!--删除  添加贴士到贴士列表中，这个是 图片的 -->
+	<delete id="deleteTravelNotesTipsPicture" parameterType="java.util.HashMap">
+		delete from tb_tips_column
+		where
+		picture_id=#{pictureTipsId}
+	</delete>
+	
+ 	<!--  添加贴士到贴士列表中 属于2类问题，这个是 图片的-->
+	<insert id="addPitureToTipsDataContent"  parameterType="java.util.HashMap" >
+		insert INTO
+		 tb_tips_column(tc_picture,country_tips_id,user_id,tc_tips_content,tc_date,tc_type,tc_belong_id,country_id,picture_id,tc_address)
+        VALUES(#{picture},#{countryTipsId},#{userId},#{description},#{tcDate},2,#{travelNotesId},#{countryId},#{pictureTipsId},#{address})
+	</insert>
+	
+	 <!--  编辑标签  属于2类问题，这个是 图片的-->
+	<insert id="editPitureToTipsDataContent"  parameterType="java.util.HashMap" >
+       UPDATE tb_tips_column SET
+        tc_type=2
+        <if test="picture !=null">
+        ,tc_picture=#{picture}
+        </if>
+        ,country_tips_id=#{countryTipsId},user_id=#{userId},tc_tips_content=#{description},tc_date=#{tcDate},
+        tc_belong_id=#{travelNotesId},country_id=#{countryId},tc_address=#{address}
+         WHERE 
+         picture_id=#{pictureTipsId}
+	</insert>
+	<!-- 获取制定国家指定贴士的便签列表 -->
+	<select id="obtainNotesByCountryTip" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		<!--
+		SELECT
+			p.picture_id AS pictureId,
+			p.p_address AS address,
+			p.p_picture AS picUrl,
+			p.p_description AS description,
+			tt.tt_name AS tipsName,
+			u.u_picture AS upicUrl,
+			u.u_nickname AS username,
+			p.p_date AS newTime,
+			p.travel_notes_id AS notesId
+
+		FROM
+			tb_travel_notes AS tn,
+			tb_picture AS p,
+			tb_travel_tips_picture AS ttp,
+			tb_user AS u,
+			tb_travel_tips as tt
+		WHERE
+			tn.country_id = #{countryId}
+		AND ttp.travel_tips_id = #{tipsId}
+		AND tn.travel_notes_id = p.travel_notes_id
+		AND p.picture_id = ttp.picture_id
+		AND tn.user_id=u.user_id
+		and tt.travel_tips_id=ttp.travel_tips_id
+	</select>
+	-->
+		<!--SELECT tca.* FROM (select tcc.*,u.user_id as userId,u.u_nickname as userName, u.u_picture as userPicture, ct.ct_name as ct_name, ct.ct_simple_name as simpleName, ct.ct_traditional_name as traditionalName  from
+	( SELECT
+	tc.tips_column_id, tc.user_id,tc.tc_picture as picture,tc.tc_tips_content as description,tc.picture_id as pictureId,tc.tc_date as tipsDate,tc.tc_tips_name as tipsName,ifnull(tc.tc_address,"") as address,
+	tc.country_tips_id as countryTipsId,ifnull(tc.tc_belong_id,0) as travelNotesId
+
+	FROM
+	tb_tips_column as tc
+
+	WHERE
+	tc.country_id=#{countryId} and
+	(EXISTS(SELECT f.f_initiative_people_id from tb_friends f where f.f_isno_delete=0 and f.f_initiative_people_id=#{userId} AND f.f_passive_people_id=tc.user_id)
+	OR  tc.user_id=#{userId} or exists(select us.user_id from tb_user us where us.u_type in(2,3) and us.user_id=tc.user_id))
+
+	)  tcc
+
+	LEFT JOIN tb_user u on u.user_id=tcc.user_id
+	LEFT JOIN tb_country_tips ct ON  ct.country_tips_id= tcc.countryTipsId  where ct.country_tips_id=#{tipsId} ORDER BY    ct.country_tips_id    ,tipsDate    DESC
+	LIMIT ${startIndex},${size}) as tca,tb_picture as p where p.picture_id=tca.pictureId and p.p_isno_delete=0 -->
+		SELECT tca.* FROM (select tcc.*,u.user_id as userId,u.u_nickname as userName, u.u_picture as userPicture, ct.ct_name as ct_name, ct.ct_simple_name as simpleName, ct.ct_traditional_name as traditionalName  from
+		( SELECT
+		tc.tips_column_id, tc.user_id,tc.tc_picture as picture,tc.tc_tips_content as description,tc.picture_id as pictureId,tc.tc_date as tipsDate,tc.tc_tips_name as tipsName,ifnull(tc.tc_address,"") as address,
+		tc.country_tips_id as countryTipsId,ifnull(tc.tc_belong_id,0) as travelNotesId
+
+		FROM
+		tb_tips_column as tc,tb_travel_notes as tbtn
+
+		WHERE
+		tc.tc_belong_id=tbtn.travel_notes_id and tbtn.tn_isno_delete=0 AND tc.country_id=#{countryId} and
+		(EXISTS(SELECT f.f_initiative_people_id from tb_friends f where f.f_isno_delete=0 and f.f_initiative_people_id=#{userId} AND f.f_passive_people_id=tc.user_id)
+		OR  tc.user_id=#{userId} or exists(select us.user_id from tb_user us where us.u_type in(2,3) and us.user_id=tc.user_id))
+
+		)  tcc
+
+		LEFT JOIN tb_user u on u.user_id=tcc.user_id
+		LEFT JOIN tb_country_tips ct ON  ct.country_tips_id= tcc.countryTipsId  where ct.country_tips_id=#{tipsId} ORDER BY    ct.country_tips_id    ,tipsDate    DESC
+		LIMIT ${startIndex},${size}) as tca
+	</select>
+
+	<!-- 获取指定国家的贴士列表 -->
+	<select id="obtainOneCountryTipsList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+	ct.country_tips_id AS tips_id,
+	GROUP_CONCAT(DISTINCT ct.ct_simple_name) AS tips_simple_name,
+	ct.ct_name AS tips_name,
+	ct.ct_traditional_name AS tips_traditional_name
+FROM
+	tb_travel_tips AS tt,
+	tb_country_tips AS ct,
+	tb_travel_tips_picture ttp,
+	tb_picture p,
+	tb_travel_notes tn
+WHERE
+	tn.country_id = #{countryId}
+AND tn.travel_notes_id = p.travel_notes_id
+AND p.picture_id = ttp.picture_id
+AND ttp.travel_tips_id = tt.travel_tips_id
+AND tt.country_tips_id = ct.country_tips_id
+GROUP BY tips_id
+	</select>
+
+	<select id="obtainOneCountryTipsListByUserId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	select ton.countryTipsId as tips_id ,ton.ct_name as ct_name,ton.simpleName as simpleName,ton.traditionalName as traditionalName from
+(select tcc.*, ct.ct_name as ct_name, ct.ct_simple_name as simpleName, ct.ct_traditional_name as traditionalName  from
+	( SELECT
+	 tc.user_id,
+	tc.country_tips_id as countryTipsId
+
+	FROM
+	tb_tips_column as tc,tb_travel_notes as tbtn
+
+	WHERE
+	tc.tc_belong_id=tbtn.travel_notes_id AND tbtn.tn_isno_delete=0 AND tc.country_id=#{countryId} and
+	(EXISTS(SELECT f.f_initiative_people_id from tb_friends f where f.f_isno_delete=0 and f.f_initiative_people_id=#{userId} AND f.f_passive_people_id=tc.user_id)
+	OR  tc.user_id=#{userId} or exists(select us.user_id from tb_user us where us.u_type in(2,3) and us.user_id=tc.user_id))
+
+	)  tcc
+
+	LEFT JOIN tb_user u on u.user_id=tcc.user_id
+	LEFT JOIN tb_country_tips ct ON  ct.country_tips_id= tcc.countryTipsId ) as ton group by ton.countryTipsId
+	</select>
+	
+	
+	<select id="obtainCountryByUserId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	
+		SELECT rs.* from (select DISTINCT (select count(tn2.travel_notes_id) from tb_travel_notes tn2 where tn2.tn_isno_delete=0 and tn2.country_id=c.country_id and
+		tn2.user_id in(SELECT user_id FROM tb_user u WHERE u_type=2 or u_type=3 OR user_id=#{userId} or exists(SELECT f.f_passive_people_id
+		FROM tb_friends as f where f.f_isno_delete=0 and f.f_initiative_people_id=#{userId} and f.f_passive_people_id=u.user_id
+ ))) as notesNum,
+ (select count(ttc.country_tips_id) from tb_tips_column as ttc,tb_travel_notes as tbtn
+	  where ttc.tc_belong_id=tbtn.travel_notes_id and tbtn.tn_isno_delete=0 AND ttc.country_id=c.country_id AND
+		ttc.user_id in(SELECT user_id FROM tb_user u WHERE u_type=2 or u_type=3 OR user_id=#{userId}
+or exists(SELECT f.f_passive_people_id
+		FROM tb_friends as f where f.f_isno_delete=0 and f.f_initiative_people_id=#{userId}
+		and f.f_passive_people_id=u.user_id
+ ))) as tipsNum,
+		c.country_id as countryId,c.c_english as countryName ,c.c_simple as simpleName,
+		c.c_traditional as traditionalName,c.c_picture as countryPicture
+		from tb_country c LEFT JOIN  
+		  (SELECT DISTINCT country_id ,tn_newtime,user_id,tn_isno_delete FROM tb_travel_notes	ORDER BY tn_newtime DESC ) tn
+         on c.country_id=tn.country_id  and tn.tn_isno_delete=0
+		where tn.user_id=#{userId} and tn.tn_isno_delete=0
+		or exists(select f.f_passive_people_id from tb_friends f where
+		f.f_initiative_people_id=#{userId} and
+		f.f_passive_people_id=tn.user_id and f.f_isno_delete=0)
+
+		or exists(select u.user_id from tb_user u where u.user_id=tn.user_id and
+		u.delete_flag=0 and (u.u_type=2 or u.u_type=3))) as rs where rs.tipsNum>0
+
+	
+	</select>
+	
+	
+	<!-- 获得国家贴士标签列表的数据 -->
+	<select id="obtainCountryTipsList"  parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	  
+    select  
+        ct.country_tips_id as countryTipsId,ct.ct_name as name,ct.ct_simple_name as simpleName,
+        ct.ct_traditional_name as traditionalName
+      FROM 
+        tb_country_tips as ct
+ 
+	</select>
+
+
+    <!-- 获得国家贴士标签列表中的数据总数 -->
+	<select id="obtainCountryTipsListCount"  parameterType="java.util.HashMap" resultType="Long">
+	  
+	    select  
+       count(*)
+      FROM 
+        tb_country_tips 
+	</select>
+	<!-- 获取背景图片　取最近一张-->
+	<select id="obtainTipsBgPic" resultType="java.util.HashMap">
+		  SELECT tm.m_picture as picture from tb_managePicture as tm where tm.type=1 limit 1
+	</select>
+
+	<select id="obtainTipsInfoByPicture" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT tt.travel_tips_id as tipsId,tt.tt_name as ttName,
+			tt.tt_simple_name as simpleName,tt.tt_traditional_name as traditionalName
+				from tb_travel_tips_picture as ttp,tb_travel_tips as tt
+					  WHERE tt.travel_tips_id=ttp.travel_tips_id and ttp.picture_id=#{pictureId}
+	</select>
+
+	<select id="obtainMoodTipsByPicture" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT mt.mood_tips_id as tipsId,mt.mt_name as ttName,
+			mt.mt_simple_name as simpleName,mt.mt_traditional_name as traditionalName
+				from tb_picture_mood as pm,tb_mood_tips as mt
+					  WHERE mt.mood_tips_id=pm.mood_id and pm.picture_id=#{pictureId}
+	</select>
+
+	<select id="obtainDiyTipsByPicture" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	SELECT IFNULL(pm.mood_name,"") as ttName ,IFNULL(pm.mood_name,"") as simpleName ,IFNULL(pm.mood_name,"") as traditionalName from tb_picture_mood as pm  WHERE pm.mood_id=10000 and pm.picture_id=#{pictureId}
+	UNION
+	SELECT IFNULL(travel_tips_name,"") as ttName,IFNULL(travel_tips_name,"") as simpleName,IFNULL(travel_tips_name,"") as traditionalName  from tb_travel_tips_picture as ttp WHERE ttp.travel_tips_id=10000 and ttp.picture_id=#{pictureId}
+	</select>
+
+	<select id="obtainPicWH" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT p_width,p_height FROM tb_picture WHERE picture_id=#{pictureId}
+	</select>
+
+
+	<select id="isPraiseById" parameterType="java.util.HashMap" resultType="java.lang.Integer">
+		SELECT count(1) FROM tb_praise WHERE user_id=#{userId} and picture_id=#{pictureId}
+	</select>
+
+
+	<select id="obtainNotesInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT  tn.tn_views_num AS  viewNum,tn.travel_notes_id as travelNotesId ,tn.tn_comments_num as commentNum,tn.tn_praise_num as praiseNum FROM tb_travel_notes as tn WHERE tn.user_id=#{userId} AND tn.tn_isno_delete=0
+	</select>
+	<!--##########################2.0新增############################-->
+
+	<select id="selectTravelTips" resultType="java.util.HashMap">
+		select
+        tt.travel_tips_id as travelTipsId,tt.tt_name as nameEn,tt.tt_simple_name as nameCn,
+        tt.tt_traditional_name as nameTw
+      FROM
+        tb_travel_tips as tt
+	</select>
+	<select id="selectMoodTips" resultType="java.util.HashMap">
+		SELECT
+			mt.mood_tips_id as moodTipsId,mt.mt_name as nameEn,mt.mt_simple_name as nameCn,
+			mt.mt_traditional_name as nameTw
+		FROM
+			tb_mood_tips as mt
+	</select>
+
+	<select id="obtainTravelTipsList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT tt.travel_tips_id as travelTipsId,tt.tt_name as nameEn,tt.tt_simple_name as nameCn,
+				tt.tt_traditional_name as nameTw
+			FROM tb_travel_tips as tt WHERE tt.travel_tips_id in (SELECT DISTINCT(travel_tips_id)
+			FROM
+			(SELECT DISTINCT(ttc.picture_id) as picture_id
+			FROM tb_tips_column as ttc
+			LEFT JOIN tb_picture as tp ON ttc.picture_id=tp.picture_id
+			WHERE ttc.picture_id IS NOT NULL AND tp.p_isno_delete=0
+					AND ttc.country_id=#{countryId} AND ttc.country_tips_id=#{tipsId}
+					AND (EXISTS(SELECT f.f_initiative_people_id from tb_friends f where f.f_isno_delete=0 and f.f_initiative_people_id=#{userId} AND f.f_passive_people_id=ttc.user_id)
+						OR  ttc.user_id=#{userId} or exists(select us.user_id from tb_user us where us.u_type in(2,3) and us.user_id=ttc.user_id))) as rs
+		LEFT JOIN tb_travel_tips_picture as ttp ON rs.picture_id=ttp.picture_id
+		WHERE travel_tips_id in (SELECT travel_tips_id FROM tb_travel_tips WHERE country_tips_id=#{tipsId}))
+	</select>
+
+	<select id="obtainPictureByTravelTips" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT u.u_nickname as nickName, u.u_picture as userPicture ,rs.pictureId as pictureId,rs.userId as userId,rs.picture as picture , rs.picDescription as picDescription, rs.addTime as addTime ,rs.address as address
+		FROM (SELECT picture_id as pictureId ,ttc.user_id as userId ,tc_picture as picture ,tc_tips_content as picDescription,tc_date as addTime, tc_address as address FROM
+		tb_tips_column as ttc
+		WHERE
+		ttc.country_id=#{countryId} AND (EXISTS(
+		SELECT f.f_initiative_people_id from tb_friends f where f.f_isno_delete=0 and f.f_initiative_people_id=#{userId} AND f.f_passive_people_id=ttc.user_id)
+		OR  ttc.user_id=#{userId}
+		or exists(select us.user_id from tb_user us where us.u_type in(2,3) and us.user_id=ttc.user_id))
+		AND ttc.tc_type=2 GROUP BY ttc.picture_id) as rs
+		LEFT JOIN tb_travel_tips_picture as ttp ON ttp.picture_id=rs.pictureId
+		LEFT JOIN tb_picture as p ON p.picture_id =rs.pictureId
+		LEFT JOIN tb_user as u ON rs.userId =u.user_id
+		WHERE ttp.travel_tips_id=#{travelTipsId} AND p.p_isno_delete=0 AND u.delete_flag=0 ORDER BY addTime DESC
+		LIMIT ${startIndex},${size}
+	</select>
+
+	<select id="obtainCountryIdByUserId" parameterType="String" resultType="java.util.HashMap">
+		SELECT tc.country_id as countryId,tc.c_simple as nameCn,tc.c_traditional as nameTw,tc.c_english as nameEn
+		FROM tb_tips_column as ttc
+		LEFT JOIN tb_picture as p ON p.picture_id=ttc.picture_id
+		LEFT JOIN tb_country as tc ON tc.country_id=ttc.country_id
+		WHERE (EXISTS(
+					SELECT f.f_initiative_people_id from tb_friends f where f.f_isno_delete=0 and f.f_initiative_people_id=#{value} AND f.f_passive_people_id=ttc.user_id)
+					OR  ttc.user_id=#{value}
+					or exists(select us.user_id from tb_user us where us.u_type in(2,3) and us.user_id=ttc.user_id))
+			AND ttc.tc_type=2 AND p.p_isno_delete=0 GROUP BY tc.country_id
+	</select>
+
+	<select id="obtainCountryTipsByCountry" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT ttc.country_tips_id as tipsId
+		FROM tb_tips_column as ttc
+		LEFT JOIN tb_picture as p ON p.picture_id=ttc.picture_id
+		WHERE ttc.country_id=#{countryId} AND (EXISTS(
+					SELECT f.f_initiative_people_id from tb_friends f where f.f_isno_delete=0 and f.f_initiative_people_id=#{userId} AND f.f_passive_people_id=ttc.user_id)
+					OR  ttc.user_id=#{userId}
+					or exists(select us.user_id from tb_user us where us.u_type in(2,3) and us.user_id=ttc.user_id))
+				AND ttc.tc_type=2 AND p.p_isno_delete=0 GROUP BY ttc.country_tips_id
+	</select>
+
+	<select id="obtainTravelTipsByCountryId" parameterType="java.lang.String" resultMap="TravelTipsMap">
+		select DISTINCT
+		tt.travel_tips_id as id,tt_name as nameEn,tt_simple_name as nameCn,tt_traditional_name as nameTw,
+		tt_noclick_picture as noclickPicture,tt_click_picture as clickPicture,country_tips_id as countryTipsId,
+		tt_type as type
+		from
+		tb_travel_notes AS tn
+		INNER JOIN tb_friends AS f ON tn.user_id = f.f_initiative_people_id
+		INNER JOIN tb_user AS u on tn.user_id = u.user_id
+		INNER JOIN tb_picture AS p on tn.travel_notes_id = p.travel_notes_id
+		INNER JOIN tb_travel_tips_picture AS ttp on ttp.picture_id = p.picture_id
+		INNER JOIN tb_travel_tips as tt on tt.travel_tips_id = ttp.travel_tips_id
+		where tn.country_id =#{countryId} and ttp.travel_tips_id != 10000 and tn.tn_isno_delete = 0 and(f.f_passive_people_id = #{userId} or f.f_initiative_people_id = 123  or u.u_type=3)
+	</select>
+
+	<select id="obtainTravelTipsByLocationId" parameterType="java.lang.String" resultMap="TravelTipsMap">
+		select DISTINCT
+		tt.travel_tips_id as id,tt_name as nameEn,tt_simple_name as nameCn,tt_traditional_name as nameTw,
+		tt_noclick_picture as noclickPicture,tt_click_picture as clickPicture,country_tips_id as countryTipsId,
+		tt_type as type
+		from
+		tb_travel_notes AS tn
+		INNER JOIN tb_friends AS f ON tn.user_id = f.f_initiative_people_id
+		INNER JOIN tb_user AS u on tn.user_id = u.user_id
+		INNER JOIN tb_picture AS p on tn.travel_notes_id = p.travel_notes_id
+		INNER JOIN tb_travel_tips_picture AS ttp on ttp.picture_id = p.picture_id
+		INNER JOIN tb_travel_tips as tt on tt.travel_tips_id = ttp.travel_tips_id
+		where tn.location_id =#{locationId} and ttp.travel_tips_id != 10000 and tn.tn_isno_delete = 0 and(f.f_passive_people_id = #{userId} or f.f_initiative_people_id = #{userId}  or u.u_type=3)
+	</select>
+
+</mapper>

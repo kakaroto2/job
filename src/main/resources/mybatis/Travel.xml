@@ -1,0 +1,855 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+    "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="travel">
+	<update id="clearCoverPicture" parameterType="String">
+		update tb_picture SET p_isno_cover=0
+		WHERE travel_notes_id=#{travelNoteId}
+	</update>
+
+
+	<update id="uploadTravelNote" parameterType="String">
+		update tb_travel_notes SET can_publish=0, tn_date=#{now},tn_newtime=#{now}
+		WHERE travel_notes_id=#{travelNoteId}
+	</update>
+
+	<select id="findNoteCountryIdByNotesId" parameterType="String"
+		resultType="Long">
+		select country_id from tb_travel_notes where
+		travel_notes_id=#{value}
+	</select>
+
+	<select id="findNoteCountryIdByPictureId" parameterType="String"
+		resultType="Long">
+		select country_id from tb_travel_notes where
+		travel_notes_id=(select travel_notes_id from tb_picture where
+		picture_id=#{value})
+	</select>
+
+	<select id="findTravelNotesIdByPictureId" parameterType="String"
+		resultType="Long">
+		select DISTINCT travel_notes_id from tb_picture where
+		picture_id=#{value}
+	</select>
+
+
+	<!-- 获取旅行风格 英文 简体 繁体 -->
+	<select id="obtainTravelStyle" resultType="java.util.HashMap">
+		select
+		travel_style_id
+		as travel_style_id,ts_name as
+		name,ts_simple_name as
+		simpleName,ts_traditional_name as traditionalName,
+		ts_noclick_picture
+		as noclickPicture,ts_click_picture as clickPicture,
+		ts_black_picture as
+		blackPicture,ts_white_picture as whitePicture,
+		ts_grey_picture as
+		greyPicture
+		from
+		tb_travel_style
+		WHERE ts_version = #{version}
+	</select>
+
+	<!-- 获取国家首页 英文 简体 繁体 -->
+	<select id="obtainCountryList" parameterType="java.util.HashMap"
+		resultType="java.util.HashMap">
+		select
+		tbc.fc_isno_new_notes as isnoRead,tbc.fc_notes_num as
+		notesNum, tbc.country_id as
+		countryId,
+		tc.c_english as
+		countryName,tc.c_simple as simpleName,tc.c_traditional as
+		traditionalName,tc.c_picture as countryPicture
+		from
+		tb_first_country as
+		tbc,tb_country as tc
+		WHERE
+		user_id=#{userId}
+		and
+		tbc.country_id=tc.country_id
+		ORDER BY(tc.c_first_letter)
+	</select>
+
+	<!-- 获取旅行主题 英文 简体 繁体 -->
+	<select id="obtainTravelTheme" resultType="java.util.HashMap">
+		select
+		theme_id as
+		themeId,t_name as
+		name,t_simple_name as simpleName,t_traditional_name
+		as traditionalName,
+		t_noclick_picture as noclickPicture,t_click_picture
+		as clickPicture,
+		t_white_picture as whitePicture,t_black_picture as
+		blackPicture
+		from
+		tb_theme
+	</select>
+
+	<!-- 常用地址查询 -->
+	<select id="inputAddressQuery" parameterType="String"
+		resultType="java.util.HashMap">
+		select
+		ca_name as name
+		from
+		tb_common_address where ca_name
+		like '${value}%'
+	</select>
+
+	<!-- 获取贴士标签 英文 简体 繁体 -->
+	<select id="obtainNotesTips" resultType="java.util.HashMap">
+		select
+		travel_tips_id as
+		travelTipsId,tt_name as
+		name,tt_simple_name as
+		simpleName,tt_traditional_name as
+		traditionalName,tt_noclick_picture as
+		noclickPicture,tt_click_picture
+		as clickPicture
+		from
+		tb_travel_tips
+	</select>
+
+	<!-- 获取心情标签 英文 简体 繁体 -->
+	<select id="obtainMoodTips" resultType="java.util.HashMap">
+		select
+		mood_tips_id as
+		moodTipsId,mt_name as
+		name,mt_simple_name as
+		simpleName,mt_traditional_name as
+		traditionalName,mt_noclick_picture as
+		noclickPicture,mt_click_picture
+		as clickPicture
+		from
+		tb_mood_tips
+	</select>
+
+
+	<!--游记插入 -->
+	<insert id="insertTravelNotes" parameterType="java.util.HashMap">
+		insert into
+		tb_travel_notes(country_id,tn_date,tn_isno_complete,tn_isno_delete,user_id,theme_id,string_id,tn_title
+		,tn_newtime)
+		values(#{countryId},#{date},0,0,#{userId},#{travelThemeId},#{stringId},#{countryName}
+		,#{newtime})
+	</insert>
+
+	<!-- 获取游记ID -->
+	<select id="obtainTravelNotesId" parameterType="java.util.HashMap"
+		resultType="Long">
+		select
+		travel_notes_id as travelNotesId
+		from
+		tb_travel_notes
+		where
+		string_id=#{stringId}
+	</select>
+
+	<!--贴士插入 -->
+	<insert id="newPictureTips" parameterType="java.util.HashMap">
+		insert into
+		tb_picture(p_date,p_address,p_picture,p_isno_cover,string_id,p_description,travel_notes_id,p_isno_delete,p_width,p_height
+		)
+		values(#{pictureDate},#{address},#{picture},#{isnocover},#{stringId},#{description},#{travelNotesId},0,#{p_width},#{p_height}
+		)
+	</insert>
+
+
+	<!-- 获取贴士ID -->
+	<select id="obtainPictureTipsId" parameterType="java.util.HashMap"
+		resultType="String">
+		select
+		picture_id as pictureTipsId
+		from
+		tb_picture
+		where
+		string_id=#{stringId}
+
+	</select>
+
+
+
+	<!-- 获得问题是否是国家贴士，是的话保存该条数据 -->
+	<select id="obtainQuestionType" parameterType="String"
+		resultType="java.util.HashMap">
+		select
+		q_type as qType,country_tips_id as countryTipsId
+		from
+		tb_question
+		where
+		question_id=#{value}
+
+	</select>
+
+	<!-- 获得贴士标签是否是国家贴士，是的话保存该条数据 -->
+	<select id="obtainTipsPictureType" parameterType="String"
+		resultType="java.util.HashMap">
+		select
+		tt_type as ttType,country_tips_id as countryTipsId
+		from
+		tb_travel_tips
+		where
+		travel_tips_id=#{value}
+
+	</select>
+
+	<!--新增心情比标签和贴士关系 -->
+	<insert id="moodTipsPicture" parameterType="java.util.HashMap">
+		insert into
+		tb_picture_mood(picture_id,mood_id,mood_name
+		)
+		values(#{pictureTipsId},#{moodId},#{moodName}
+		)
+	</insert>
+
+
+	<!--新增贴士标签和贴士关系 -->
+	<insert id="notesTipsPicture" parameterType="java.util.HashMap">
+		insert into
+		tb_travel_tips_picture(travel_tips_id,travel_tips_name,picture_id
+		)
+		values(#{travelTipsId},#{travelTipsName},#{pictureTipsId}
+		)
+	</insert>
+
+
+	<!-- 删除图片 软删除 ok -->
+	<update id="deletePictureTips" parameterType="java.util.HashMap">
+		update tb_picture
+		set p_isno_delete=1 where picture_id=#{pictureId}
+	</update>
+
+	<update id="deletePictureTipsUpdatePraise">
+		update tb_travel_notes set tn_praise_num =tn_praise_num- (select
+		p_praise_num from tb_picture where picture_id=#{pictureId})
+		where
+		travel_notes_id = (select travel_notes_id from tb_picture where
+		picture_id=#{pictureId})
+	</update>
+
+	<update id="deletePictureTipsUpdateComments">
+		update tb_travel_notes set tn_comments_num =tn_comments_num- (select
+		p_comments_num from tb_picture where picture_id=#{pictureId})
+		where
+		travel_notes_id = (select travel_notes_id from tb_picture where
+		picture_id=#{pictureId})
+	</update>
+
+	<!-- 编辑贴士 ok -->
+	<update id="modifyPictureTips" parameterType="java.util.HashMap">
+		update
+		tb_picture
+		set
+		p_date=#{pictureDate},p_address=#{address},
+		p_description=#{description},p_isno_cover=#{isnocover}
+		<if test="squareSide!=null">
+			,square_side=#{squareSide}
+			,p_width=#{squareSide},p_height=#{squareSide}
+		</if>
+
+		<if test="picture!=null">
+			,p_picture_square=#{picture},p_picture=#{picture}
+		</if>
+		<!--
+		<if test="picture!=null">
+			,p_picture=#{picture}
+		</if>
+		<if test="commentsNum!=null">
+			,p_comments_num=#{commentsNum}
+		</if>
+		<if test="praiseNum!=null">
+			,p_praise_num=#{praiseNum}
+		</if>-->
+		where
+		picture_id=#{pictureTipsId}
+	</update>
+
+	<!-- 把所有的游记的贴士ID改为0 -->
+	<update id="editIsnocoverTravel" parameterType="String">
+		update
+		tb_picture
+		set
+		p_isno_cover=0
+		where
+		travel_notes_id=#{value}
+	</update>
+
+	<!-- 把所有的游记的贴士ID改为0 是根据贴士ID -->
+	<select id="TravelIdByTipsId" parameterType="String" resultType="String">
+		SELECT
+		DISTINCT
+		travel_notes_id
+		FROM tb_picture
+		WHERE picture_id=#{value}
+	</select>
+
+
+	<!-- 把这个贴士改为游记的封面 -->
+	<update id="editIsnocoverPicture" parameterType="String">
+		update
+		tb_picture
+		set
+		p_isno_cover=1
+		where
+		picture_id=#{value}
+	</update>
+
+	<!-- 删除所有与贴士相关的心情标签 ok -->
+	<delete id="deleteNotesTipsPicture" parameterType="java.util.HashMap">
+		delete from
+		tb_travel_tips_picture where picture_id=#{pictureTipsId}
+	</delete>
+
+	<!-- 删除所有与贴士相关的贴士标签ok -->
+	<delete id="deleteMoodTipsPicture" parameterType="java.util.HashMap">
+		delete from
+		tb_picture_mood where picture_id=#{pictureTipsId}
+	</delete>
+
+	<select id="obtainPicIdByNotesId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT  p.picture_id as pictureTipsId FROM tb_picture as p WHERE  p.p_isno_cover=1 AND p.travel_notes_id=#{travelNotesId}
+	</select>
+	<!-- 编辑游记 ok -->
+	<update id="modifyNotes" parameterType="java.util.HashMap">
+		update
+		tb_travel_notes
+		set
+		tn_isno_delete=0,tn_title=#{title}
+		<if test="countryId!=null">
+			,country_id=#{countryId}
+		</if>
+		<if test="date!=null">
+			,tn_date=#{date}
+		</if>
+		<if test="travelThemeId!=null">
+			,theme_id=#{travelThemeId}
+		</if>
+		<if test="isnoComplete!=null">
+			,tn_isno_complete=#{isnoComplete}
+		</if>
+		where
+		travel_notes_id=#{travelNotesId}
+	</update>
+
+	<!-- 问题 -->
+	<select id="obtainQuestion" resultType="java.util.HashMap">
+		select
+		country_tips_id as
+		countryTipsId, q_type as type,question_id as questionId,q_content
+		as
+		content,qa_content_simple as contentSimple,qa_content_traditional
+		as
+		contentTraditional
+		from
+		tb_question
+		order by rand() limit 11
+
+	</select>
+
+	<!--问题答案 -->
+	<insert id="questionAnswer" parameterType="java.util.HashMap">
+		insert into
+		tb_question_answer(qa_content,question_id,qa_answer,user_id
+		)
+		values(#{content},#{questionId},#{answer},#{userId}
+		)
+	</insert>
+	<select id="findPicturePath" parameterType="String" resultType="java.util.HashMap">
+		select p_picture,p_width,p_height from tb_picture where picture_id=#{value}
+	</select>
+	<select id="obtainTitleById" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT tn_title as title FROM tb_travel_notes WHERE travel_notes_id=#{travelNotesId}
+	</select>
+	<select id="obtainPicComment" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT c.c_content as content FROM tb_comments as c WHERE c.user_id=#{userId} and c.picture_id=#{pictureId} AND ISNULL(c_userId) ORDER BY  c.c_time DESC LIMIT 1
+	</select>
+	<select id="obtainActivityPicComment" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT c.apc_content as content FROM tb_activity_picture_comments as c WHERE c.user_id=#{userId} and c.activity_picture_id=#{pictureId} AND ISNULL(c_user_id) ORDER BY  c.apc_date DESC LIMIT 1
+	</select>
+
+	<select id="obtainReplyComment" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT c.c_content as content FROM tb_comments as c WHERE c.user_id=#{userId} and c.picture_id=#{pictureId} AND c_userId IS NOT NULL ORDER BY  c.c_time DESC
+	</select>
+
+	<select id="obtainCommentNum" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT count(DISTINCT(user_id)) as num from tb_comments WHERE picture_id=#{pictureId}
+	</select>
+
+	<select id="obtainActivityCommentNum" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT count(DISTINCT(user_id)) as num from tb_activity_picture_comments WHERE activity_picture_id=#{pictureId}
+	</select>
+	<select id="obtainPraiseNum" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT count(DISTINCT(user_id)) as num FROM tb_praise as p WHERE p.picture_id=#{pictureId}
+	</select>
+
+	<select id="obtainActivityPraiseNum" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT count(DISTINCT(user_id)) as num FROM tb_activity_picture_praise as p WHERE p.picture_id=#{pictureId}
+	</select>
+
+	<!-- 根据游记ID软删除游记-->
+	<update id="softDeleteNotes" parameterType="java.util.HashMap">
+		update tb_travel_notes  SET tn_isno_delete=1 WHERE travel_notes_id=#{travelNotesId}
+	</update>
+
+	<!-- 根据游记ID软删除照片-->
+	<update id="softDeletePic" parameterType="java.util.HashMap">
+		UPDATE tb_picture  SET p_isno_delete=1 WHERE travel_notes_id=#{travelNotesId}
+	</update>
+	<select id="obtainPicId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT picture_id as pictureId from tb_picture WHERE travel_notes_id=#{travelNotesId}
+	</select>
+
+	<delete id="deleteMoodTips" parameterType="java.util.HashMap">
+		DELETE FROM tb_picture_mood  WHERE picture_id=#{pictureId}
+	</delete>
+	<delete id="deleteTravelTips" parameterType="java.util.HashMap">
+		DELETE FROM tb_travel_tips_picture WHERE picture_id=#{pictureId}
+	</delete>
+	<delete id="deleteCountryTips" parameterType="java.util.HashMap">
+		DELETE FROM tb_tips_column  WHERE picture_id=#{pictureId}
+	</delete>
+
+	<delete id="deleteComments" parameterType="java.util.HashMap">
+		DELETE  FROM tb_comments WHERE picture_id=#{pictureId}
+	</delete>
+
+	<delete id="deletePraise" parameterType="java.util.HashMap">
+		DELETE  FROM tb_praise WHERE  picture_id=#{pictureId}
+	</delete>
+
+	<update id="softDeleteById" parameterType="java.util.HashMap" >
+		UPDATE tb_picture SET p_isno_delete=1 WHERE picture_id=#{pictureId}
+	</update>
+
+
+	<select id="obtainUrlList" resultType="java.util.HashMap">
+		SELECT p_picture as picture,picture_id as pictureId FROM tb_picture WHERE p_isno_delete=0
+	</select>
+	<update id="updatePicWH" parameterType="java.util.HashMap">
+		update tb_picture SET p_width=#{width},p_height=#{height} WHERE picture_id=#{pictureId}
+	</update>
+	<!--<insert id="insertPicture" parameterType="java.util.HashMap">-->
+		<!--INSERT  INTO tb_picture (p_picture,p_address,p_description,travel_notes_id,p_comments_num,p_praise_num,p_isno_delete,p_date,p_isno_cover,string_id)-->
+		 				<!--VALUES (#{picture},#{address},#{description},#{travelNotesId},#{commentsNum},#{praiseNum},0,#{pictureDate},#{isnocover},#{stringId})-->
+	<!--</insert>-->
+
+	<delete id="deleteQuesByNoteId" parameterType="java.util.HashMap">
+		DELETE FROM tb_tips_column WHERE tc_type=1 and tc_belong_id=#{travelNotesId}
+	</delete>
+
+	<delete id="deleteMoodById" parameterType="java.util.HashMap">
+		DELETE FROM tb_picture_mood WHERE picture_id=#{pictureId}
+	</delete>
+	<delete id="deleteTipsById" parameterType="java.util.HashMap">
+		DELETE  FROM tb_travel_tips_picture WHERE picture_id=#{pictureId}
+	</delete>
+
+	<select id="obtainNotifiList" resultType="java.util.HashMap">
+		SELECT DISTINCT (picture) as picture FROM tb_notification_list
+	</select>
+
+	<select id="updatePicId" parameterType="java.util.HashMap">
+		UPDATE tb_notification_list SET picture_id=(SELECT picture_id FROM tb_picture WHERE p_picture=#{picture}) WHERE picture=#{picture}
+	</select>
+
+
+	<select id="obtainNotesList" resultType="java.util.HashMap">
+		SELECT travel_notes_id as noteId FROM tb_travel_notes WHERE tn_isno_delete=0
+	</select>
+
+
+	<select id="obtainPicByNoteId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT picture_id as pictureId,p_comments_num as num1,p_praise_num as num2 FROM tb_picture WHERE travel_notes_id=#{noteId} AND  p_isno_delete=0
+	</select>
+
+	<update id="updateNotesInfo" parameterType="java.util.HashMap" >
+		UPDATE tb_travel_notes SET tn_comments_num=#{commentNum},tn_praise_num=#{praiseNum} WHERE travel_notes_id=#{noteId}
+	</update>
+
+
+	<select id="obtainUserList" resultType="java.util.HashMap">
+		SELECT praise_id as praiseId , user_id as userId,picture_id as pictureId FROM  tb_praise
+	</select>
+
+	<select id="countPraise" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT count(1) as praiseNum FROM (SELECT * from tb_praise GROUP BY user_id,picture_id) as rs WHERE rs.picture_id=#{pictureId}
+	</select>
+
+	<update id="updatePicPriase" parameterType="java.util.HashMap">
+		UPDATE tb_picture SET p_praise_num=#{praiseNum} WHERE picture_id=#{pictureId}
+	</update>
+
+	<delete id="deletePraiseById" parameterType="java.util.HashMap">
+		DELETE FROM tb_praise WHERE praise_id=#{praiseId}
+	</delete>
+
+	<select id="obtainPicInfo" resultType="java.util.HashMap">
+		SELECT picture_id as pictureId,p_description as content FROM tb_picture
+	</select>
+
+	<select id="obtainTipsInfo" resultType="java.util.HashMap">
+		SELECT tips_column_id as tipsId,tc_tips_content as content FROM tb_tips_column
+	</select>
+
+	<update id="updateContent" parameterType="java.util.HashMap">
+		UPDATE tb_picture SET p_description=#{content} WHERE picture_id=#{pictureId}
+	</update>
+
+
+	<update id="updateTipsContent" parameterType="java.util.HashMap">
+		UPDATE tb_tips_column SET tc_tips_content=#{content} WHERE tips_column_id=#{tipsId}
+	</update>
+	<select id="selectByCommentId" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT picture_id FROM tb_comments WHERE comments_id=#{value} limit 1
+	</select>
+
+	<delete id="deleteCommentById" parameterType="java.lang.String">
+		DELETE from tb_comments WHERE comments_id=#{value }
+	</delete>
+
+	<update id="updatePictureCommentNum" parameterType="java.lang.String">
+		UPDATE tb_picture SET p_comments_num=p_comments_num-1 WHERE picture_id=#{value }
+	</update>
+
+	<update id="updateNoteCommentNum" parameterType="java.lang.String">
+		UPDATE tb_travel_notes SET tn_comments_num=tn_comments_num-1 WHERE travel_notes_id=(SELECT travel_notes_id FROM tb_picture WHERE picture_id=#{value})
+	</update>
+	<select id="obtainPicDetails" resultType="java.util.HashMap">
+		SELECT picture_id ,p_picture,p_width,p_height FROM tb_picture WHERE p_isno_delete=0
+	</select>
+	<update id="updatePicSquare" parameterType="java.util.HashMap">
+		UPDATE tb_picture SET p_picture_square=#{squareUrl},square_side=#{side} WHERE picture_id=#{picture_id}
+	</update>
+
+	<!--#################2.0新增####################-->
+	<select id="selectTravelStyleById" resultType="java.util.HashMap">
+		SELECT
+		ifnull(ts.ts_bg_picture,'') as bgPicture,  ts.travel_style_id as travelStyleId,ts.ts_grey_picture AS grayPicture,ts.ts_white_picture as whitePicture,ts.ts_black_picture as bluePicture
+        from
+          tb_user_travel_style as uts, tb_travel_style as ts
+        WHERE
+          uts.user_id=#{value}  and uts.travel_style_id=ts.travel_style_id-- AND ts.ts_version=2
+	</select>
+
+	<select id="selectTravelNotesCount" parameterType="String" resultType="Long">
+		 SELECT
+        count(tn.travel_notes_id)
+      from
+         tb_travel_notes as tn
+      WHERE
+         tn.user_id=#{value} and tn_isno_delete=0
+	</select>
+
+	<select id="selectLocationBySub" parameterType="String" resultType="java.util.HashMap">
+		select
+		l_id as locationId,l_name_en as locationName,l_name_en as nameEn,l_name_cn as nameCn,l_name_tw as nameTw
+		from
+		tb_location where l_name_en like '${value}%' OR l_name_cn LIKE '${value}%' OR l_name_tw LIKE '${value}%'
+	</select>
+
+
+	<select id="selectLocationBySubCn" parameterType="String" resultType="java.util.HashMap">
+		select
+		l_id as locationId,l_name_cn as locationName,l_name_en as nameEn,l_name_cn as nameCn,l_name_tw as nameTw
+		from
+		tb_location where l_name_cn LIKE '${value}%'
+	</select>
+
+	<select id="selectLocationBySubEn" parameterType="String" resultType="java.util.HashMap">
+		select
+		l_id as locationId,l_name_en as locationName,l_name_en as nameEn,l_name_cn as nameCn,l_name_tw as nameTw
+		from
+		tb_location where l_name_en like '${value}%'
+	</select>
+
+
+	<select id="selectCountrySubCn" parameterType="String" resultType="java.util.HashMap">
+		select
+		country_id as countryId,c_simple as countryName,c_english as nameEn,c_simple as nameCn,c_traditional as nameTw
+		from
+		tb_country where c_simple LIKE '${value}%'
+	</select>
+
+	<select id="selectCountryBySubEn" parameterType="String" resultType="java.util.HashMap">
+		select
+		country_id as countryId,c_english as countryName,c_english as nameEn,c_simple as nameCn,c_traditional as nameTw
+		from
+		tb_country where c_english LIKE '${value}%'
+	</select>
+
+
+	<select id="selectCategory" resultType="java.util.HashMap">
+		SELECT theme_id as themeId,t_name as nameEn,t_simple_name as nameCn,t_tranditional_name as nameTw FROM tb_theme
+	</select>
+
+	<select id="selectCountryIdByLocationId" parameterType="String" resultType="String">
+		SELECT country_id FROM tb_location WHERE l_id=#{value}
+	</select>
+	<insert id="insertNewNote" parameterType="java.util.HashMap">
+		INSERT INTO tb_travel_notes(country_id,user_id,theme_id,tn_title,string_id,tn_newtime,tn_views_num,tn_description,location_id,can_publish)
+			VALUES (#{countryId},#{userId},#{themeId},#{title},#{stringId},#{addTime},0,#{noteDescription},#{locationId},1)
+	</insert>
+
+	<select id="selectLastInsertNote" parameterType="String" resultType="String">
+		SELECT travel_notes_id as travelNoteId FROM tb_travel_notes
+			WHERE string_id=#{value}
+	</select>
+
+	<insert id="insertNewPicture" parameterType="java.util.HashMap">
+		INSERT INTO tb_picture(p_address,p_description,p_isno_cover,travel_notes_id,p_date,string_id,p_picture_square,square_side,p_width,p_height,p_picture,sort)
+			VALUES (#{picAddress},#{picDescription},#{isnoCover},#{travelNoteId},#{picDate},#{stringId},#{picture},#{squareSide},#{squareSide},#{squareSide},#{picture},#{sort})
+	</insert>
+
+	<select id="selectLastInsertPicture" parameterType="String" resultType="String">
+		SELECT picture_id as pictureId FROM tb_picture WHERE string_id=#{value}
+	</select>
+
+	<select id="obtainCountryByNote" parameterType="String" resultType="String">
+		SELECT country_id FROM tb_travel_notes WHERE travel_notes_id=#{value}
+	</select>
+	<update id="updateTravelNote" parameterType="java.util.HashMap">
+		UPDATE tb_travel_notes SET country_id=#{countryId},theme_id=#{themeId},tn_title=#{noteName},
+								tn_description=#{noteDescription},location_id=#{locationId}
+								WHERE travel_notes_id=#{travelNoteId}
+	</update>
+
+	<select id="selectPictureById" parameterType="String" resultType="String">
+		SELECT p_picture_square FROM tb_picture WHERE picture_id=#{value}
+	</select>
+
+	<update id="deleteTravelNoteById" parameterType="String">
+		UPDATE tb_travel_notes SET tn_isno_delete=1 WHERE travel_notes_id=#{value}
+	</update>
+
+	<update id="softDeletePictures" parameterType="String">
+		UPDATE tb_picture SET p_isno_delete=1 WHERE picture_id IN (SELECT picture_id FROM tb_picture WHERE travel_notes_id=#{value})
+	</update>
+
+	<delete id="deleteNoteCollectById" parameterType="String">
+		DELETE FROM tb_notes_collect WHERE note_id=#{value}
+	</delete>
+	<select id="obtainUserByNote" parameterType="String" resultType="String">
+		SELECT user_id FROM tb_travel_notes WHERE travel_notes_id=#{value}
+	</select>
+
+	<select id="obtainNoteByPicture" parameterType="String" resultType="String">
+		SELECT travel_notes_id FROM tb_picture WHERE picture_id=#{value}
+	</select>
+
+	<select id="obtainPictureNumByNote" parameterType="String" resultType="java.lang.Long">
+		SELECT count(*) FROM tb_picture WHERE p_isno_delete=0 AND travel_notes_id=#{value}
+	</select>
+
+	<update id="softDeletePictureById" parameterType="String">
+		UPDATE tb_picture SET p_isno_delete=1 WHERE picture_id=#{value}
+	</update>
+	<update id="updateNoteComment" parameterType="java.util.HashMap">
+		UPDATE tb_travel_notes SET tn_comments_num=tn_comments_num-(
+				SELECT p_comments_num FROM tb_picture WHERE picture_id=#{pictureId}
+				) WHERE travel_notes_id=#{travelNoteId}
+	</update>
+	<update id="updateNotePraise" parameterType="java.util.HashMap">
+		UPDATE tb_travel_notes SET tn_praise_num=tn_praise_num-(
+				SELECT p_praise_num FROM tb_picture WHERE picture_id=#{pictureId}
+				) WHERE travel_notes_id=#{travelNoteId}
+	</update>
+	<select id="obtainPictureInfo" parameterType="java.lang.Long" resultType="java.util.HashMap">
+		SELECT p_picture_square as pictureSquare,square_side as sqaureSide FROM tb_picture
+				WHERE picture_id=#{value}
+	</select>
+	<insert id="addNoteComments" parameterType="java.util.HashMap">
+		insert INTO
+			tb_comments(c_content,c_time,picture_id,user_id,c_userId,c_nickname)
+		VALUES
+			(#{commentsContent},#{commentsTime},#{tipsId},#{userId},#{c_userId},#{c_nickname})
+	</insert>
+	<update id="updatePictureComments" parameterType="java.util.HashMap">
+		UPDATE tb_picture SET p_comments_num=p_comments_num+${commentNum} WHERE picture_id=#{tipsId}
+	</update>
+	<update id="updateNoteComments" parameterType="java.util.HashMap">
+		UPDATE tb_travel_notes SET tn_comments_num=tn_comments_num+${commentNum}
+			WHERE travel_notes_id=(SELECT travel_notes_id FROM tb_picture WHERE picture_id=#{tipsId})
+	</update>
+	<insert id="addNotesComment2" parameterType="java.util.HashMap">
+		insert INTO
+			tb_comments(c_content,c_time,picture_id,user_id)
+		VALUES
+			(#{commentsContent},#{commentsTime},#{tipsId},#{userId})
+	</insert>
+
+	<select id="obtainPicInfoList" parameterType="String" resultType="java.util.HashMap">
+		SELECT p_address as picAddress,p_description as picDescription,p_comments_num as commentNum,
+				p_praise_num as praiseNum,p_picture_square as picture,square_side as squareSide
+		FROM tb_picture
+		WHERE travel_notes_id=#{value} AND p_isno_delete=0
+	</select>
+	<select id="judgeIsCollect" parameterType="java.util.HashMap" resultType="java.lang.Long">
+		SELECT count(*) FROM tb_notes_collect WHERE note_id=#{travelNoteId} AND user_id=#{userId}
+	</select>
+	<select id="selectNoteById" parameterType="String" resultType="java.util.HashMap">
+		SELECT  topic.t_name_en as topicName,tn_comments_num as commentNum,tn_praise_num as praiseNum,tn_title as title,
+				tn_newtime as publishTime,tn_views_num as viewNum,tn_description as noteDescription,
+				l.l_name_en as locationEn,l.l_name_cn as locationCn,l.l_name_tw as locationTw,
+				t.t_name as themeEn,t.t_simple_name as themeCn,t.t_traditional_name as themeTw
+		FROM tb_travel_notes as tn
+			LEFT JOIN tb_theme as t ON tn.theme_id=t.theme_id
+			LEFT JOIN tb_location as l ON tn.location_id=l.l_id
+			LEFT JOIN tb_topic as topic ON tn.topic_id=topic.t_id
+		WHERE tn.travel_notes_id=#{value}
+	</select>
+
+	<update id="addNoteRead" parameterType="String">
+		UPDATE tb_travel_notes SET tn_views_num=tn_views_num+1 WHERE travel_notes_id=#{value}
+	</update>
+	<insert id="addCollectNote" parameterType="java.util.HashMap">
+		INSERT INTO tb_note_collect(note_id,user_id,nc_date)
+			VALUES(#{travelNoteId},#{userId},#{collectTime})
+	</insert>
+
+	<update id="updateNoteTopicByNoteId" parameterType="java.util.HashMap">
+		UPDATE  tb_travel_notes SET topic_id=#{topicId} WHERE travel_notes_id=#{travelNoteId}
+	</update>
+
+	<select id="obtainNotesInfoToTips" parameterType="String" resultType="java.util.HashMap">
+		SELECT
+		tn.user_id as userId,tn.tn_title as
+		title,tn.tn_date as notesDate, t.t_name as name, t.t_simple_name as
+		simpleName, t.t_traditional_name as traditionalName
+		,
+		t.t_noclick_picture as noclickPicture,t.t_click_picture as
+		clickPicture,
+		t.t_white_picture as whitePicture,t.t_black_picture as blackPicture,tn.country_id as
+		countryId
+		FROM
+		tb_travel_notes as tn LEFT JOIN tb_theme as t on tn.theme_id=t.theme_id
+		WHERE
+		tn.travel_notes_id=#{value}
+		limit
+		0,1
+	</select>
+	<select id="obtainOneNotesTipsList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+		p.picture_id as tipsId,p.p_address as address,p.p_description as
+		content,p.p_picture_square as tipsPicture,square_side
+		,p.p_praise_num as praiseNum,p.p_comments_num as commentsNum,p_date as
+		tipsDate,p.p_isno_cover as isnoCover,
+		ifnull(
+		(select
+		sum( tt.tt_type)
+		from tb_travel_tips as tt
+		where tt.travel_tips_id in
+		(select travel_tips_id from tb_travel_tips_picture as ttp where
+		ttp.picture_id=p.picture_id) ),0) as type,
+		(select count(*) from tb_praise pr where pr.user_id=#{userId} and
+		pr.picture_id=p.picture_id) as isPraised
+		FROM
+		tb_picture as p
+		WHERE
+		p.travel_notes_id=#{travelNoteId} AND p.p_isno_delete=0
+		order by  sort  asc
+-- 		p.p_date asc
+	</select>
+
+	<select id="obtainCoverPicture" parameterType="java.lang.Long" resultType="java.util.HashMap">
+		SELECT
+		  p_picture_square,square_side
+		FROM
+		  tb_picture
+		WHERE
+		  travel_notes_id=#{value} AND p_isno_cover=1
+		limit
+		0,1
+	</select>
+	<select id="findNoteMoodList" parameterType="String" resultType="HashMap">
+		select pm.mood_id as id,
+
+		CASE WHEN 10000>pm.mood_id THEN
+		mt.mt_name
+		ELSE
+		pm.mood_name
+		END as name,
+		CASE WHEN 10000>pm.mood_id THEN
+		mt.mt_simple_name
+		ELSE
+		pm.mood_name
+		END as simpleName,
+		CASE WHEN 10000>pm.mood_id THEN
+		mt.mt_traditional_name
+		ELSE
+		pm.mood_name
+		END as traditionalName
+
+		from tb_picture_mood pm LEFT JOIN tb_mood_tips mt on
+		pm.mood_id=mt.mood_tips_id
+		where pm.picture_id=#{value}
+	</select>
+
+	<select id="findNotePraiseList" parameterType="String" resultType="java.util.HashMap">
+		select tp.user_id as userId,tu.u_nickname as nickname ,tu.u_picture as picture
+		from tb_praise tp,tb_user tu
+		where tp.user_id=tu.user_id and picture_id=#{value}
+	</select>
+
+	<select id="findNoteStyleList" parameterType="String" resultType="HashMap">
+		select tp.travel_tips_id  as id,
+
+		CASE WHEN 10000>tp.travel_tips_id THEN
+		tt.tt_name
+		ELSE
+		tp.travel_tips_name
+		END as name,
+		CASE WHEN 10000>tp.travel_tips_id THEN
+		tt.tt_simple_name
+		ELSE
+		tp.travel_tips_name
+		END as simpleName,
+		CASE WHEN 10000>tp.travel_tips_id THEN
+		tt.tt_traditional_name
+		ELSE
+		tp.travel_tips_name
+		END as traditionalName
+
+		from tb_travel_tips_picture tp LEFT JOIN tb_travel_tips tt on tp.travel_tips_id=tt.travel_tips_id
+		where tp.picture_id=#{value}
+	</select>
+
+	<select id="canPublishOrNot" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		select can_publish from tb_travel_notes
+		where travel_notes_id = #{travelNoteId}
+	</select>
+
+	<select id="getDescription" parameterType="java.lang.Integer" resultType="java.lang.String">
+		select tn_description from tb_travel_notes
+		where travel_notes_id = #{travelNoteId}
+	</select>
+
+	<select id="obtainNoteLocationInfo" parameterType="java.lang.Integer" resultType="java.util.HashMap">
+		select tb_travel_notes.location_id AS id,
+		tb_location.l_name_en AS  nameEn,tb_location.l_name_cn AS  nameCn,
+		tb_location.l_name_tw AS  nameTw
+		from tb_travel_notes left join tb_location on tb_travel_notes.location_id = tb_location.l_id
+		WHERE tb_travel_notes.travel_notes_id = #{travelNoteId}
+	</select>
+
+	<select id="obtainNoteThemeInfo" parameterType="java.lang.Integer" resultType="java.util.HashMap">
+		select tb_travel_notes.theme_id AS id,
+		tb_theme.t_name AS  name
+		from tb_travel_notes left join tb_theme on tb_travel_notes.theme_id = tb_theme.theme_id
+		WHERE tb_travel_notes.travel_notes_id = #{travelNoteId}
+	</select>
+
+	<select id="noteHasCoverPicture" parameterType="java.lang.Long" resultType="java.lang.Integer">
+		select count(*) from tb_picture as p where p.travel_notes_id = #{value} and p.p_isno_cover = 1 and p_isno_delete = 0
+	</select>
+
+	<select id="getLastSort" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select sort from tb_picture  where  travel_notes_id=#{value}  and p_isno_delete = 0 order  by sort  desc  limit 1
+	</select>
+
+	<select id="getTopPic" parameterType="java.lang.Long" resultType="java.lang.Long">
+		select picture_id from tb_picture as p where p.travel_notes_id = #{value} and p_isno_delete = 0 limit 0,1
+	</select>
+
+</mapper>

@@ -1,0 +1,201 @@
+package com.yoloboo.service.impl;
+
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.common.Commonparam;
+import com.common.ExceptionMyself;
+import com.common.HttpXmlUtil;
+import com.json.BaseBean;
+import com.yoloboo.service.FriendsManager;
+import com.yoloboo.service.TravelManager;
+
+@Service
+@Transactional
+public class FriendsManagerImpl implements FriendsManager {
+	@Autowired
+	private SqlSessionTemplate sqlSession;
+
+	public FriendsManagerImpl() {
+	}
+
+	// 忽略好友
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void ignoreFriends(HashMap param) {
+		sqlSession.insert("friends.ignoreFriends", param);
+	}
+
+	// 判断是否好友
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Integer judgeFriends(HashMap param) {
+		return (Integer) sqlSession.selectOne("friends.judgeFriends", param);
+	}
+
+	// 添加好友
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void addFriends(HashMap param) {
+		Integer num1=(Integer) sqlSession.selectOne("friends.judgeFriends", param);
+		if(num1==0){
+		 sqlSession.insert("friends.addFriends", param);//主动至被动 status 0
+		}
+		
+		Integer num=(Integer) sqlSession.selectOne("friends.judgeFriends2", param);
+		if(num==0){
+			sqlSession.insert("friends.addFriends2", param);//主动至被动 status 1
+		}
+		
+	}
+
+	// 已经添加好友删除推荐的
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void addedDeleteFriends(HashMap param) {
+		sqlSession.delete("friends.addedDeleteFriends", param);
+		sqlSession.delete("friends.addedDeleteFriends2", param);
+		
+	}
+	@Override
+	public void addedDeleteFriendsSingle(HashMap param) {
+		sqlSession.delete("friends.addedDeleteFriends", param);
+		
+	}
+	// 判断weiboId数据是否存在
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Integer judgeWeiboFriends(HashMap param) {
+		return (Integer) sqlSession.selectOne("friends.judgeWeiboFriends",
+				param);
+	}
+
+	// 看该人是否是会员
+	@SuppressWarnings("rawtypes")
+	@Override
+	public String isnoMember(HashMap param) {
+		return (String) sqlSession.selectOne("friends.isnoMember", param);
+	}
+
+	// 增加该微博ID
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void addWeiboFriends(HashMap param) {
+		sqlSession.insert("friends.addWeiboFriends", param);
+	}
+
+	// 根据facebokk看该人是否是会员
+	@SuppressWarnings("rawtypes")
+	@Override
+	public String isnoMemberFacebook(HashMap param) {
+		return (String) sqlSession.selectOne("friends.isnoMemberFacebook",
+				param);
+	}
+
+	
+	// 是否是官方
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Integer isnogovUserFried(HashMap param) {
+		//
+		Integer isnogov,isnogov2,isnogov3; 
+		isnogov= (Integer) sqlSession.selectOne("friends.isnogovUserFried",param);
+	    isnogov2= (Integer) sqlSession.selectOne("friends.isnogovUserFried2",param);
+		isnogov3= (Integer) sqlSession.selectOne("friends.isnogovUserFried3",param);
+	 
+		isnogov=isnogov+isnogov2+isnogov3;
+		return isnogov;
+	}
+
+	
+	
+	// 根据通讯录看该人是否是会员
+	@SuppressWarnings("rawtypes")
+	@Override
+	public String isnoMemberAddress(HashMap param) {
+		return (String) sqlSession
+				.selectOne("friends.isnoMemberAddress", param);
+	}
+    //删除好友
+	@Override
+	public void deleteUserFried(HashMap param) {
+		// TODO Auto-generated method stub
+		sqlSession.delete("friends.deleteUserFried",param);//删除对方和自己
+		sqlSession.delete("friends.deleteUserFried2",param);//删除主动和被动
+	}
+	
+ 
+	
+	 
+	//更新推荐表 主动至被动
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void updateFriendsRecommend1(HashMap param) {
+		sqlSession.update("friends.updateFriendsRecommend1", param);
+	}
+ 
+	//更新推荐表 被动至主动
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void updateFriendsRecommend2(HashMap param) {
+		sqlSession.update("friends.updateFriendsRecommend2", param);
+	}
+	
+	
+	//判断是否在推荐表中 主动至被动
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Integer juageFriendsRecommend1(HashMap param) {
+		return (Integer) sqlSession.selectOne("friends.juageFriendsRecommend1",param);
+	   
+	}
+	
+	//判断是否在推荐表中被动至主动
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Integer juageFriendsRecommend2(HashMap param) {
+		return (Integer) sqlSession.selectOne("friends.juageFriendsRecommend2",param);
+	   
+	}
+	
+	//插入推荐表 主动至被动
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void insertFriendsRecommend1(HashMap param) {
+		sqlSession.insert("friends.insertFriendsRecommend1", param);
+	}
+ 
+	//插入推荐表 被动至主动
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void insertFriendsRecommend2(HashMap param) {
+		sqlSession.insert("friends.insertFriendsRecommend2", param);
+	}
+	
+	//获取yolobooId
+	@SuppressWarnings("rawtypes")
+	@Override
+	public String obtainYolobooId() {
+		return (String) sqlSession.selectOne("friends.obtainYolobooId");
+	}
+	
+	//根据推荐人ID
+	@SuppressWarnings("rawtypes")
+	@Override
+	public String obtainRecommendPeopleId(String userId) {
+		return (String) sqlSession.selectOne("friends.obtainRecommendPeopleId",userId);
+	}
+	
+ 
+}

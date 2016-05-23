@@ -1,0 +1,63 @@
+package com.yoloboo.service;
+
+import java.util.HashMap;
+import java.util.List;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import com.json.BaseBean;
+
+
+public interface UserManager {
+
+	void recordLogin(HashMap param);//
+	
+	HashMap loginApp(HashMap param);
+	
+	void updateUserLoginToken(HashMap user);
+
+	String obtainCode(HashMap param);//获取国家代码
+
+	void updateFeedbackInfo(HashMap param);//意见反馈
+
+	Integer checkVerificationCode(HashMap param);//校验验证码
+	
+	Integer checkInvitationCode(HashMap param);//校验邀请码
+	
+	void register(HashMap param);//注册
+
+	Integer checkCodeCount(String invitationCode);//校验邀请码，如果数据库已经有了，就要换一个用
+	
+	HashMap obtainUserId(String phone);//获得用户ID
+	
+	void updatetravelStyle(HashMap param);//保存旅行风格
+
+	Integer obtainPhoneCount(String phone);//判断手机号码是唯一
+	
+	void isnoMemeberContentUpdatePhone(HashMap param);//信息需要修改
+
+	void isnoMemeberContentUpdateThree(HashMap param);//信息修改修改
+	
+
+	void obtainVerificationCode(HashMap param);
+
+	HashMap obtainUserByThreeId(String threeId, Integer registerType);
+
+	List<HashMap<String,Object>> findNotifyMsgList(HashMap param);
+
+	void updateNotifyPushStatus(HashMap msg);
+
+	void updateUserPushToken(HashMap param);
+
+	void insertSysNotifySetting(HashMap user);
+
+	void updateUserAllAcountStatus(BaseBean bean, HashMap param);
+
+	void updateUserLanguage(HashMap param);
+
+	void updateUserPassword(BaseBean bean, HashMap<String, Object> param);
+	
+	
+	
+}

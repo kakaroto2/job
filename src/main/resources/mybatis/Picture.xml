@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="PictureDao">
+
+    <resultMap id="BaseResultMap" type="com.yoloboo.models.PictureModel">
+        <id column="id" property="id" jdbcType="NUMERIC"/>
+        <result column="address" property="address" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="travelNotesId" property="travelNotesId" jdbcType="NUMERIC"/>
+        <result column="commentsNum" property="commentsNum" jdbcType="NUMERIC"/>
+        <result column="praiseNum" property="praiseNum" jdbcType="NUMERIC"/>
+        <result column="date" property="date" jdbcType="VARCHAR"/>
+        <result column="isNoCover" property="isNoCover" jdbcType="NUMERIC"/>
+        <result column="stringId" property="stringId" jdbcType="VARCHAR"/>
+        <result column="picture" property="picture" jdbcType="VARCHAR"/>
+        <result column="pictureSquare" property="pictureSquare" jdbcType="VARCHAR"/>
+        <result column="squareSide" property="squareSide" jdbcType="NUMERIC"/>
+    </resultMap>
+
+    <resultMap id="PictureModelMap" type="com.yoloboo.models.PictureModel" extends="BaseResultMap">
+        <association property="comments" column="id" select="comments.getCommentModelsNormal"/>
+        <association property="praises" column="id" select="PraiseDao.getPraiseModelsNormal"/>
+    </resultMap>
+
+    <resultMap id="findTipsPictureModelMap" type="com.yoloboo.models.PictureModel" extends="BaseResultMap">
+        <association property="travelTips" column="id" select="TravelTipsDao.selectTravelTipsByPicture"/>
+        <association property="moodTips" column="id" select="MoodTipsDao.getMoodListByPicId"/>
+        <collection property="user" column="id" select="User.selectUserByPicture" />
+    </resultMap>
+
+    <resultMap id="updateSortPictureModelMap" type="com.yoloboo.models.UpdatePictureSortModel">
+        <id column="id" property="id" jdbcType="NUMERIC"/>
+        <result column="address" property="address" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="travelNotesId" property="travelNotesId" jdbcType="NUMERIC"/>
+        <result column="commentsNum" property="commentsNum" jdbcType="NUMERIC"/>
+        <result column="praiseNum" property="praiseNum" jdbcType="NUMERIC"/>
+        <result column="date" property="date" jdbcType="VARCHAR"/>
+        <result column="isNoCover" property="isNoCover" jdbcType="NUMERIC"/>
+        <result column="stringId" property="stringId" jdbcType="VARCHAR"/>
+        <result column="picture" property="picture" jdbcType="VARCHAR"/>
+        <result column="pictureSquare" property="pictureSquare" jdbcType="VARCHAR"/>
+        <result column="squareSide" property="squareSide" jdbcType="NUMERIC"/>
+        <result column="sort" property="sort" jdbcType="NUMERIC"/>
+    </resultMap>
+
+    <sql id="Base_column_List">
+        picture_id AS id, p_picture AS picture, p_picture_square AS pictureSquare, p_address AS address, p_description AS description,
+        travel_notes_id AS travelNotesId, p_comments_num AS commentsNum, p_praise_num AS praiseNum,
+        p_date AS date, p_isno_cover AS isNoCover, string_id AS stringId,square_side as squareSide
+    </sql>
+
+    <select id="getPicturesByNote" resultMap="updateSortPictureModelMap">
+      select  DISTINCT(travel_notes_id) as  travelNotesId from tb_picture where p_isno_delete = 0
+    </select>
+
+    <select id="getPicturesByNoteId" resultMap="updateSortPictureModelMap" parameterType="com.yoloboo.models.UpdatePictureSortModel">
+        select
+        <include refid="Base_column_List"/>  from tb_picture where p_isno_delete = 0 AND travel_notes_id = #{travelNotesId}
+        order by p_date asc
+    </select>
+
+    <update id="updatePicture"  parameterType="com.yoloboo.models.UpdatePictureSortModel">
+            update tb_picture
+            <set>
+                sort=#{sort}
+            </set>
+            where picture_id =#{id}
+    </update>
+
+    <select id="getModelByPK" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT
+        <include refid="Base_column_List"/>
+        FROM tb_picture
+        WHERE p_isno_delete = 0 AND picture_id = #{id}
+    </select>
+
+    <select id="getModelsByTravelNoteId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        SELECT
+        <include refid="Base_column_List"/>
+        FROM tb_picture
+        WHERE p_isno_delete = 0 AND travel_notes_id = #{id}
+    </select>
+
+    <select id="getCoverModelByTravelNoteId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT
+        <include refid="Base_column_List"/>
+        FROM tb_picture
+        WHERE p_isno_delete = 0 AND p_isno_cover = 1 AND travel_notes_id = #{value}
+    </select>
+
+    <select id="getPictureInfoByPictureId" resultMap="PictureModelMap" parameterType="java.lang.Long">
+        SELECT
+        <include refid="Base_column_List"/>
+        FROM tb_picture
+        WHERE p_isno_delete=0 AND picture_id=#{value}
+    </select>
+
+    <select id="getPictureInfoByNoteId" resultMap="PictureModelMap" parameterType="java.lang.Long">
+        SELECT
+        <include refid="Base_column_List"/>
+        FROM tb_picture
+        WHERE travel_notes_id=#{value} and p_isno_cover=1 and p_isno_delete=0
+    </select>
+
+    <select id="getPicturesByTravelTipId" resultType="java.util.HashMap" parameterType="com.yoloboo.controller.BaseBean.TravelTipsBean">
+        SELECT
+        u.u_nickname as nickName, u.u_picture as userPicture,tn.travel_notes_id,tn.tn_isno_delete,
+        p.picture_id AS id, p_picture AS picture, p_picture_square AS pictureSquare, p_address AS address, p_description AS description,
+        p.travel_notes_id AS travelNotesId, p_comments_num AS commentsNum, p_praise_num AS praiseNum,
+        p_date AS date, p_isno_cover AS isNoCover, p.string_id AS stringId,square_side as squareSide
+
+        FROM tb_picture as p
+				INNER JOIN tb_travel_tips_picture as ttp on ttp.picture_id = p.picture_id
+				INNER JOIN tb_travel_notes as tn on tn.travel_notes_id = p.travel_notes_id
+                INNER JOIN tb_friends AS f ON tn.user_id = f.f_initiative_people_id
+                INNER JOIN tb_user AS u on tn.user_id = u.user_id
+        WHERE p.p_isno_delete=0  and ttp.travel_tips_id = #{travelTipsId}
+        <if test="type==1">
+         and tn.country_id = #{countryOrLocationId}
+        </if>
+        <if test="type==0">
+            and tn.location_id = #{countryOrLocationId}
+        </if>
+         and(f.f_passive_people_id = #{userId} or f.f_initiative_people_id = #{userId}  or u.u_type=3)
+    </select>
+    
+    <select id="getPicturesByLocationAndTravelTip" resultMap="findTipsPictureModelMap" parameterType="com.yoloboo.controller.BaseBean.PictureBean">
+        SELECT <include refid="Base_column_List"/>
+        FROM tb_picture WHERE picture_id IN (
+        SELECT picture_id FROM tb_travel_tips_picture
+        WHERE travel_tips_id = #{travelTipId})
+        AND picture_id IN (SELECT p.picture_id FROM tb_picture as p LEFT JOIN tb_travel_notes AS tn
+        on p.travel_notes_id = tn.travel_notes_id
+        WHERE p.p_isno_delete=0
+        <if test="null != countryId">
+            AND tn.country_id = #{countryId}
+        </if>
+        <if test="null != locationId">
+            AND tn.location_id = #{locationId}
+        </if>
+        AND tn.user_id IN(
+        <include refid="friends.talentedFriendsAndMeSql"/>
+        ))
+        ORDER BY p_date DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+
+    <select id="getPicturesByLocationAndTravelTipSize" resultMap="findTipsPictureModelMap" parameterType="java.util.HashMap">
+        SELECT <include refid="Base_column_List"/>
+        FROM tb_picture WHERE picture_id IN (
+        SELECT picture_id FROM tb_travel_tips_picture
+        WHERE travel_tips_id = #{travelTipId})
+        AND picture_id IN (SELECT p.picture_id FROM tb_picture as p LEFT JOIN tb_travel_notes AS tn
+        on p.travel_notes_id = tn.travel_notes_id
+        WHERE p.p_isno_delete=0
+        <if test="null != countryId">
+            AND tn.country_id = #{countryId}
+        </if>
+        <if test="null != locationId">
+            AND tn.location_id = #{locationId}
+        </if>
+        AND tn.user_id IN(
+        <include refid="friends.talentedFriendsAndMeSql"/>
+        ))
+        ORDER BY p_date DESC
+        LIMIT ${startIndex}, ${size}
+    </select>
+
+    <select id="getRelationPictureIds" resultType="java.lang.Long" parameterType="com.yoloboo.controller.BaseBean.PictureBean">
+        SELECT picture_id
+        FROM tb_travel_tips_picture
+        WHERE travel_tips_id IN (SELECT travel_tips_id FROM tb_travel_tips WHERE country_tips_id = #{countryTipId})
+        AND picture_id IN (
+        SELECT p.picture_id FROM tb_picture as p
+        LEFT JOIN tb_travel_notes AS tn on p.travel_notes_id = tn.travel_notes_id
+        WHERE p.p_isno_delete=0 AND tn.user_id IN(
+        <include refid="friends.talentedFriendsAndMeSql"/>
+        ))
+    </select>
+
+</mapper>

@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+    "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mycenter">
+	
+	<select id="obtainUserPicture" parameterType="String" resultType="java.util.HashMap">
+	select ifnull(u_picture,'') as userPicture,ifnull(u_user_picture,'') as bgPicture from tb_user where user_id=#{value}
+	
+	</select>
+ 
+	<!-- 获得旅行风格 -->
+	<select id="obtainTravelStyle" parameterType="String" resultType="java.util.HashMap">
+		SELECT 
+		ifnull(ts.ts_bg_picture,'') as bgPicture,  ts.travel_style_id as travelStyleId,ts.ts_grey_picture AS grayPicture,ts.ts_white_picture as whitePicture,ts.ts_black_picture as bluePicture
+        from 
+          tb_user_travel_style as uts, tb_travel_style as ts  
+        WHERE 
+          uts.user_id=#{value}  and uts.travel_style_id=ts.travel_style_id
+	</select>
+
+	<!-- 获得游记数量  -->
+	<select id="obtainMyTravelNotesNum" parameterType="String" resultType="Long" >
+       SELECT 
+        count(tn.travel_notes_id) 
+      from 
+         tb_travel_notes as tn  
+      WHERE 
+         tn.user_id=#{value} and tn_isno_delete=0
+
+	</select>
+	
+	
+	<!-- 去过国家数量  -->
+	<select id="obtainMyCountryNum" parameterType="String" resultType="Long">
+	  SELECT 
+        count(DISTINCT tn.country_id) 
+      from 
+         tb_travel_notes as tn  
+      WHERE 
+         tn.user_id=#{value} and tn_isno_delete=0
+	</select>
+	
+	
+	<!-- 我的游记列表  -->
+	<select id="obtainMyNotesList" parameterType="String" resultType="java.util.HashMap">		
+		SELECT 
+		  tn.travel_notes_id as travelNotesId,tn.tn_comments_num as commentsNum, tn.tn_praise_num as praiseNum,  
+          tn.tn_date as  notesDate,tn.tn_title as title,tn.tn_isno_complete as isnoComplete,
+  (select p.p_picture from tb_picture p where tn.travel_notes_id=p.travel_notes_id and   p.p_isno_cover=1 limit 1) 
+   as notesPicture
+         from 
+           tb_travel_notes as tn 
+         WHERE 
+           tn.user_id=#{userId} and  tn.tn_isno_delete=0 
+         order by 
+         tn.tn_isno_complete  asc,
+         tn.tn_date desc	
+         limit ${startIndex},${size}
+	</select>
+	
+	<!-- 获取语言等个人信息  -->
+	<select id="obtainlanguageCountryBirthday" parameterType="String" resultType="java.util.HashMap">
+		SELECT 
+		   u.u_nickname as nickName, u.area_name as areaName,u.area_name as areaName, u.u_birthday as birthday, 
+		   u_language as language,   c.c_english as englishName,u.u_picture as picture,
+		  c.country_id as countryId,  c.c_simple as simpleName,	 c.c_traditional as	traditionalName 
+         from 
+           tb_user as u 
+            left join tb_country as c  ON c.country_id =u.country_id 
+         WHERE 
+           user_id=#{value} 
+	</select>
+	
+	<!-- 删除旅行风格-->
+	<delete id="deletetravelStyleId" parameterType="String" >
+		DELETE FROM tb_user_travel_style  
+		WHERE 
+           user_id=#{value} 
+	</delete>
+	
+	<!-- 插入旅行风格-->
+	<insert id="insertTravelStyleId" parameterType="java.util.HashMap" >
+		insert INTO 
+		   tb_user_travel_style  
+		SET  
+           user_id=#{userId}, travel_style_id=#{travelStyleId}
+	</insert>
+	
+	
+    <!-- 保存个人信息-->
+	<update id="saveMyInfo" parameterType="java.util.HashMap" >
+		update  
+          tb_user
+        set
+        delete_flag=0
+        <if test="picture!=null">
+             , u_picture=#{picture}
+         </if> 
+          <if test="nickName!=null">
+            ,u_nickname=#{nickName}
+           </if> 
+          <if test="birthday!=null">
+           ,u_birthday=#{birthday}
+           </if> 
+           <if test="language!=null">
+             ,u_language=#{language}
+           </if> 
+           <if test="areaName!=null">
+             ,area_name=#{areaName}
+           </if> 
+         WHERE 
+           user_id=#{userId}
+	</update>
+	<update id="updateuserUpicture" parameterType="java.util.HashMap">
+	 update tb_user set u_user_picture=(select ts_bg_picture from tb_travel_style where travel_style_id=#{travelStyleId}) 
+	 where  user_id=#{userId}
+	</update>
+	
+	<!-- 获取好友列表-->
+	<select id="obtainMyFriends" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		 SELECT 
+		      DISTINCT u.u_picture as picture, u.user_id as userId,   u.u_nickname as nickName ,u.u_last_time as lastTime   
+         from 
+           tb_friends as f
+            left join tb_user as u ON u.user_id =f.f_passive_people_id
+         WHERE 
+           f.f_initiative_people_id=#{userId} and f.f_isno_delete=0 and u.user_id is not null
+           <if test="content!=null">
+             and u.u_nickname like '%${content}%'
+           </if> 
+        order by
+		   f.friends_id desc
+		limit
+		   ${startIndex},${size}
+	</select>
+	
+	<!-- 获取好友列表数量-->
+	<select id="obtainMyFriendsCount" parameterType="java.util.HashMap" resultType="Long">
+		 SELECT 
+		      count(*) 
+         from 
+           tb_friends as f
+            left join tb_user as u ON u.user_id =f.f_passive_people_id
+         WHERE 
+           f.f_initiative_people_id=#{userId} and f.f_isno_delete=0 and u.user_id is not null
+	</select>
+	
+	
+	
+	<!-- 获取通知列表-->
+	<select id="obtainNotificationList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+
+		 SELECT 
+		    nl.picture as picture,nl.content AS content,nl.time as time,nl.type as type
+               ,u.u_picture as userPicture
+         from 
+            tb_notification_list as nl 
+            left join tb_user as u ON u.user_id =nl.passive_id
+         WHERE 
+           nl.user_id=#{userId}
+        order by
+		    time desc
+		limit 
+		   ${startIndex},${size}
+	</select>
+	
+	<!-- 获取通知列表数量-->
+	<select id="obtainNotificationListCount" parameterType="java.util.HashMap" resultType="Long">
+		 SELECT 
+		    count(*)
+         from 
+            tb_notification_list
+         WHERE 
+           user_id=#{userId}
+      
+	</select>
+	
+<!-- 获取推荐好友列表 -->
+	<select id="obtainRecommendFriends" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	     SELECT 
+		      DISTINCT u.u_picture as picture, u.user_id as userId,   u.u_nickname as nickName ,u.u_last_time as lastTime 
+		      ,u.u_type as type,u.u_beinvitation_code as beinvitationCode,f.status  
+         from 
+           tb_recommend_friends as f
+           left join tb_user as u ON u.user_id =f.passive_people_id
+         WHERE 
+           f.user_id=#{userId} and f.delete_flag=0 and u.user_id is not null and f.isno_member=1
+           order by 
+           f.status  desc,
+           f.recommend_friends_id desc  
+           limit 
+		   ${startIndex},${size}
+	</select>
+	
+	<!-- 获取推荐好友数量 -->
+	<select id="obtainRecommendFriendsCount" parameterType="java.util.HashMap" resultType="Long">
+	    SELECT 
+		     Count(DISTINCT(u.user_id))
+         from 
+           tb_recommend_friends as f
+            left join tb_user as u ON u.user_id =f.passive_people_id
+         WHERE 
+           f.user_id=#{userId} and f.delete_flag=0 and u.user_id is not null and f.isno_member=1
+	</select>
+	
+	<select id="obtainRecommendFriendsYoloboo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	    SELECT 
+		      u.u_picture as picture, u.user_id as userId,u.u_nickname as nickName ,u.u_last_time as lastTime,u.u_last_time as lastTime  
+		      ,u.u_type as type,u.u_beinvitation_code as beinvitationCode
+         from 
+            tb_user as u
+         WHERE 
+           u.u_type=2 or  u.u_invitation_code=(select u_beinvitation_code from tb_user where user_id=#{userId})
+          order by type desc 
+          
+	</select>
+	
+		<select id="judgeRecommendFriendsRecommend" parameterType="java.util.HashMap" resultType="Integer">
+	    SELECT 
+		     COUNT(*)
+         from 
+             tb_recommend_friends as f
+         WHERE 
+          f.user_id=#{userId}
+          AND  f.passive_people_id=#{RecommendId} 
+          
+	</select>
+	
+	<select id="judgeRecommendFriendsRecommendId" parameterType="java.util.HashMap" resultType="String">
+	     SELECT 
+		      DISTINCT u.user_id as userId 
+         from 
+            tb_user as u
+         WHERE 
+           u.u_invitation_code=(select u_beinvitation_code from tb_user where user_id=#{userId})
+	</select>
+	
+	<!-- 删除旅行风格-->
+	<delete id="deleteRecommendFriendsRecommend" parameterType="java.util.HashMap" >
+	   DELETE FROM tb_recommend_friends  
+		WHERE 
+          user_id=#{userId}
+          AND   
+          passive_people_id=#{RecommendId}
+	</delete>
+	
+</mapper>

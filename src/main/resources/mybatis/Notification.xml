@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="notification">
+    <insert id="addNotificationMessage" parameterType="java.util.HashMap">
+        INSERT INTO tb_notification_list SET
+        user_id=#{initiativeId},picture=#{picture},type=#{type},
+        content=#{content},time=#{addTime},passive_id=#{userId}
+        <if test="pictureId!=null">
+            ,picture_id=#{pictureId}
+        </if>
+    </insert>
+</mapper>

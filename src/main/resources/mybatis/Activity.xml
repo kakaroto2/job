@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="ActivityDao">
+
+    <resultMap id="ActivityMap" type="com.yoloboo.models.ActivityModel">
+        <id column="id" property="id" jdbcType="NUMERIC"/>
+        <result column="name_en" property="name_en" jdbcType="VARCHAR"/>
+        <result column="name_cn" property="name_cn" jdbcType="VARCHAR"/>
+        <result column="name_tw" property="name_tw" jdbcType="VARCHAR"/>
+        <result column="describe_en" property="describe_en" jdbcType="VARCHAR"/>
+        <result column="describe_cn" property="describe_cn" jdbcType="VARCHAR"/>
+        <result column="describe_tw" property="describe_tw" jdbcType="VARCHAR"/>
+        <result column="coverPicture" property="coverPicture" jdbcType="VARCHAR"/>
+        <result column="startDate" property="startDate" jdbcType="TIMESTAMP"/>
+        <result column="endDate" property="endDate" jdbcType="TIMESTAMP"/>
+        <result column="status" property="status" jdbcType="NUMERIC"/>
+        <result column="pictureNum" property="pictureNum" jdbcType="NUMERIC"/>
+        <result column="commentNum" property="commentNum" jdbcType="NUMERIC"/>
+    </resultMap>
+
+    <sql id="Base_Activity_List">
+      a_id AS id, type_id AS typeId, a_name_en AS name_en, a_name_cn AS name_cn, a_name_tw AS name_tw,
+      a_describe_en AS describe_en, a_describe_cn AS describe_cn, a_describe_tw AS describe_tw,
+      a_cover_picture AS coverPicture, a_start_date AS startDate, a_end_date AS endDate,
+      a_status AS status, a_picture_num AS pictureNum, a_comment_num AS commentNum
+    </sql>
+
+    <select id="getModelByPK" resultMap="ActivityMap" parameterType="java.lang.Long">
+        SELECT
+        <include refid="Base_Activity_List"/>
+        FROM tb_activity
+        WHERE a_deleted != 1 AND a_id = #{id}
+    </select>
+
+    <select id="getListByStatus" resultMap="ActivityMap" parameterType="com.yoloboo.controller.bean.ActivityBean">
+        SELECT
+        <include refid="Base_Activity_List"/>
+        FROM tb_activity
+        WHERE a_deleted != 1 AND a_status = #{aStatus}
+        <if test="aStatus == 1">
+            ORDER BY a_end_date asc
+        </if>
+        <if test="aStatus == 2">
+            ORDER BY a_end_date DESC
+        </if>
+        limit ${startIndex},${size}
+    </select>
+
+    <select id="getStatusByPK" resultType="java.lang.Integer" parameterType="java.lang.Long">
+        SELECT a_status FROM tb_activity
+        WHERE a_deleted != 1 AND a_id = #{id}
+    </select>
+
+    <update id="addPicture" parameterType="com.yoloboo.controller.bean.ActivityBean">
+        update tb_activity set a_picture_num=a_picture_num+1
+        where a_id = #{aId}
+    </update>
+
+    <update id="addComments" parameterType="com.yoloboo.controller.bean.ActivityBean">
+        update tb_activity set a_comment_num=a_comment_num+1 where a_id=#{aId}
+    </update>
+
+    <update id="deleteComments" parameterType="java.lang.Long">
+         update tb_activity INNER JOIN tb_activity_comments
+          on tb_activity.a_id = tb_activity_comments.activity_id
+          set a_comment_num=a_comment_num-1
+          where tb_activity_comments.ac_id = #{acId}
+    </update>
+
+</mapper>

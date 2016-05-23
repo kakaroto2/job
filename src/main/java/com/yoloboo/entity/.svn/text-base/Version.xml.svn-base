@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+    "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Version">
+	<resultMap type="Version" id="VersionMap">
+		<result column="version_id" property="versionId" />
+		<result column="title" property="title" />
+		<result column="content" property="content" />
+		<result column="url_num" property="urlNum" />
+		<result column="urlpath" property="urlpath" />
+		<result column="type" property="type" />
+		<result column="is_version" property="isVersion" />
+		<result column="delete_flag" property="deleteFlag" />
+	</resultMap>
+
+
+	
+
+
+</mapper>

@@ -1,0 +1,205 @@
+package com.common;
+
+//import java.io.IOException;
+
+import java.io.IOException;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.dom4j.Document;   
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;   
+import org.dom4j.Element;   
+
+import com.common.StringUtil;
+
+public class Sendmessage {
+	
+	private static String Url = "http://106.ihuyi.cn/webservice/sms.php?method=Submit";
+	
+	
+	
+	public static void main(String [] args) {
+	
+		sengmessage("13501797631",1234);
+	}
+	//国内的短信
+	public static void sengmessage(String phone,int mobile_code){
+		HttpClient client = new HttpClient(); 
+		PostMethod method = new PostMethod(Url); 
+			
+		//client.getParams().setContentCharset("GBK");		
+		client.getParams().setContentCharset("UTF-8");
+		method.setRequestHeader("ContentType","application/x-www-form-urlencoded;charset=UTF-8");
+
+	    String content = new String("您的手机验证码为：【" + mobile_code + "】，请在30分钟内按提示提交验证码。"); 
+		NameValuePair[] data = {//提交短信
+			    new NameValuePair("account", "cf_yoloboo"), 
+			    new NameValuePair("password", "Media2014"), //密码可以使用明文密码或使用32位MD5加密
+			    //new NameValuePair("password", util.StringUtil.MD5Encode("密码")),
+			    new NameValuePair("mobile", phone), 
+			    new NameValuePair("content", content),
+		};
+		
+		method.setRequestBody(data);		
+		
+		
+		try {
+			client.executeMethod(method);	
+			
+			String SubmitResult =method.getResponseBodyAsString();
+					
+			//System.out.println(SubmitResult);
+
+			Document doc = DocumentHelper.parseText(SubmitResult); 
+			Element root = doc.getRootElement();
+
+
+			String code = root.elementText("code");	
+			String msg = root.elementText("msg");	
+			String smsid = root.elementText("smsid");	
+			
+			
+			System.out.println(code);
+			System.out.println(msg);
+			System.out.println(smsid);
+						
+			 if("2".equals(code)){
+				System.out.println("");
+			}
+//			return mobile_code+"";
+		} catch (HttpException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (DocumentException e) {
+			e.printStackTrace();
+		}
+//		return "";
+	}
+	
+	//国外的短信
+		public static void sengmessageAbroad(String phone,int mobile_code){
+			HttpClient client = new HttpClient(); 
+			PostMethod method = new PostMethod(Url); 
+				
+			//client.getParams().setContentCharset("GBK");		
+			client.getParams().setContentCharset("UTF-8");
+			method.setRequestHeader("ContentType","application/x-www-form-urlencoded;charset=UTF-8");
+
+			//System.out.println(mobile);Your mobile verification code is: 1234, it will expire in 30 minutes.
+		    String content = new String("Your YOLOBOO verification code is:【" + mobile_code + "】, it will expire in 30 mins"); 
+		    //String content = new String("Your mobile verification code is:【" + mobile_code + "】, it will expire in 30 mins");
+		   
+
+			NameValuePair[] data = {//提交短信
+					
+				    new NameValuePair("account", "cf_xuangong"), 
+				    new NameValuePair("password", "Media2014"), //密码可以使用明文密码或使用32位MD5加密
+				    //new NameValuePair("password", util.StringUtil.MD5Encode("密码")),
+				    new NameValuePair("mobile", phone), 
+				    new NameValuePair("content", content),
+				    
+			};
+			
+			method.setRequestBody(data);		
+			
+			
+			try {
+				client.executeMethod(method);	
+				
+				String SubmitResult =method.getResponseBodyAsString();
+						
+				//System.out.println(SubmitResult);
+
+				Document doc = DocumentHelper.parseText(SubmitResult); 
+				Element root = doc.getRootElement();
+
+
+				String code = root.elementText("code");	
+				String msg = root.elementText("msg");	
+				String smsid = root.elementText("smsid");	
+				
+				System.out.println(content);
+				System.out.println(code);
+				System.out.println(msg);
+				System.out.println(smsid);
+							
+				 if("2".equals(code)){
+					System.out.println("");
+				}
+//				return mobile_code+"";
+			} catch (HttpException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (DocumentException e) {
+				e.printStackTrace();
+			}	
+//			return "";
+		}
+		
+		//台
+		public static void sengmessageTanwan(String phone,int mobile_code){
+			HttpClient client = new HttpClient(); 
+			PostMethod method = new PostMethod(Url); 
+				
+			//client.getParams().setContentCharset("GBK");		
+			client.getParams().setContentCharset("UTF-8");
+			method.setRequestHeader("ContentType","application/x-www-form-urlencoded;charset=UTF-8");
+			//System.out.println(mobile);Your mobile verification code is: 1234, it will expire in 30 minutes.
+		    String content = new String("您的YOLOBOO驗證碼為：【" + mobile_code + "】，請30分鐘內按提示提交驗證碼。"); 
+		    // String content = new String("您的手機驗證碼為：【" + mobile_code + "】，請再30分鐘內按提示提交驗證碼。"); 
+ 
+
+			
+			NameValuePair[] data = {//提交短信 【变量】，請30分鐘內按提示提交驗證碼。
+
+				 
+				    new NameValuePair("account", "cf_xuangong"), 
+				    new NameValuePair("password", "Media2014"), //密码可以使用明文密码或使用32位MD5加密
+				    //new NameValuePair("password", util.StringUtil.MD5Encode("密码")),
+				    new NameValuePair("mobile", phone), 
+				    new NameValuePair("content", content),
+				    
+			};
+			
+			method.setRequestBody(data);		
+			
+			
+			try {
+				client.executeMethod(method);	
+				
+				String SubmitResult =method.getResponseBodyAsString();
+						
+				//System.out.println(SubmitResult);
+
+				Document doc = DocumentHelper.parseText(SubmitResult); 
+				Element root = doc.getRootElement();
+
+
+				String code = root.elementText("code");	
+				String msg = root.elementText("msg");	
+				String smsid = root.elementText("smsid");	
+				
+				System.out.println(content);
+				System.out.println(code);
+				System.out.println(msg);
+				System.out.println(smsid);
+							
+				 if("2".equals(code)){
+					System.out.println("");
+				}
+//				return mobile_code+"";
+			} catch (HttpException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (DocumentException e) {
+				e.printStackTrace();
+			}	
+//			return "";
+		}
+}

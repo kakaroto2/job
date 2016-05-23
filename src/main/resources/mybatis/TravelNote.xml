@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="TravelNoteDao">
+
+    <resultMap id="BaseResultMap" type="com.yoloboo.models.TravelNoteModel">
+        <id column="id" property="id" jdbcType="NUMERIC"/>
+        <result column="date" property="date" jdbcType="VARCHAR"/>
+        <result column="isNoComplete" property="isNoComplete" jdbcType="NUMERIC"/>
+        <result column="userId" property="userId" jdbcType="NUMERIC"/>
+        <result column="commentsNum" property="commentsNum" jdbcType="NUMERIC"/>
+        <result column="praiseNum" property="praiseNum" jdbcType="NUMERIC"/>
+        <result column="title" property="title" jdbcType="VARCHAR"/>
+        <result column="stringId" property="stringId" jdbcType="VARCHAR"/>
+        <result column="newTime" property="newTime" jdbcType="VARCHAR"/>
+        <result column="viewsNum" property="viewNum" jdbcType="NUMERIC"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="canPublish" property="canPublish" jdbcType="NUMERIC"/>
+        <result column="isPushed" property="isPushed" jdbcType="NUMERIC"/>
+
+    </resultMap>
+
+    <resultMap id="ResultMapNormal" type="com.yoloboo.models.TravelNoteModel" extends="BaseResultMap">
+        <association property="pictures" column="id" select="PictureDao.getModelsByTravelNoteId"/>
+        <association property="location" column="locationId" select="LocationDao.getModelByPK"/>
+        <association property="country" column="countryId" select="country.getModelByPK"/>
+        <association property="theme" column="themeId" select="ThemeDao.getModelByPK"/>
+        <association property="user" column="userId" select="User.selectUserByPrimaryKey"/>
+    </resultMap>
+
+    <resultMap id="ResultMapCoverModel" type="com.yoloboo.models.TravelNoteModel" extends="BaseResultMap">
+        <association property="pictures" column="id" select="PictureDao.getCoverModelByTravelNoteId"/>
+        <association property="user" column="userId" select="User.selectUserByPrimaryKey"/>
+        <association property="theme" column="themeId" select="ThemeDao.getModelByPK"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        DISTINCT(travel_notes_id) AS id, country_id AS countryId, tn_date AS date, tn_isno_complete AS isNoComplete, user_id AS userId,
+        theme_id as themeId, tn_comments_num AS commentsNum, tn_praise_num AS praiseNum, tn_title AS title, string_id AS stringId,
+        tn_newtime AS newTime, tn_views_num AS viewsNum, tn_description AS description, location_id AS locationId,
+        topic_id AS topicId,can_publish AS canPublish,is_pushed AS isPushed
+    </sql>
+
+    <select id="getModelByPK" resultMap="ResultMapNormal" parameterType="java.lang.Long">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tb_travel_notes
+        WHERE travel_notes_id = #{id}
+    </select>
+
+    <select id="getModelForHomePage" resultMap="ResultMapCoverModel" parameterType="java.lang.Long">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tb_travel_notes
+        WHERE travel_notes_id = #{id}
+    </select>
+
+    <select id="getUserViewNum" resultType="java.lang.Integer" parameterType="java.lang.Long">
+        SELECT IFNULL(SUM(tn_views_num),0) from tb_travel_notes where user_id = #{value} and tn_isno_delete=0
+    </select>
+
+    <select id="getModelForHomePageByUser" resultMap="ResultMapCoverModel" parameterType="com.yoloboo.controller.BaseBean.UserBean">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tb_travel_notes
+        WHERE user_id IN(
+        <include refid="friends.talentedFriendsAndMeSql"/>
+        )
+        AND tn_isno_delete = 0  AND can_publish = 0
+        <if test="null != themeId">
+            AND theme_id = #{themeId}
+        </if>
+        ORDER BY tn_newtime DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+
+    <select id="selectModelsByTopicUser"  resultMap="ResultMapCoverModel" parameterType="com.yoloboo.controller.BaseBean.TopicBean">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tb_travel_notes
+        WHERE user_id IN(
+        <include refid="friends.talentedFriendsAndMeSql"/>
+        )
+        AND tn_isno_delete = 0
+        AND topic_id = #{id}
+        ORDER BY tn_newtime DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+
+    <select id="countPushedTravelNotes" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(*) from tb_user as u inner join tb_travel_notes as t
+        on t.user_id=u.user_id where u.user_id = #{userId} and t.is_pushed = 1 and IFNULL(u.talent_status,0) in (0,3)
+    </select>
+
+    <select id="isNoteReported" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(*) from tb_report_content where ts_travel_note_id = #{travelNoteId}
+    </select>
+
+    <select id="isPicReported" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(*) from tb_report_content where picture_id = #{pId}
+    </select>
+
+    <select id="selectRelationNotesCountry" parameterType="com.yoloboo.controller.BaseBean.PictureBean" resultType="java.lang.Long">
+        SELECT DISTINCT( tn.country_id) FROM tb_travel_notes AS tn LEFT JOIN tb_picture as p
+        ON tn.travel_notes_id = p.travel_notes_id
+        WHERE p.picture_id IN(
+        SELECT picture_id
+        FROM tb_travel_tips_picture
+        WHERE travel_tips_id IN (SELECT travel_tips_id FROM tb_travel_tips WHERE country_tips_id = #{countryTipId})
+        AND picture_id IN (
+        SELECT p.picture_id FROM tb_picture as p
+        LEFT JOIN tb_travel_notes AS tn on p.travel_notes_id = tn.travel_notes_id
+        WHERE p.p_isno_delete=0 AND tn.user_id IN(
+        <include refid="friends.talentedFriendsAndMeSql"/>
+        )))
+    </select>
+
+    <select id="selectRelationNotesLocation" parameterType="com.yoloboo.controller.BaseBean.PictureBean" resultType="java.lang.Long">
+        SELECT DISTINCT(tn.location_id) FROM tb_travel_notes AS tn LEFT JOIN tb_picture as p
+        ON tn.travel_notes_id = p.travel_notes_id
+        WHERE tn.location_id is NOT NULL AND p.picture_id IN(
+        SELECT picture_id
+        FROM tb_travel_tips_picture
+        WHERE travel_tips_id IN (SELECT travel_tips_id FROM tb_travel_tips WHERE country_tips_id = #{countryTipId})
+        AND picture_id IN (
+        SELECT p.picture_id FROM tb_picture as p
+        LEFT JOIN tb_travel_notes AS tn on p.travel_notes_id = tn.travel_notes_id
+        WHERE p.p_isno_delete=0 AND tn.user_id IN(
+        <include refid="friends.talentedFriendsAndMeSql"/>
+        )))
+    </select>
+
+    <select id="selectRelationNotesLocation2" parameterType="java.util.List" resultType="java.lang.Long">
+        SELECT DISTINCT(tn.location_id)
+        FROM tb_travel_notes AS tn LEFT JOIN tb_picture as p ON tn.travel_notes_id = p.travel_notes_id
+        WHERE tn.location_id is NOT NULL AND p.picture_id IN (
+        <foreach collection="list" index="index" item="idList" separator=",">
+            #{idList}
+        </foreach>
+        )
+    </select>
+
+    <select id="getTitleByNoteId" parameterType="java.lang.Long" resultType="java.lang.String">
+        select tn_title as title  from tb_travel_notes  where  travel_notes_id=#{travelNoteId}
+    </select>
+
+    <select id="getPictureByNoteId" parameterType="java.lang.Long" resultType="java.lang.String">
+        select  p_picture  from tb_picture  where  travel_notes_id=#{travelNoteId} and  p_isno_cover=1 and p_isno_delete=0
+    </select>
+
+</mapper>

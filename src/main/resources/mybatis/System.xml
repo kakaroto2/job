@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+    "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="system">
+
+	<!-- 意见反馈  -->
+	<insert id="suggestion" parameterType="java.util.HashMap"  >
+		 INSERT into 
+		   tb_suggestion 
+		 SET 
+		   user_id=#{userId} ,suggestion=#{suggestion},email=#{email}
+	</insert>
+	
+	<!-- 获取系统通知设置情况 -->
+	<select id="systemNotificationSet" parameterType="String"  resultType="java.util.HashMap">
+	SELECT 
+		 picture_receive_praise as pictureReceivePraise,picture_receive_comments as pictureReceiveComments,new_friends_invitation as newFriendsInvitation,
+		 friends_receive_my_invitation as friendsReceiveMyInvitation,friends_new_notes as friendsNewNotes,
+		 friends_add_notes as friendsAddNotes,friends_complete_new_notes as FriendsCompleteNewNotes,
+		 friends_new_country as friendsNewCountry,official_notification as officialNotification,reply_friends as replyFriends
+    FROM 
+        tb_system_notification 
+    WHERE 
+         user_id=#{value} 
+	</select>
+	 <select id="insertSysNotifySetting" parameterType="java.util.HashMap">
+	 insert into tb_system_notification(system_notification_id,user_id)
+	 values(#{userId},#{userId})
+	 </select>
+	<!-- 设置系统消息 -->
+	<update id="setSystemNotification" parameterType="java.util.HashMap" >
+	   update tb_system_notification SET
+		 picture_receive_praise =#{pictureReceivePraise} ,picture_receive_comments =#{pictureReceiveComments} ,new_friends_invitation =#{newFriendsInvitation} ,
+		 friends_receive_my_invitation =#{friendsReceiveMyInvitation},friends_new_notes =#{friendsNewNotes},
+		 friends_add_notes =#{friendsAddNotes},friends_complete_new_notes =#{FriendsCompleteNewNotes},
+		 friends_new_country =#{friendsNewCountry},official_notification =#{officialNotification},reply_friends=#{replyFriends}
+ 
+       WHERE 
+         user_id=#{userId} 
+
+	</update>
+	
+	<!-- 修改手机号码 -->
+	<update id="editPhone" parameterType="java.util.HashMap" >
+	   update tb_user
+	   SET
+		 u_phone =#{phone} 
+       WHERE 
+         user_id=#{userId} 
+
+	</update>
+	
+  <!-- 修改密码 -->
+	<update id="editPassword" parameterType="java.util.HashMap" >
+	   update 
+	     tb_user
+	   SET
+		 u_password=#{newPassword} 
+       WHERE 
+         user_id=#{userId} 
+	</update>
+	
+	
+	<!-- 获取绑定情况 -->
+	<select id="accountBound" parameterType="String"  resultType="java.util.HashMap">
+	SELECT 
+	 u_facebook_id as facebook, u_sina_id as sina,u_weixin_id as wexin,ifnull(u_phone,'') as phone
+	 , ifnull(u_facebook_name,'') as facebookName, ifnull(u_sina_name,'') as sinaName,ifnull(u_weixin_name,'') as weixinName
+    FROM 
+        tb_user
+    WHERE 
+         user_id=#{value} 
+	</select>
+	
+	<!-- 设置绑定 -->
+ 	<update id="setAccountBound" parameterType="java.util.HashMap" >
+	   update 
+	     tb_user
+	   SET
+	   delete_flag=0
+	   <if test="facebook!=null">
+		 ,u_facebook_id=#{facebook} ,u_facebook_name=#{facebookName}
+	   </if>
+	   <if test="sina!=null">
+	    
+	     , u_sina_id=#{sina} ,u_sina_name=#{sinaName}
+	   </if>
+	   <if test="weixin!=null">
+	       , u_weixin_id=#{weixin} , u_weixin_name=#{weixinName}
+	   </if>
+	   	<if test="phoneNum!=null">
+	     , u_phone=#{phoneNum}
+	   </if>
+		<if test="password!=null">
+			, u_password=#{password}
+		</if>
+       WHERE 
+         user_id=#{userId} 
+	</update>
+ 
+
+	<!-- 获取邀请码 -->
+	<select id="obtainInvitationCode" parameterType="String"  resultType="String">
+	  SELECT 
+	    u_invitation_code
+      FROM 
+        tb_user
+      WHERE 
+         user_id=#{value} 
+	</select>
+	
+	<!-- 获取分享的内容 -->
+	<select id="shareContent" parameterType="String"  resultType="java.util.HashMap">
+	  SELECT 
+	    content,simple_content as simpleContent,  traditional_content as traditionalContent
+      FROM 
+        tb_system
+      WHERE 
+         type=1
+	</select>
+	
+	
+	
+ 	<insert id="insertPhoneCode" parameterType="java.util.HashMap">
+ 	insert into tb_verification_code(vc_phone,vc_verification_code,vc_verification_code_time)
+ 	values(#{phone},#{msgCode},#{createTime})
+ 	</insert>
+
+	<!--##################2.0新增###################-->
+	<select id="selectSlidePicture" resultType="java.util.HashMap">
+		SELECT m_picture as picture FROM tb_managePicture WHERE type=2 limit 3
+	</select>
+</mapper>

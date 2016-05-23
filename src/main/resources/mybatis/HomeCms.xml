@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="HomeCmsDao">
+
+    <resultMap id="BaseResultMap" type="com.yoloboo.models.HomeCmsModel">
+        <id column="id" property="id" jdbcType="NUMERIC"/>
+        <result column="navId" property="navId" jdbcType="NUMERIC"/>
+        <result column="navType" property="navType" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getNavContent" resultMap="BaseResultMap">
+        SELECT hc_id AS id, hc_nav_id AS navId, hc_nav_type AS navType
+        FROM tb_home_cms
+    </select>
+
+</mapper>

@@ -1,0 +1,170 @@
+package com.yoloboo.service.impl;
+
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.common.Commonparam;
+import com.common.ExceptionMyself;
+import com.common.HttpXmlUtil;
+import com.json.BaseBean;
+import com.yoloboo.service.MyCenterManager;
+
+
+@Service
+@Transactional
+public class MycenterManagerImpl implements MyCenterManager {
+	@Autowired
+	private SqlSessionTemplate sqlSession;
+
+	public MycenterManagerImpl() {
+	}
+	
+	//获得旅行风格
+	@SuppressWarnings("rawtypes")
+	@Override
+	public List obtainMyTravelStyle(String userId) {
+		return (List) sqlSession.selectList("mycenter.obtainTravelStyle",userId);
+	}
+
+	
+	// 获得游记数
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Long obtainMyTravelNotesNum(String userId) {
+		return (Long) sqlSession.selectOne("mycenter.obtainMyTravelNotesNum",userId);
+	}
+ 
+	//去过国家数量
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Long obtainMyCountryNum(String userId) {
+		return (Long) sqlSession.selectOne("mycenter.obtainMyCountryNum",userId);
+	}
+ 
+	//游记列表
+	@SuppressWarnings("rawtypes")
+	@Override
+	public List obtainMyNotesList(HashMap param) {
+		return (List) sqlSession.selectList("mycenter.obtainMyNotesList",param);
+	}
+	
+	//获取语言等个人信息
+	@SuppressWarnings("rawtypes")
+	@Override
+	public HashMap obtainlanguageCountryBirthday(String userId) {
+		return (HashMap) sqlSession.selectOne("mycenter.obtainlanguageCountryBirthday",userId);
+	}
+	
+ 
+	
+	//旅行风格插入
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void insertTravelStyleId(HashMap param1) {
+		 sqlSession.insert("mycenter.insertTravelStyleId",param1);
+	}
+	
+	//旅行风格删除
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void deletetravelStyleId(String userId) {
+		 sqlSession.delete("mycenter.deletetravelStyleId",userId);
+	}
+ 
+	
+	//保存个人信息
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void saveMyInfo(HashMap param) {
+		 sqlSession.update("mycenter.saveMyInfo",param);
+		 sqlSession.update("mycenter.updateuserUpicture",param);
+	}
+	 
+	//获取好友列表
+	@SuppressWarnings("rawtypes")
+	@Override
+	public List obtainMyFriends(HashMap param) {
+		return (List)sqlSession.selectList("mycenter.obtainMyFriends",param);
+	}
+	
+	//获取好友列表总数
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Long obtainMyFriendsCount(HashMap param) {
+		return (Long)sqlSession.selectOne("mycenter.obtainMyFriendsCount",param);
+	}
+	
+	//获取通知列表
+	@SuppressWarnings("rawtypes")
+	@Override
+	public List obtainNotificationList(HashMap param) {
+		return (List)sqlSession.selectList("mycenter.obtainNotificationList",param);
+	}
+	
+	//获取好友通知列表总数
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Long obtainNotificationListCount(HashMap param) {
+		return (Long)sqlSession.selectOne("mycenter.obtainNotificationListCount",param);
+	}
+
+	@Override
+	public List<HashMap> obtainRecommendFriends(HashMap param) {
+		// 推荐的好友
+		return (List)sqlSession.selectList("mycenter.obtainRecommendFriends",param);
+	}
+
+	//获取好友推荐列表总数
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Long obtainRecommendFriendsCount(HashMap param) {
+		return (Long)sqlSession.selectOne("mycenter.obtainRecommendFriendsCount",param);
+	}
+	
+	
+	@Override
+	public HashMap findUserById(String userId) {
+		// TODO Auto-generated method stub
+		return  (HashMap)sqlSession.selectOne("User.findUserById",userId);
+	}
+	
+	
+	@Override
+	public List<HashMap> obtainRecommendFriendsYoloboo(HashMap param) {
+		return (List)sqlSession.selectList("mycenter.obtainRecommendFriendsYoloboo",param);
+	}
+	
+	@Override
+	public Integer judgeRecommendFriendsRecommend(HashMap param) {
+		String RecommendId=(String)sqlSession.selectOne("mycenter.judgeRecommendFriendsRecommendId",param);
+		param.put("RecommendId", RecommendId);
+		return (Integer)sqlSession.selectOne("mycenter.judgeRecommendFriendsRecommend",param);
+	}
+	
+	@Override
+	public void deleteRecommendFriendsRecommend(HashMap param) {
+		String RecommendId=(String)sqlSession.selectOne("mycenter.judgeRecommendFriendsRecommendId",param);
+		param.put("RecommendId", RecommendId);
+		 sqlSession.delete("mycenter.deleteRecommendFriendsRecommend",param);
+	}
+	 
+	
+	@Override
+	public HashMap obtainUserPicture(String userId) {
+		// TODO Auto-generated method stub
+		return (HashMap) sqlSession.selectOne("mycenter.obtainUserPicture",userId);
+	}
+	 
+	
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="AwardsDao">
+
+    <resultMap id="AwardsMap" type="com.yoloboo.models.AwardsModel">
+        <id column="id" property="id" jdbcType="NUMERIC"/>
+        <result column="name_en" property="name_en" jdbcType="VARCHAR"/>
+        <result column="name_cn" property="name_cn" jdbcType="VARCHAR"/>
+        <result column="name_tw" property="name_tw" jdbcType="VARCHAR"/>
+        <result column="describe_en" property="describe_en" jdbcType="VARCHAR"/>
+        <result column="describe_cn" property="describe_cn" jdbcType="VARCHAR"/>
+        <result column="describe_tw" property="describe_tw" jdbcType="VARCHAR"/>
+        <result column="date" property="date" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Awards_List">
+        a_id AS id, a_name_en AS name_en, a_name_cn AS name_cn, a_name_tw AS name_tw,
+        a_description_en AS describe_en, a_description_cn AS describe_cn, a_description_tw AS describe_tw,
+        a_date AS date
+    </sql>
+
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="MoodTipsDao">
+    <resultMap id="MoodTipsMap" type="com.yoloboo.models.MoodTipsModel">
+        <id column="mtId" property="mtId" jdbcType="NUMERIC"/>
+        <result column="nameEn" property="nameEn" jdbcType="VARCHAR"/>
+        <result column="nameCn" property="nameCn" jdbcType="VARCHAR"/>
+        <result column="nameTw" property="nameTw" jdbcType="VARCHAR"/>
+        <result column="noClickPic" property="noClickPic" jdbcType="VARCHAR"/>
+        <result column="clickPic" property="clickPic" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_MoodTips_List">
+        mood_tips_id AS mtId, mt_name AS nameEn, mt_simple_name AS nameCn, mt_traditional_name AS nameTw,
+        mt_noclick_picture AS noClickPic, mt_click_picture AS clickPic
+    </sql>
+
+    <select id="getModelByPK" resultMap="MoodTipsMap" resultType="java.lang.Long">
+        SELECT
+        <include refid="Base_MoodTips_List"/>
+        FROM tb_mood_tips WHERE mood_tips_id = #{value}
+    </select>
+
+    <sql id="pm2m">
+        SELECT DISTINCT(mood_id) FROM tb_picture_mood WHERE picture_id = #{value}
+    </sql>
+
+    <select id="getMoodListByPicId" resultMap="MoodTipsMap" resultType="java.lang.Long">
+        SELECT
+        <include refid="Base_MoodTips_List"/>
+        FROM tb_mood_tips WHERE mood_tips_id in (<include refid="pm2m"/>)
+    </select>
+
+</mapper>

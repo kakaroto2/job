@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+    "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="tips">
+
+	<!--  添加贴士数据  -->
+	<insert id="addTipsData"  parameterType="java.util.HashMap" >
+		insert INTO
+		  tb_tips_column(country_tips_id,user_id,tc_picture,tc_tips_content,tc_date,tc_type)
+        VALUES(#{countryTipsId},#{userId},#{picture},#{description},#{tcDate},3)
+	</insert>
+
+
+	<!-- 获得贴士数据列表  -->
+	<select id="obtainTipsDataList"  parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	  
+    select tcc.*,u.user_id as userId,u.u_nickname as userName, u.u_picture as userPicture, ct.ct_name as name, ct.ct_simple_name as simpleName, ct.ct_traditional_name as traditionalName  from 
+       ( SELECT  
+        tc.tips_column_id, tc.user_id,tc.tc_picture as picture,tc.tc_tips_content as description,tc.tc_date as tipsDate,tc.tc_tips_name as tipsName,
+        tc.country_tips_id as countryTipsId,ifnull(tc.tc_belong_id,0) as travelNotesId
+        
+      FROM 
+        tb_tips_column as tc
+
+      WHERE   
+        tc.country_id=#{countryId} and
+       (EXISTS(SELECT f.f_initiative_people_id from tb_friends f where  f.f_initiative_people_id=#{userId} AND f.f_passive_people_id=tc.user_id)
+       OR  tc.user_id=#{userId} or exists(select us.user_id from tb_user us where us.u_type in(2,3)))
+         
+      ORDER BY  
+        tc.tc_date desc
+        LIMIT ${startIndex},${size})  tcc 
+        
+         LEFT JOIN tb_user u on u.user_id=tcc.user_id
+         LEFT JOIN tb_country_tips ct ON  ct.country_tips_id= tcc.countryTipsId
+	</select>
+	
+
+    <!-- 获得贴士数据列表总数  -->
+	<select id="obtainTipsDataListCount"  parameterType="java.util.HashMap" resultType="Long">
+	   SELECT count(tc.tips_column_id)
+      FROM 
+        tb_tips_column as tc
+
+      WHERE   
+        tc.country_id=#{countryId} and
+       (EXISTS(SELECT f.f_initiative_people_id from tb_friends f where  f.f_initiative_people_id=#{userId} AND f.f_passive_people_id=tc.user_id)
+       OR  tc.user_id=#{userId} or exists(select us.user_id from tb_user us where us.u_type in(2,3)))
+	</select>
+	
+	
+	<!--  添加贴士数据  属于1类的，回答问题类的-->
+	<insert id="addTipsDataContent"  parameterType="java.util.HashMap" >
+		insert INTO
+		  tb_tips_column(country_tips_id,user_id,tc_tips_content,tc_date,tc_type,travelNotesId)
+        VALUES(#{countryTipsId},#{userId},#{tipsContent},#{tcDate},1,#{tc_belong_id})
+        
+	</insert>
+ 
+ 	<!--  添加贴士到贴士列表中，这个是 图片的-->
+	<insert id="addPitureToTipsDataContent"  parameterType="java.util.HashMap" >
+		insert INTO
+		  tb_tips_column(country_tips_id,user_id,tc_tips_content,tc_date,tc_type,tc_belong_id)
+        VALUES(#{countryTipsId},#{userId},#{description},#{tcDate},2,#{pictureTipsId})
+	</insert>
+	
+	<!-- 获得国家贴士标签列表的数据 -->
+	<select id="obtainCountryTipsList"  parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	  
+    select  
+        ct.country_tips_id as countryTipsId,ct.ct_name as name,ct.ct_simple_name as simpleName,
+        ct.ct_traditional_name as traditionalName
+      FROM 
+        tb_country_tips as ct
+ 
+	</select>
+	
+
+    <!-- 获得国家贴士标签列表中的数据总数 -->
+	<select id="obtainCountryTipsListCount"  parameterType="java.util.HashMap" resultType="Long">
+	  
+	    select  
+       count(*)
+      FROM 
+        tb_country_tips 
+	</select>
+	
+	
+</mapper>
