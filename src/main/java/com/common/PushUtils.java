@@ -27,7 +27,7 @@ public class PushUtils {
 	 ***************************************************/
 	private static String host = "gateway.sandbox.push.apple.com";
 	private static int port = 2195;
-	private static String p12FilePassword = "lvtao2015";
+	private static String p12FilePassword = "apple2016!";
 
 	
 	
