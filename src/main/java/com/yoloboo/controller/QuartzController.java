@@ -44,7 +44,7 @@ public class QuartzController extends BaseController {
 	public void pushMsg() throws Exception {
 
 		try {
-			logger.debug("certp12Path:" + targetFolderTemp);
+  			logger.debug("certp12Path:" + targetFolderTemp);
 			int page = 1, size = 20;
 			HashMap<String, Object> param = new HashMap<String, Object>();
 			param.put("size", size);
@@ -289,12 +289,13 @@ public class QuartzController extends BaseController {
 
 							ActivityModel am = activityDao.getModelByPK(apm.getA_id());
 
+
 							if (map.get("language").toString().equals("0")) {// 表示英语
-								content = "Is the winner of <" + am.getName_en() + ">!";
+								content = map.get("userName")+"  Is the winner of <" + am.getName_en() + ">!";
 							} else if (map.get("language").toString().equals("1")) {// 中文简体
-								content = "成为<" + am.getName_cn() + ">活动的获奖者!";
+								content =  map.get("userName")+"  成为<" + am.getName_cn() + ">活动的获奖者!";
 							} else {// 繁体
-								content = "成爲<" + am.getName_tw() + ">活動的獲獎者!";
+								content = map.get("userName")+"  成爲<" + am.getName_tw() + ">活動的獲獎者!";
 							}
 							map.put("content", content);
 
