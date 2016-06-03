@@ -241,21 +241,21 @@ public class QuartzController extends BaseController {
 					}
 					else if (type.equals("13")) {
 						if (map.get("language").toString().equals("0")) {// 表示英语
-							content = "here are some notes being featured";
+							content = map.get("userName")+"'s note is featured";
 						} else if (map.get("language").toString().equals("1")) {// 表示简体
-							content = "有文章入选精选";
+							content =map.get("userName")+ " 有文章入选精选";
 						} else {// 表示繁体
-							content = "有文章入選精選";
+							content = map.get("userName")+" 有文章入選精選";
 						}
 						map.put("content", content);
 					}
 					else if (type.equals("14")) {
 						if (map.get("language").toString().equals("0")) {// 表示英语
-							content = "someone has become a KOL!";
+							content =map.get("userName")+ " has become a KOL!";
 						} else if (map.get("language").toString().equals("1")) {// 表示简体
-							content = "有人升级成为达人！";
+							content = map.get("userName")+"升级成为达人！";
 						} else {// 表示繁体
-							content = "有人升級成為達人";
+							content = map.get("userName")+"升級成為達人";
 						}
 						map.put("content", content);
 					}
