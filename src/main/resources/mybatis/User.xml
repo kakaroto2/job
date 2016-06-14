@@ -323,7 +323,7 @@
 		UPDATE tb_user SET u_picture=#{qiniukey}WHERE user_id=#{userId}
 	</update>
 
-	<!--########2.0新增########-->
+	<!--########2.0新增#### ####-->
 	<select id="judgeIsOfficalAccount" parameterType="String" resultType="java.lang.Integer">
 		SELECT count(1) FROM tb_user WHERE u_type=2 AND user_id=#{value}
 	</select>

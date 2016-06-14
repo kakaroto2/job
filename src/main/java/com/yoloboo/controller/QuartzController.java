@@ -343,7 +343,7 @@ public class QuartzController extends BaseController {
 
 		try {
 
-			// 把推荐表中的'('')''-''+'' '全部去掉
+			// 把推荐表的'('')''-''+'' '全部去掉
 			countryManager.updateRecommendFriendsList();// 更新
 			// 手机号码 去推荐表中判断
 			// 加上国家代码，去推荐表中判断
