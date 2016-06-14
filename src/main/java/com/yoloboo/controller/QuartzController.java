@@ -59,6 +59,14 @@ public class QuartzController extends BaseController {
 					String content = (String) map.get("content");
 					String type = map.get("type").toString();
 
+					if(map.get("appString") != null){
+						String appVersion = map.get("appString").toString();
+						if(type.equals("32")&& appVersion!="2.0.5"){
+							continue;
+						}
+					}
+
+
 					if (type.equals("1")) {// 小花赞了妳的照片【显示被赞的照片】
 						if (map.get("language").toString().equals("0")) {// 表示英语
 							content = content.replaceAll("\\[replace\\]", " liked your picture ");
@@ -215,13 +223,16 @@ public class QuartzController extends BaseController {
 					}
 					else if (type.equals("11")) {
 						int i1 = content.indexOf("[");
+						int i2 = content.indexOf("]");
 						String author = content.substring(0,i1);
+						String noteName=content.substring(i1+1,i2);
 						if (map.get("language").toString().equals("0")) {// 表示英语
-							content = author + " published a new note！";
+							content = "["+author+"] published ["+ noteName+"]. Check it and get Inspired!";
 						} else if (map.get("language").toString().equals("1")) {// 表示简体
-							content = author + "发布了新的文章！";
+							content = "["+author+"] 的新画报 ["+noteName+"] 上线，带你换个角度看世界";
+
 						} else {// 表示繁体
-							content = author + "發佈了新的文章！";
+							content ="["+author+"] 的新畫報 ["+noteName+"] 上線，帶妳換個角度看世界";
 						}
 						map.put("content", content);
 					}
@@ -231,11 +242,11 @@ public class QuartzController extends BaseController {
 						String aId = content.substring(i1 + 1, i2);
 						ActivityModel am = activityDao.getModelByPK(Long.valueOf(aId));
 						if (map.get("language").toString().equals("0")) {// 表示英语
-							content = am.getDescribe_en();
+							content = "YOLOBOO invites you to join ["+am.getName_en()+"]. Show us your awesome pics! ";
 						} else if (map.get("language").toString().equals("1")) {// 表示简体
-							content = am.getDescribe_cn();
+							content = "YOLOBOO邀您参加 ["+am.getName_cn()+"] 活动，照片这么美，晒出来让大家羡慕一下呗!";
 						} else {// 表示繁体
-							content = am.getDescribe_tw();
+							content = "YOLOBOO邀您參加 ["+am.getName_tw()+"] 活動，照片這麽美，曬出來讓大家羨慕壹下呗!";
 						}
 						map.put("content", content);
 					}
@@ -256,6 +267,16 @@ public class QuartzController extends BaseController {
 							content = map.get("userName")+"升级成为达人！";
 						} else {// 表示繁体
 							content = map.get("userName")+"升級成為達人";
+						}
+						map.put("content", content);
+					}
+					else if (type.equals("32")) {
+						if (map.get("language").toString().equals("0")) {// 表示英语
+							content ="BOO sent you a message, please check~";
+						} else if (map.get("language").toString().equals("1")) {// 表示简体
+							content = "小BOO给你发消息啦！快去查收~";
+						} else {// 表示繁体
+							content ="小BOO給妳發消息啦！快去查收~";
 						}
 						map.put("content", content);
 					}
@@ -303,7 +324,6 @@ public class QuartzController extends BaseController {
 					}
 				}
 				if (msgList.size() > 0) {
-
 					page++;
 					new PushIphoneThread(targetFolderTemp, msgList, userManger).start();
 				} else {
