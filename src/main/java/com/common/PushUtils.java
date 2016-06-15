@@ -25,7 +25,7 @@ public class PushUtils {
 	 * 测试推送服务器地址：gateway.sandbox.push.apple.com /2195
 	 * 产品推送服务器地址：gateway.push.apple.com / 2195
 	 ***************************************************/
-	private static String host = "gateway.push.apple.com";
+	private static String host = "gateway.sandbox.push.apple.com";
 	private static int port = 2195;
 	private static String p12FilePassword = "apple2016!";
 
