@@ -2,6 +2,7 @@ package com.yoloboo.controller;
 
 import com.common.Commonparam;
 import com.common.LogException;
+import com.common.PushIphoneActivityThread;
 import com.common.PushIphoneThread;
 import com.yoloboo.dao.*;
 import com.yoloboo.models.ActivityModel;
@@ -236,20 +237,20 @@ public class QuartzController extends BaseController {
 						}
 						map.put("content", content);
 					}
-					else if (type.equals("12")) {
-						int i1 = content.indexOf("[");
-						int i2 = content.indexOf("]");
-						String aId = content.substring(i1 + 1, i2);
-						ActivityModel am = activityDao.getModelByPK(Long.valueOf(aId));
-						if (map.get("language").toString().equals("0")) {// 表示英语
-							content = "YOLOBOO invites you to join ["+am.getName_en()+"]. Show us your awesome pics! ";
-						} else if (map.get("language").toString().equals("1")) {// 表示简体
-							content = "YOLOBOO邀您参加 ["+am.getName_cn()+"] 活动，照片这么美，晒出来让大家羡慕一下呗!";
-						} else {// 表示繁体
-							content = "YOLOBOO邀您參加 ["+am.getName_tw()+"] 活動，照片這麽美，曬出來讓大家羨慕壹下呗!";
-						}
-						map.put("content", content);
-					}
+//					else if (type.equals("12")) {
+//						int i1 = content.indexOf("[");
+//						int i2 = content.indexOf("]");
+//						String aId = content.substring(i1 + 1, i2);
+//						ActivityModel am = activityDao.getModelByPK(Long.valueOf(aId));
+//						if (map.get("language").toString().equals("0")) {// 表示英语
+//							content = "YOLOBOO invites you to join ["+am.getName_en()+"]. Show us your awesome pics! ";
+//						} else if (map.get("language").toString().equals("1")) {// 表示简体
+//							content = "YOLOBOO邀您参加 ["+am.getName_cn()+"] 活动，照片这么美，晒出来让大家羡慕一下呗!";
+//						} else {// 表示繁体
+//							content = "YOLOBOO邀您參加 ["+am.getName_tw()+"] 活動，照片這麽美，曬出來讓大家羨慕壹下呗!";
+//						}
+//						map.put("content", content);
+//					}
 					else if (type.equals("13")) {
 						if (map.get("language").toString().equals("0")) {// 表示英语
 							content = map.get("userName")+"'s note is featured";
@@ -337,6 +338,55 @@ public class QuartzController extends BaseController {
 			System.out.println(e.getLocalizedMessage());
 		}
 	}
+
+
+	public void pushActivityMsg() throws Exception {
+
+		try {
+			logger.debug("certp12Path:" + targetFolderTemp);
+			HashMap<String, Object> param = new HashMap<String, Object>();
+			List<HashMap<String, Object>> msgList = new ArrayList<HashMap<String, Object>>();
+			msgList = userManger.findNotifyActivityMsgList(param);
+			System.out.println("定时推送活动" + Commonparam.Date2Str() + ",msg count:" + msgList.size());
+			for (int i = 0; i < msgList.size(); i++) {
+				HashMap map = msgList.get(i);
+				String content = (String) map.get("content");
+				String type = map.get("type").toString();
+
+				if(map.get("appString") != null){
+					String appVersion = map.get("appString").toString();
+					if(type.equals("32")&& appVersion!="2.0.5"){
+						continue;
+					}
+				}
+				if (type.equals("12")) {
+					int i1 = content.indexOf("[");
+					int i2 = content.indexOf("]");
+					String aId = content.substring(i1 + 1, i2);
+					ActivityModel am = activityDao.getModelByPK(Long.valueOf(aId));
+					if (map.get("language").toString().equals("0")) {// 表示英语
+						content = "YOLOBOO invites you to join ["+am.getName_en()+"]. Show us your awesome pics! ";
+					} else if (map.get("language").toString().equals("1")) {// 表示简体
+						content = "YOLOBOO邀您参加 ["+am.getName_cn()+"] 活动，照片这么美，晒出来让大家羡慕一下呗!";
+					} else {// 表示繁体
+						content = "YOLOBOO邀您參加 ["+am.getName_tw()+"] 活動，照片這麽美，曬出來讓大家羨慕壹下呗!";
+					}
+					map.put("content", content);
+				}
+
+
+			}
+			if (msgList.size() > 0) {
+				new PushIphoneActivityThread(targetFolderTemp, msgList, userManger).start();
+			}
+
+		} catch (Exception e) {
+			LogException.printException(e);
+			logger.info("定时推送活动结果异常：" + e.getLocalizedMessage());
+			System.out.println(e.getLocalizedMessage());
+		}
+	}
+
 
 	// 更新
 	public void recommendFriends() throws Exception {

@@ -302,9 +302,25 @@
 		limit ${startIndex},${size}
 	</select>
 
+
+	<select id="findNotifyActivityMsgList" parameterType="java.util.HashMap"
+			resultType="java.util.HashMap">
+		select  h.notification_list_id as
+		notificationListId,h.type, h.content,t.u_ios_token as pushToken
+        ,t.appVersion as appVersion,t.u_language  as language,t.u_nickname as  username
+        from  tb_user t  ,tb_notification_list h   where
+        t.u_ios_token  is  not  null and  t.u_ios_token!='' and h.type=12  and h.notification_status=0
+		ORDER BY h.time asc
+	</select>
+
 	<update id="updateNotifyPushStatus" parameterType="java.util.HashMap">
 		update tb_notification_list set notification_status=1 where
 		notification_list_id = #{notificationListId}
+	</update>
+
+	<update id="updateActivityNotifyPushStatus" parameterType="java.util.HashMap">
+		update tb_notification_list set notification_status=1 where
+		type=12
 	</update>
 	<update id="updateUserPushToken" parameterType="java.util.HashMap">
 	  update tb_user set u_ios_token=#{pushToken} where user_id=#{userId}

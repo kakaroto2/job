@@ -158,11 +158,29 @@ public class UserManagerImpl extends BaseDao implements UserManager {
 		// TODO Auto-generated method stub
 		return (List<HashMap<String, Object>>) sqlSession.selectList("User.findNotifyMsgList", param);
 	}
+
+
+	@Transactional(propagation=Propagation.NOT_SUPPORTED,readOnly=true)
+	@Override
+	public List<HashMap<String, Object>> findNotifyActivityMsgList(HashMap param) {
+		// TODO Auto-generated method stub
+		return (List<HashMap<String, Object>>) sqlSession.selectList("User.findNotifyActivityMsgList", param);
+	}
+
+
+
 	@Override
 	public void updateNotifyPushStatus(HashMap msg) {
 		// TODO Auto-generated method stub
 		sqlSession.update("User.updateNotifyPushStatus", msg);
 	}
+
+	@Override
+	public void updateActivityNotifyPushStatus() {
+		// TODO Auto-generated method stub
+		sqlSession.update("User.updateActivityNotifyPushStatus");
+	}
+
 
 	@Override
 	public void updateUserPushToken(HashMap param) {
