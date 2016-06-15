@@ -198,8 +198,9 @@ public class PushUtils {
 				Device client = pushManager.getDevice("iphone" + i);
 				pushManager.sendNotification(client, payLoad);
 				logger.debug("send msg success. pushToken:"+tokenData.get(i).get("pushToken") +";content:"+tokenData.get(i).get("content").toString());
-				
+				System.out.println("5");
 			}
+			System.out.println("6");
 
 		} catch (Exception e) {LogException.printException(e);
 			System.out.println(e.getLocalizedMessage());
