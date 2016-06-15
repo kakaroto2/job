@@ -62,10 +62,6 @@ public class PushUtils {
 	 * @param deviceToken
 	 *            iphone手机获取的token
 	 * @param p12File
-	 *            .p12格式的文件路径
-	 * @param p12Pass
-	 *            .p12格式的文件密码
-	 * @param customDictionarys
 	 *            CustomDictionary字典组
 	 * @param content
 	 *            推送内容
@@ -107,8 +103,6 @@ public class PushUtils {
 	 *            iphone手机获取的token
 	 * @param p12File
 	 *            .p12格式的文件路径
-	 * @param p12Pass
-	 *            .p12格式的文件密码
 	 * @param customDictionarys
 	 *            CustomDictionary字典
 	 * @param content
@@ -178,18 +172,19 @@ public class PushUtils {
 			
 			
 			pushManager = PushNotificationManager.getInstance();
-
+			System.out.println("1");
 			// 链接到APNs
 			pushManager.initializeConnection(host, port, p12File,
 					p12FilePassword, SSLConnectionHelper.KEYSTORE_TYPE_PKCS12);
-
+			System.out.println("2");
 			// 开始循环推送
 			for (int i = 0; i < tokenData.size(); i++) {
+				System.out.println("3");
 				logger.debug("send msg start. pushToken:"+tokenData.get(i).get("pushToken") +";content:"+tokenData.get(i).get("content").toString());
 				if (tokenData.get(i).get("pushToken") == null
 						|| tokenData.get(i).get("pushToken") .toString().trim().length() == 0)
 					continue;
-				
+				System.out.println("4");
 				PayLoad payLoad = new PayLoad();
 				payLoad.addAlert(tokenData.get(i).get("content").toString());// push的内容
 				payLoad.addBadge(1);// 应用图标上小红圈上的数值
@@ -232,8 +227,6 @@ public class PushUtils {
 	 *            toast标题
 	 * @param content
 	 *            toast内容
-	 * @param param
-	 *            页面跳转参数
 	 * @return 推送通知服务响应码
 	 * @throws IOException
 	 */
