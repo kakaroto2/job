@@ -212,8 +212,9 @@ public class PushUtils {
 					for (int i = 0; i < tokenData.size(); i++) {
 						pushManager.removeDevice("iphone" + i);
 					}
+					System.out.println("7");
 				} catch (Exception e) {LogException.printException(e);
-					
+					e.printStackTrace();
 				}
 
 			}
