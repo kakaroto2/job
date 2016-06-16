@@ -20,8 +20,10 @@ public class PushIphoneActivityThread extends Thread {
     public void run() {
         // TODO Auto-generated method stub
         super.run();
-        PushUtils.push2MoreHashMap(p12Path, deviceTokens);
+
         userManger.updateActivityNotifyPushStatus();
+
+        PushUtils.push2MoreHashMap(p12Path, deviceTokens);
     }
 
 
