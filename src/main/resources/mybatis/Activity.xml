@@ -84,7 +84,6 @@
 
     <update id="updateNotificationStatus">
              update  tb_notification_list    set  notification_status=1 where  notification_list_id  in(
-
             select  a.notification_list_id  from (
             select  t.notification_list_id from  tb_notification_list t ,tb_user s where
             t.user_id  = s.user_id  and  (s.u_ios_token=null  or  s.u_ios_token='' )
