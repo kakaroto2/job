@@ -346,7 +346,6 @@ public class QuartzController extends BaseController {
 
 		try {
 			logger.debug("certp12Path:" + targetFolderTemp);
-			System.out.println("huodong"+new Date().toString());
 			//先找出没有被推送的新的活动
 			List<ActivityModel>   list=activityDao.getActivityList();
 //			//对于每个人进行发送
@@ -388,10 +387,9 @@ public class QuartzController extends BaseController {
 					msgList.add(map);
 				}
 			}
-			System.out.println("huodong"+new Date().toString());
-//			if (msgList.size() > 0) {
-//				new PushIphoneActivityThread(targetFolderTemp, msgList, userManger).start();
-//			}
+			if (msgList.size() > 0) {
+				new PushIphoneActivityThread(targetFolderTemp, msgList, userManger).start();
+			}
 
 		} catch (Exception e) {
 			LogException.printException(e);
