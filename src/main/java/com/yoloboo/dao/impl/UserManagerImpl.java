@@ -168,6 +168,13 @@ public class UserManagerImpl extends BaseDao implements UserManager {
 	}
 
 
+	@Transactional(propagation=Propagation.NOT_SUPPORTED,readOnly=true)
+	@Override
+	public List<HashMap<String, Object>> getUserList() {
+		// TODO Auto-generated method stub
+		return (List<HashMap<String, Object>>) sqlSession.selectList("User.getUserList");
+	}
+
 
 	@Override
 	public void updateNotifyPushStatus(HashMap msg) {

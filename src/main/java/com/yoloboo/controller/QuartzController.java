@@ -5,6 +5,7 @@ import com.common.LogException;
 import com.common.PushIphoneActivityThread;
 import com.common.PushIphoneThread;
 import com.yoloboo.dao.*;
+import com.yoloboo.entity.User;
 import com.yoloboo.models.ActivityModel;
 import com.yoloboo.models.ActivityPictureModel;
 import com.yoloboo.models.TopicModel;
@@ -344,37 +345,45 @@ public class QuartzController extends BaseController {
 
 		try {
 			logger.debug("certp12Path:" + targetFolderTemp);
-			HashMap<String, Object> param = new HashMap<String, Object>();
+			//先找出没有被推送的新的活动
+			List<ActivityModel>   list=activityDao.getActivityList();
+//			//对于每个人进行发送
+			List<HashMap<String, Object>> userList = new ArrayList<HashMap<String, Object>>();
+
+			userList=userManger.getUserList();
+
+			String content_cn="";
+			String content_en="";
+			String content_tw="";
+			for(ActivityModel  model:list){
+				 content_cn="YOLOBOO邀您参加 ["+model.getName_cn()+"] 活动，照片这么美，晒出来让大家羡慕一下呗!";
+				 content_en= "YOLOBOO invites you to join ["+model.getName_en()+"]. Show us your awesome pics! ";
+				 content_tw="YOLOBOO邀您參加 ["+model.getName_tw()+"] 活動，照片這麽美，曬出來讓大家羨慕壹下呗!";
+				 model.setContent_cn(content_cn);
+				 model.setContent_en(content_en);
+				 model.setContent_tw(content_tw);
+			}
+			//生成所有的消息体
 			List<HashMap<String, Object>> msgList = new ArrayList<HashMap<String, Object>>();
-			msgList = userManger.findNotifyActivityMsgList(param);
-			System.out.println("定时推送活动" + Commonparam.Date2Str() + ",msg count:" + msgList.size());
-			for (int i = 0; i < msgList.size(); i++) {
-				HashMap map = msgList.get(i);
-				String content = (String) map.get("content");
-				String type = map.get("type").toString();
 
-				if(map.get("appString") != null){
-					String appVersion = map.get("appString").toString();
-					if(type.equals("32")&& appVersion!="2.0.5"){
-						continue;
+			HashMap<String, Object>  map=new  	HashMap();
+			for(int i = 0; i < userList.size(); i++){
+				for(ActivityModel  activityModel:list){
+					map.put("notificationListId",activityModel.getNotification_list_id());
+					map.put("type",12);
+					map.put("pushToken",userList.get(i).get("u_ios_token"));
+					if("0".equals(userList.get(i).get("u_language").toString())){
+						map.put("content",activityModel.getContent_en().toString());
+					}else if("1".equals(userList.get(i).get("u_language").toString())){
+						map.put("content",activityModel.getContent_cn().toString());
+					}else if("2".equals(userList.get(i).get("u_language").toString())){
+						map.put("content",activityModel.getContent_tw().toString());
 					}
+					map.put("appVersion",userList.get(i).get("appVersion"));
+					map.put("language",userList.get(i).get("u_language"));
+					map.put("userName",userList.get(i).get("u_nickname"));
+					msgList.add(map);
 				}
-				if (type.equals("12")) {
-					int i1 = content.indexOf("[");
-					int i2 = content.indexOf("]");
-					String aId = content.substring(i1 + 1, i2);
-					ActivityModel am = activityDao.getModelByPK(Long.valueOf(aId));
-					if (map.get("language").toString().equals("0")) {// 表示英语
-						content = "YOLOBOO invites you to join ["+am.getName_en()+"]. Show us your awesome pics! ";
-					} else if (map.get("language").toString().equals("1")) {// 表示简体
-						content = "YOLOBOO邀您参加 ["+am.getName_cn()+"] 活动，照片这么美，晒出来让大家羡慕一下呗!";
-					} else {// 表示繁体
-						content = "YOLOBOO邀您參加 ["+am.getName_tw()+"] 活動，照片這麽美，曬出來讓大家羨慕壹下呗!";
-					}
-					map.put("content", content);
-				}
-
-
 			}
 			if (msgList.size() > 0) {
 				new PushIphoneActivityThread(targetFolderTemp, msgList, userManger).start();

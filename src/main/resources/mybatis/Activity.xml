@@ -5,6 +5,7 @@
 
     <resultMap id="ActivityMap" type="com.yoloboo.models.ActivityModel">
         <id column="id" property="id" jdbcType="NUMERIC"/>
+        <id column="notification_list_id" property="notification_list_id" jdbcType="NUMERIC"/>
         <result column="name_en" property="name_en" jdbcType="VARCHAR"/>
         <result column="name_cn" property="name_cn" jdbcType="VARCHAR"/>
         <result column="name_tw" property="name_tw" jdbcType="VARCHAR"/>
@@ -46,6 +47,19 @@
         </if>
         limit ${startIndex},${size}
     </select>
+
+
+    <select id="getActivityList" resultMap="ActivityMap">
+       SELECT  notification_list_id,
+       a_id AS id, type_id AS typeId, a_name_en AS name_en, a_name_cn AS name_cn, a_name_tw AS name_tw,
+      a_describe_en AS describe_en, a_describe_cn AS describe_cn, a_describe_tw AS describe_tw,
+      a_cover_picture AS coverPicture, a_start_date AS startDate, a_end_date AS endDate,
+      a_status AS status, a_picture_num AS pictureNum, a_comment_num AS commentNum
+        FROM tb_activity,tb_notification_list
+        WHERE a_deleted != 1   and notification_status=0  and  type=12 and replace(replace(content, '[',''), ']', '')  =a_id
+    </select>
+
+
 
     <select id="getStatusByPK" resultType="java.lang.Integer" parameterType="java.lang.Long">
         SELECT a_status FROM tb_activity

@@ -34,4 +34,13 @@ public class ActivityDaoImpl extends BaseDao implements ActivityDao
 		return (int) sqlSession.selectOne("ActivityDao.getStatusByPK", id);
 	}
 
+
+	@Override
+	public List<ActivityModel> getActivityList() {
+
+		return (List<ActivityModel>)sqlSession.selectList("ActivityDao.getActivityList");
+
+	}
+
+
 }

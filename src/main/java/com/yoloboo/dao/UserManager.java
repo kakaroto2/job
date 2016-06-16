@@ -61,6 +61,8 @@ public interface UserManager {
 
 	List<HashMap<String,Object>> findNotifyActivityMsgList(HashMap param);
 
+	List<HashMap<String,Object>> getUserList();
+
 	void updateNotifyPushStatus(HashMap msg);
 
 	void updateActivityNotifyPushStatus();

@@ -313,6 +313,10 @@
 		ORDER BY h.time asc
 	</select>
 
+	<select id="getUserList"  resultType="java.util.HashMap">
+ 	    select  *  from  tb_user  where  u_ios_token  is  not  null  and  u_ios_token !=''
+	</select>
+
 	<update id="updateNotifyPushStatus" parameterType="java.util.HashMap">
 		update tb_notification_list set notification_status=1 where
 		notification_list_id = #{notificationListId}

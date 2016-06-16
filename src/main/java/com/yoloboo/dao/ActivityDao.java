@@ -14,4 +14,5 @@ public interface ActivityDao
 	ActivityModel getModelByPK(Long id);
 	List<ActivityModel> getListByStatus(ActivityBean ab);
 	int getStatusByPK(Long id);
+	List<ActivityModel>   getActivityList();
 }

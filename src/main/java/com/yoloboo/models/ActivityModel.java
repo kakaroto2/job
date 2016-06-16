@@ -12,6 +12,8 @@ import java.util.Date;
 public class ActivityModel extends CmsContentModel implements Serializable
 {
 	private Long id;
+
+	private Long notification_list_id;
 	private String name_en;
 	private String name_cn;
 	private String name_tw;
@@ -24,6 +26,45 @@ public class ActivityModel extends CmsContentModel implements Serializable
 	private Integer status;
 	private Long pictureNum;
 	private Long commentNum;
+
+	//用来记录 推送内容
+	private String content_tw;
+
+	private String content_cn;
+
+	private String content_en;
+
+	public Long getNotification_list_id() {
+		return notification_list_id;
+	}
+
+	public void setNotification_list_id(Long notification_list_id) {
+		this.notification_list_id = notification_list_id;
+	}
+
+	public String getContent_tw() {
+		return content_tw;
+	}
+
+	public void setContent_tw(String content_tw) {
+		this.content_tw = content_tw;
+	}
+
+	public String getContent_cn() {
+		return content_cn;
+	}
+
+	public void setContent_cn(String content_cn) {
+		this.content_cn = content_cn;
+	}
+
+	public String getContent_en() {
+		return content_en;
+	}
+
+	public void setContent_en(String content_en) {
+		this.content_en = content_en;
+	}
 
 	public Long getId()
 	{
