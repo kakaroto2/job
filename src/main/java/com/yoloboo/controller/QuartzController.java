@@ -366,9 +366,10 @@ public class QuartzController extends BaseController {
 			//生成所有的消息体
 			List<HashMap<String, Object>> msgList = new ArrayList<HashMap<String, Object>>();
 
-			HashMap<String, Object>  map=new  	HashMap();
+			HashMap<String, Object>  map=null;
 			for(int i = 0; i < userList.size(); i++){
 				for(ActivityModel  activityModel:list){
+					map=new HashMap();
 					map.put("notificationListId",activityModel.getNotification_list_id());
 					map.put("type",12);
 					map.put("pushToken",userList.get(i).get("u_ios_token"));
