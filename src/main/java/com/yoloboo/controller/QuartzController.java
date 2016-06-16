@@ -197,14 +197,14 @@ public class QuartzController extends BaseController {
 							//content="Accepted your Invitation.";
 						}
 						if (map.get("language").toString().equals("1")) {// 中文简体
-							content = content.replaceAll("\\[replace\\]", "你和");
-							content = content + "成为了好友";//
+							content = content.replaceAll("\\[replace\\]","");
+							content = "你和"+content + "成为了好友";
 							//content="接受了你的好友邀请";
 
 						}
 						if (map.get("language").toString().equals("2")) {// 繁体
-							content = content.replaceAll("\\[replace\\]", "妳和");
-							content = content + "成為了好友";//
+							content = content.replaceAll("\\[replace\\]","");
+							content = "你和"+content + "成为了好友";
 							//content="接受了你的好友邀請";
 						}
 						map.put("content", content);
