@@ -297,7 +297,7 @@
 		and exists(select
 		user_id from tb_user u1 where u1.user_id=nl.user_id and
 		u1.u_ios_token
-		is not null)
+		is not null and u_ios_token !='')
 		ORDER BY time asc
 		limit ${startIndex},${size}
 	</select>

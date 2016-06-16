@@ -15,4 +15,5 @@ public interface ActivityDao
 	List<ActivityModel> getListByStatus(ActivityBean ab);
 	int getStatusByPK(Long id);
 	List<ActivityModel>   getActivityList();
+	void updateNotificationStatus();
 }

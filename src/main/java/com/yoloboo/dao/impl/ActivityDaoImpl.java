@@ -42,5 +42,10 @@ public class ActivityDaoImpl extends BaseDao implements ActivityDao
 
 	}
 
+	@Override
+	public void updateNotificationStatus() {
+		sqlSession.update("ActivityDao.updateNotificationStatus");
+	}
+
 
 }

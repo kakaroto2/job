@@ -119,12 +119,27 @@
 		<property name="concurrent" value="false" />
 	</bean>
 
+	<bean id="updateNotificationStatusTrigger"
+		  class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="updateNotificationStatusTriggerJobDetail" />
+		<property name="cronExpression" value="0 0/5 * * * ?" />
+	</bean>
+
+
+	<bean id="updateNotificationStatusTriggerJobDetail"
+		  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="QuartzAction" />
+		<property name="targetMethod" value="updateNotificationStatus" />
+		<property name="concurrent" value="false" />
+	</bean>
+
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
 				<ref bean="pushMsgTrigger" />
 				<ref bean="recommendFriendsTrigger" />
 				<ref bean="pushActivityMsgTrigger" />
+				<ref bean="updateNotificationStatusTrigger" />
 			</list>
 		</property>
 	</bean>
