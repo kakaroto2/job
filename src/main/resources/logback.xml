@@ -31,13 +31,13 @@
   </appender>
 
    <logger name="org.springframework" level="${logback.level.springframework:-ERROR}" />
-   <logger name="org.mybatis" level="${logback.level.mybatis:-ERROR}" />
+   <logger name="org.mybatis" level="${logback.level.mybatis:-DEBUG}" />
 
 <!-- level:
 用来设置打印级别，大小写无关：TRACE, DEBUG, INFO, WARN, ERROR, ALL 和 OFF，不能设置为INHERITED或者同义词NULL。
 默认是DEBUG。
  -->
-    <root level="${logback.level:-ERROR}">
+    <root level="${logback.level:-DEBUG}">
          <appender-ref ref="${spring.profiles.active:-STDOUT}"/>
     </root>
 
