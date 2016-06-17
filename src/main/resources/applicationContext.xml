@@ -98,6 +98,7 @@
 		<property name="concurrent" value="false" />
 	</bean>
 
+
 	<bean id="recommendFriendsTrigger"
 		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="recommendFriendsJobDetail" />
