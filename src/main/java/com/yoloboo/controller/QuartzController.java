@@ -237,6 +237,7 @@ public class QuartzController extends BaseController {
 						} else {// 表示繁体
 							content ="["+author+"] 的新畫報 ["+noteName+"] 上線，帶妳換個角度看世界";
 						}
+
 						map.put("content", content);
 					}
 					else if (type.equals("13")) {
