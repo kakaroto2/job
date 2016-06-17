@@ -78,18 +78,18 @@
 
 	<bean id="QuartzAction" class="com.yoloboo.controller.QuartzController"></bean>
 
-	<!--<bean id="pushMsgJobDetail"-->
-		<!--class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">-->
-		<!--<property name="targetObject" ref="QuartzAction" />-->
-		<!--<property name="targetMethod" value="pushMsg" />-->
-		<!--<property name="concurrent" value="false" />-->
-	<!--</bean>-->
+	<bean id="pushMsgJobDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="QuartzAction" />
+		<property name="targetMethod" value="pushMsg" />
+		<property name="concurrent" value="false" />
+	</bean>
 
-	<!--<bean id="pushMsgTrigger"-->
-		<!--class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">-->
-		<!--<property name="jobDetail" ref="pushMsgJobDetail" />-->
-		<!--<property name="cronExpression" value="0 0/2 * * * ?" />-->
-	<!--</bean>-->
+	<bean id="pushMsgTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="pushMsgJobDetail" />
+		<property name="cronExpression" value="0 0/2 * * * ?" />
+	</bean>
 
 	<bean id="recommendFriendsJobDetail"
 		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
@@ -136,7 +136,7 @@
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
-				<!--<ref bean="pushMsgTrigger" />-->
+				<ref bean="pushMsgTrigger" />
 				<ref bean="recommendFriendsTrigger" />
 				<ref bean="pushActivityMsgTrigger" />
 				<ref bean="updateNotificationStatusTrigger" />

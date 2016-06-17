@@ -175,9 +175,9 @@ public class PushUtils {
 			// 链接到APNs
 			pushManager.initializeConnection(host, port, p12File,
 					p12FilePassword, SSLConnectionHelper.KEYSTORE_TYPE_PKCS12);
+			System.out.println(Commonparam.Date2Str());
 			// 开始循环推送
 			for (int i = 0; i < tokenData.size(); i++) {
-				System.out.println("send msg start. pushToken:"+tokenData.get(i).get("pushToken") +";content:"+tokenData.get(i).get("content").toString());
 				if (tokenData.get(i).get("pushToken") == null
 						|| tokenData.get(i).get("pushToken") .toString().trim().length() == 0)
 					continue;
@@ -193,12 +193,9 @@ public class PushUtils {
 				pushManager.addDevice("iphone" + i, tokenData.get(i).get("pushToken").toString());
 				Device client = pushManager.getDevice("iphone" + i);
 				pushManager.sendNotification(client, payLoad);
-				System.out.println("send msg success. pushToken:"+tokenData.get(i).get("pushToken") +";content:"+tokenData.get(i).get("content").toString());
 			}
-
 		} catch (Exception e) {LogException.printException(e);
 			System.out.println(e.getLocalizedMessage());
-			e.printStackTrace();
 		} finally {
 			if (pushManager != null) {
 				// 断开链接
@@ -207,9 +204,11 @@ public class PushUtils {
 					for (int i = 0; i < tokenData.size(); i++) {
 						pushManager.removeDevice("iphone" + i);
 					}
+					System.out.println(Commonparam.Date2Str());
 				} catch (Exception e) {LogException.printException(e);
 					e.printStackTrace();
 				}
+
 
 			}
 		}

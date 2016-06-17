@@ -239,20 +239,6 @@ public class QuartzController extends BaseController {
 						}
 						map.put("content", content);
 					}
-//					else if (type.equals("12")) {
-//						int i1 = content.indexOf("[");
-//						int i2 = content.indexOf("]");
-//						String aId = content.substring(i1 + 1, i2);
-//						ActivityModel am = activityDao.getModelByPK(Long.valueOf(aId));
-//						if (map.get("language").toString().equals("0")) {// 表示英语
-//							content = "YOLOBOO invites you to join ["+am.getName_en()+"]. Show us your awesome pics! ";
-//						} else if (map.get("language").toString().equals("1")) {// 表示简体
-//							content = "YOLOBOO邀您参加 ["+am.getName_cn()+"] 活动，照片这么美，晒出来让大家羡慕一下呗!";
-//						} else {// 表示繁体
-//							content = "YOLOBOO邀您參加 ["+am.getName_tw()+"] 活動，照片這麽美，曬出來讓大家羨慕壹下呗!";
-//						}
-//						map.put("content", content);
-//					}
 					else if (type.equals("13")) {
 						if (map.get("language").toString().equals("0")) {// 表示英语
 							content = map.get("userName")+"'s note is featured";
@@ -346,6 +332,7 @@ public class QuartzController extends BaseController {
 
 		try {
 			logger.debug("certp12Path:" + targetFolderTemp);
+			System.out.println("定时活动推送" + Commonparam.Date2Str());
 			//先找出没有被推送的新的活动
 			List<ActivityModel>   list=activityDao.getActivityList();
 //			//对于每个人进行发送
