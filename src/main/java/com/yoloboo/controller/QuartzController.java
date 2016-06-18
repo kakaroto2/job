@@ -331,6 +331,7 @@ public class QuartzController extends BaseController {
 
 	public void pushActivityMsg() throws Exception {
 
+
 		try {
 			logger.debug("certp12Path:" + targetFolderTemp);
 			System.out.println("定时活动推送" + Commonparam.Date2Str());
