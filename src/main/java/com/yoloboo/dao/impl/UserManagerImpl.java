@@ -174,9 +174,9 @@ public class UserManagerImpl extends BaseDao implements UserManager {
 
 
 	@Override
-	public void updateNotifyPushStatus(HashMap msg) {
+	public void updateNotifyPushStatus() {
 		// TODO Auto-generated method stub
-		sqlSession.update("User.updateNotifyPushStatus", msg);
+		sqlSession.update("User.updateNotifyPushStatus");
 	}
 
 	@Override

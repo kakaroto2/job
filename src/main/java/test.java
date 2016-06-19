@@ -32,14 +32,10 @@ public class test {
 //        String s2=" ";
 //        System.out.println(s1.contains(" "));
 //        System.out.println(s2.contains(" "));
-        List<String> l = new ArrayList<String>();
-        l.add("hello");
-        l.add("halo");
-        l.add("bonjour");
-        l.add("salut");
-        l.remove("hello");
-        System.out.println(l);
-
+        String   content="Xuan[replace]";
+        content = content.replaceAll("\\[replace\\]","");
+        content = "你和"+content + "成为了好友";
+        System.out.println(content);
     }
 
 }

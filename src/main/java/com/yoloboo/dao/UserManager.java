@@ -63,7 +63,7 @@ public interface UserManager {
 
 	List<HashMap<String,Object>> getUserList();
 
-	void updateNotifyPushStatus(HashMap msg);
+	void updateNotifyPushStatus();
 
 	void updateActivityNotifyPushStatus();
 

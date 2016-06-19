@@ -22,9 +22,9 @@ public class PushIphoneThread extends Thread {
 		super.run();
 //		PushUtils.push2MoreHashMap(p12Path, deviceTokens);
 
-		for(HashMap msg : deviceTokens){
-			 userManger.updateNotifyPushStatus(msg);
-		 }
+		//for(HashMap msg : deviceTokens){
+		userManger.updateNotifyPushStatus();
+		 //}
 	}
 
 	

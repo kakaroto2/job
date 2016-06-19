@@ -48,12 +48,12 @@ public class QuartzController extends BaseController {
 
 		try {
   			logger.debug("certp12Path:" + targetFolderTemp);
-			int page = 1, size = 20;
+		//	int page = 1, size = 20;
 			HashMap<String, Object> param = new HashMap<String, Object>();
-			param.put("size", size);
+		//	param.put("size", size);
 			List<HashMap<String, Object>> msgList = new ArrayList<HashMap<String, Object>>();
-			while (page > 0) {
-				param.put("startIndex", (page - 1) * size);
+			//while (page > 0) {
+				//param.put("startIndex", (page - 1) * size);
 				// content,pushToken,type
 				msgList = userManger.findNotifyMsgList(param);
 				System.out.println("定时推送" + Commonparam.Date2Str() + ",msg count:" + msgList.size());
@@ -313,14 +313,14 @@ public class QuartzController extends BaseController {
 						}
 					}
 				}
-				if (msgList.size() > 0) {
-					page++;
+			//	if (msgList.size() > 0) {
+			//		page++;
 					new PushIphoneThread(targetFolderTemp, msgList, userManger).start();
-				} else {
-					page = 0;
-				}
+			//	} else {
+			//		page = 0;
+			//	}
 
-			}
+		//	}
 		} catch (Exception e) {
 			LogException.printException(e);
 			logger.info("定时推送结果异常：" + e.getLocalizedMessage());
