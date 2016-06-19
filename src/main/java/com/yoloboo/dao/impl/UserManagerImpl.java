@@ -152,7 +152,6 @@ public class UserManagerImpl extends BaseDao implements UserManager {
 		return (HashMap) sqlSession.selectOne("User.obtainUserByThreeId", param);
 	}
 	
-	@Transactional(propagation=Propagation.NOT_SUPPORTED,readOnly=true)
 	@Override
 	public List<HashMap<String, Object>> findNotifyMsgList(HashMap param) {
 		// TODO Auto-generated method stub
@@ -160,7 +159,6 @@ public class UserManagerImpl extends BaseDao implements UserManager {
 	}
 
 
-	@Transactional(propagation=Propagation.NOT_SUPPORTED,readOnly=true)
 	@Override
 	public List<HashMap<String, Object>> findNotifyActivityMsgList(HashMap param) {
 		// TODO Auto-generated method stub
@@ -168,7 +166,6 @@ public class UserManagerImpl extends BaseDao implements UserManager {
 	}
 
 
-	@Transactional(propagation=Propagation.NOT_SUPPORTED,readOnly=true)
 	@Override
 	public List<HashMap<String, Object>> getUserList() {
 		// TODO Auto-generated method stub
