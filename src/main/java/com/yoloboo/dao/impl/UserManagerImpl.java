@@ -174,9 +174,15 @@ public class UserManagerImpl extends BaseDao implements UserManager {
 
 
 	@Override
-	public void updateNotifyPushStatus() {
+	public List<HashMap<String, Object>> selectNotSendNotification() {
 		// TODO Auto-generated method stub
-		sqlSession.update("User.updateNotifyPushStatus");
+		return (List<HashMap<String, Object>>) sqlSession.selectList("User.selectNotSendNotification");
+	}
+
+	@Override
+	public void updateNotifyPushStatus(Long notificationListId) {
+		// TODO Auto-generated method stub
+		sqlSession.update("User.updateNotifyPushStatus",notificationListId);
 	}
 
 	@Override
@@ -338,4 +344,18 @@ public class UserManagerImpl extends BaseDao implements UserManager {
 	public HashMap getBirthDayByUserId(HashMap param) {
 		return (HashMap) sqlSession.selectOne("User.getBirthDayByUserId", param);
 	}
+
+	//批量将未推送的消息插入到临时表中
+	@Override
+	public void addNotificationTemp(List<HashMap<String,Object>> list) {
+		sqlSession.insert("User.addNotificationTemp",list);
+	}
+
+
+	//删除临时表的某一条记录
+	@Override
+	public void deleteTemp(Long notificationListId) {
+		sqlSession.update("User.deleteTemp", notificationListId);
+	}
+
 }

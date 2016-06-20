@@ -294,11 +294,11 @@
 		u.user_id=nl.user_id) as language,(SELECT u2.u_nickname FROM tb_user u2 WHERE nl.passive_id=u2.user_id) as userName from
 		tb_notification_list nl where
 		notification_status=0
-		and exists(select
-		user_id from tb_user u1 where u1.user_id=nl.user_id and
-		u1.u_ios_token
-		is not null and u_ios_token !='')
-		ORDER BY time asc
+-- 		and exists(select
+-- 		user_id from tb_user u1 where u1.user_id=nl.user_id and
+-- 		u1.u_ios_token
+-- 		is not null and u_ios_token !='')
+		ORDER BY time desc
 -- 		limit ${startIndex},${size}
 	</select>
 
@@ -317,24 +317,12 @@
  	    select  *  from  tb_user  where  u_ios_token  is  not  null  and  u_ios_token !=''
 	</select>
 
-	<update id="updateNotifyPushStatus">
-		update tb_notification_list set notification_status=1
--- 		 where  notification_list_id  in(
---         select a.notificationListId  from (
--- 	     select nl.notification_list_id as
--- 		notificationListId,nl.type, nl.content,(select u.u_ios_token from
--- 		tb_user u where
--- 		u.user_id=nl.user_id) as pushToken,(SELECT u.appVersion from tb_user u where
--- 		u.user_id=nl.user_id) as appVersion, (select u.u_language from
--- 		tb_user u where
--- 		u.user_id=nl.user_id) as language,(SELECT u2.u_nickname FROM tb_user u2 WHERE nl.passive_id=u2.user_id) as userName from
--- 		tb_notification_list nl where
--- 		notification_status=0
--- 		and exists(select
--- 		user_id from tb_user u1 where u1.user_id=nl.user_id and
--- 		u1.u_ios_token
--- 		is not null and u_ios_token !='')) as a)
+	<select id="selectNotSendNotification"  resultType="java.util.HashMap">
+		select  *  from  tb_notification_list_temp
+	</select>
 
+	<update id="updateNotifyPushStatus"  parameterType="java.lang.Long">
+		update tb_notification_list set notification_status=1 where  notification_list_id  &lt;= #{value}
 	</update>
 
 	<update id="updateActivityNotifyPushStatus" parameterType="java.util.HashMap">
@@ -498,5 +486,23 @@
 	<select id="getBirthDayByUserId" parameterType="HashMap" resultType="HashMap">
 		SELECT u_birthday,u_description FROM tb_user WHERE user_id=#{userId}
 	</select>
+
+
+	<insert id="addNotificationTemp" useGeneratedKeys="true" parameterType="java.util.List">
+		<selectKey resultType="long" keyProperty="id" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into tb_notification_list_temp (notificationListId,type,content,pushToken,appVersion,userName)
+		values
+		<foreach collection="list" item="item" index="index" separator="," >
+			(#{item.notificationListId},#{item.type},#{item.content},#{item.pushToken},#{item.appVersion},#{item.userName})
+		</foreach>
+	</insert>
+
+
+
+	<update id="deleteTemp" parameterType="java.lang.Long">
+		DELETE   from  tb_notification_list_temp  where  notificationListId=#{value}
+	</update>
 
 </mapper>

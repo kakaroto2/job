@@ -48,13 +48,9 @@ public class QuartzController extends BaseController {
 
 		try {
   			logger.debug("certp12Path:" + targetFolderTemp);
-		//	int page = 1, size = 20;
 			HashMap<String, Object> param = new HashMap<String, Object>();
-		//	param.put("size", size);
 			List<HashMap<String, Object>> msgList = new ArrayList<HashMap<String, Object>>();
-			//while (page > 0) {
-				//param.put("startIndex", (page - 1) * size);
-				// content,pushToken,type
+				 //content,pushToken,type
 				msgList = userManger.findNotifyMsgList(param);
 				System.out.println("定时推送" + Commonparam.Date2Str() + ",msg count:" + msgList.size());
 				for (int i = 0; i < msgList.size(); i++) {
@@ -313,14 +309,10 @@ public class QuartzController extends BaseController {
 						}
 					}
 				}
-			//	if (msgList.size() > 0) {
-			//		page++;
-					new PushIphoneThread(targetFolderTemp, msgList, userManger).start();
-			//	} else {
-			//		page = 0;
-			//	}
+			if (msgList.size() > 0) {
+				new PushIphoneThread(targetFolderTemp, msgList, userManger).start();
+			}
 
-		//	}
 		} catch (Exception e) {
 			LogException.printException(e);
 			logger.info("定时推送结果异常：" + e.getLocalizedMessage());
@@ -410,17 +402,4 @@ public class QuartzController extends BaseController {
 		}
 	}
 
-
-	// 更新消息表中没有iostoken 的用户的是否推送的状态
-	public void updateNotificationStatus() throws Exception {
-
-		try {
-
-			activityDao.updateNotificationStatus();
-
-		} catch (Exception e) {
-			LogException.printException(e);
-			System.out.println(e.getLocalizedMessage());
-		}
-	}
 }

@@ -63,7 +63,9 @@ public interface UserManager {
 
 	List<HashMap<String,Object>> getUserList();
 
-	void updateNotifyPushStatus();
+	List<HashMap<String,Object>> selectNotSendNotification();
+
+	void updateNotifyPushStatus(Long notificationListId);
 
 	void updateActivityNotifyPushStatus();
 
@@ -104,4 +106,8 @@ public interface UserManager {
 	Integer getUserViewNum(Long userId);
 
 	HashMap getBirthDayByUserId(HashMap param);
+
+	void addNotificationTemp(List<HashMap<String,Object>> list);
+
+	void  deleteTemp(Long notificationListId);
 }
