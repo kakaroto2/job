@@ -129,11 +129,11 @@ public class QuartzController extends BaseController {
 							//content="Commented on your picture";
 						}
 						if (map.get("language").toString().equals("1")) {// 中文简体
-							content = content.replaceAll("\\[replace\\]", "评论了你的照片");
+							content = content.replaceAll("\\[replace\\]", "给你留言了");
 							//content="评论了你的照片";
 						}
 						if (map.get("language").toString().equals("2")) {// 繁体
-							content = content.replaceAll("\\[replace\\]", "評論了妳的照片");
+							content = content.replaceAll("\\[replace\\]", "給妳留言了");
 							//content="評論了妳的照片";
 						}
 						map.put("content", content);
