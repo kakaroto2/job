@@ -81,26 +81,26 @@ public class QuartzController extends BaseController {
 						}
 						map.put("content", content);
 					}
-					else if (type.equals("25")) {// 小花赞了妳的照片【显示被赞的照片】
-						String notificationListId = map.get("notificationListId").toString();
-						HashMap result=activityPictureDao.getNotificationById(notificationListId);
-						String apId=result.get("picture_id").toString();
-						ActivityPictureModel apm = activityPictureDao.getModelByPK(Long.valueOf(apId));
-						ActivityModel am = activityDao.getModelByPK(apm.getA_id());
-						if (map.get("language").toString().equals("0")) {// 表示英语
-							content = content.replaceAll("\\[replace\\]", " liked your<"+am.getName_en()+"> activity picture ");
-//							content="Liked your picture";
-						}
-						if (map.get("language").toString().equals("1")) {// 中文简体
-							content = content.replaceAll("\\[replace\\]", "赞了你<"+am.getName_cn()+">活动的照片");
-//							content="赞了你的照片";
-						}
-						if (map.get("language").toString().equals("2")) {// 繁体
-							content = content.replaceAll("\\[replace\\]", "贊了妳<"+am.getName_tw()+">活動的照片");
-//							content="贊了妳的照片";
-						}
-						map.put("content", content);
-					}
+//					else if (type.equals("25")) {
+//						String notificationListId = map.get("notificationListId").toString();
+//						HashMap result=activityPictureDao.getNotificationById(notificationListId);
+//						String apId=result.get("picture_id").toString();
+//						ActivityPictureModel apm = activityPictureDao.getModelByPK(Long.valueOf(apId));
+//						ActivityModel am = activityDao.getModelByPK(apm.getA_id());
+//						if (map.get("language").toString().equals("0")) {// 表示英语
+//							content = content.replaceAll("\\[replace\\]", " liked your<"+am.getName_en()+"> activity picture ");
+////							content="Liked your picture";
+//						}
+//						if (map.get("language").toString().equals("1")) {// 中文简体
+//							content = content.replaceAll("\\[replace\\]", "赞了你<"+am.getName_cn()+">活动的照片");
+////							content="赞了你的照片";
+//						}
+//						if (map.get("language").toString().equals("2")) {// 繁体
+//							content = content.replaceAll("\\[replace\\]", "贊了妳<"+am.getName_tw()+">活動的照片");
+////							content="贊了妳的照片";
+//						}
+//						map.put("content", content);
+//					}
 
 					else if (type.equals("0")) {// 小花回复了你的评论【显示被回复的照片】
 
@@ -132,127 +132,140 @@ public class QuartzController extends BaseController {
 						}
 						map.put("content", content);
 					}
-					else if (type.equals("30")) {// 小花回复了你的评论【显示被回复的照片】
+//					else if (type.equals("30")) {// 小花回复了你的评论【显示被回复的照片】  是活动的
+//
+//						if (map.get("language").toString().equals("0")) { //表示英语
+//							content = map.get("userName").toString() + (" replied to your comment");
+//						}
+//						if (map.get("language").toString().equals("1")) { //中文简体
+//							content = map.get("userName").toString() + ("回复了你的评论");
+//						}
+//						if (map.get("language").toString().equals("2")) { //繁体
+//							content = map.get("userName").toString() + ("回復了你的評論");
+//						}
+//						map.put("content", content);
+//					}
 
-						if (map.get("language").toString().equals("0")) { //表示英语
-							content = map.get("userName").toString() + (" replied to your comment");
-						}
-						if (map.get("language").toString().equals("1")) { //中文简体
-							content = map.get("userName").toString() + ("回复了你的评论");
-						}
-						if (map.get("language").toString().equals("2")) { //繁体
-							content = map.get("userName").toString() + ("回復了你的評論");
-						}
-						map.put("content", content);
-					}
 
-
-					else if (type.equals("31")) {// 小花评论了妳的照片【显示被评论的照片】
-						String notificationListId = map.get("notificationListId").toString();
-						HashMap result=activityPictureDao.getNotificationById(notificationListId);
-						String apId=result.get("picture_id").toString();
-						ActivityPictureModel apm = activityPictureDao.getModelByPK(Long.valueOf(apId));
-						ActivityModel am = activityDao.getModelByPK(apm.getA_id());
-						if (map.get("language").toString().equals("0")) {// 表示英语
-							content = content.replaceAll("\\[replace\\]", " commented on your<"+am.getName_en()+"> activity picture ");
-							//content="Commented on your picture";
-						}
-						if (map.get("language").toString().equals("1")) {// 中文简体
-							content = content.replaceAll("\\[replace\\]", "评论了你<"+am.getName_cn()+">活动照片");
-							//content="评论了你的照片";
-						}
-						if (map.get("language").toString().equals("2")) {// 繁体
-							content = content.replaceAll("\\[replace\\]", "評論了妳<"+am.getName_tw()+">活動照片");
-							//content="評論了妳的照片";
-						}
-						map.put("content", content);
-					}
+//					else if (type.equals("31")) {// 小花评论了妳的照片【显示被评论的照片】
+//						String notificationListId = map.get("notificationListId").toString();
+//						HashMap result=activityPictureDao.getNotificationById(notificationListId);
+//						String apId=result.get("picture_id").toString();
+//						ActivityPictureModel apm = activityPictureDao.getModelByPK(Long.valueOf(apId));
+//						ActivityModel am = activityDao.getModelByPK(apm.getA_id());
+//						if (map.get("language").toString().equals("0")) {// 表示英语
+//							content = content.replaceAll("\\[replace\\]", " commented on your<"+am.getName_en()+"> activity picture ");
+//							//content="Commented on your picture";
+//						}
+//						if (map.get("language").toString().equals("1")) {// 中文简体
+//							content = content.replaceAll("\\[replace\\]", "评论了你<"+am.getName_cn()+">活动照片");
+//							//content="评论了你的照片";
+//						}
+//						if (map.get("language").toString().equals("2")) {// 繁体
+//							content = content.replaceAll("\\[replace\\]", "評論了妳<"+am.getName_tw()+">活動照片");
+//							//content="評論了妳的照片";
+//						}
+//						map.put("content", content);
+//					}
 					else if (type.equals("3")) {// 妳收到了阿翾的好友邀请
 						// 【显示邀请人头像】
 						if (map.get("language").toString().equals("0")) {// 表示英语
-							content = content.replaceAll("\\[replace\\]", "You received a friends request from ");
-							//content = "Invited you to be friends.";
+							content = content.replaceAll("\\[replace\\]", "");
+							content="["+content+"]"+"invited you to be her friend.";
 						}
 						if (map.get("language").toString().equals("1")) {// 中文简体
-							content = content.replaceAll("\\[replace\\]", "你收到了");
-							content = content + "的好友邀请";//
-							//content="邀请你成为好友";
+							content = content.replaceAll("\\[replace\\]", "");
+							content="["+content+"]"+"向你发出了好友邀请.";
 						}
 						if (map.get("language").toString().equals("2")) {// 繁体
-							content = content.replaceAll("\\[replace\\]", "妳收到了");
-							content = content + "的好友邀請";//
-							//content="邀請你成為好友";
+							content = content.replaceAll("\\[replace\\]", "");
+							content="["+content+"]"+"向你發出了好友邀請.";
 
 						}
 						map.put("content", content);
 					}
 
 					else if (type.equals("4")) {// 好友接受了我的邀请
-						if (map.get("language").toString().equals("0")) {// 表示英语
-							content = "You are now friends with " + content.replaceAll("\\[replace\\]", "");
-							//content="Accepted your Invitation.";
-						}
-						if (map.get("language").toString().equals("1")) {// 中文简体
-							content = content.replaceAll("\\[replace\\]","");
-							content = "你和"+content + "成为了好友";
-							//content="接受了你的好友邀请";
+						//根据该条记录的user_id passive_id  判断这两个人是通过邀请码邀请还是添加好友
+						String code=countryManager.getCode(Long.valueOf(map.get("notificationListId").toString()));
+						String beCode=countryManager.getBeCode(Long.valueOf(map.get("notificationListId").toString()));
+						if(code.equalsIgnoreCase(beCode)){
+							if (map.get("language").toString().equals("0")) {// 表示英语
+								content = "["+content.replaceAll("\\[replace\\]", "")+"]joined YOLOBOO with your invitation code!";
+							}
+							if (map.get("language").toString().equals("1")) {// 中文简体
+								content = content.replaceAll("\\[replace\\]","");
+								content = "["+content + "]已接受你的邀请加入了YOLOBOO!";
 
-						}
-						if (map.get("language").toString().equals("2")) {// 繁体
-							content = content.replaceAll("\\[replace\\]","");
-							content = "你和"+content + "成为了好友";
-							//content="接受了你的好友邀請";
-						}
-						map.put("content", content);
-					}
+							}
+							if (map.get("language").toString().equals("2")) {// 繁体
+								content = content.replaceAll("\\[replace\\]","");
+								content = "["+content + "]已接受妳的邀請加入了YOLOBOO!";
+							}
+						}else {
+							if (map.get("language").toString().equals("0")) {// 表示英语
+								content = "["+content.replaceAll("\\[replace\\]", "")+"]accepted you friend request.";
+							}
+							if (map.get("language").toString().equals("1")) {// 中文简体
+								content = content.replaceAll("\\[replace\\]","");
+								content = "["+content + "]已接受你的好友邀请。";
 
-
-					else if (type.equals("10")) {
-						String topicId = content.substring(content.indexOf('[') + 1);
-
-						TopicModel topic = topicManager.getTopicById(Long.valueOf(topicId));
-						if (map.get("language").toString().equals("0")) {// 表示英语
-							content = "created a new topic:" + topic.getNameEn();
-						} else if (map.get("language").toString().equals("1")) {// 表示简体
-							content = "创建了新的话题:" + topic.getNameCn();
-						} else {// 表示繁体
-							content = "創建了新的話題:" + topic.getNameTw();
-						}
-						map.put("content", content);
-					}
-					else if (type.equals("11")) {
-						int i1 = content.indexOf("[");
-						int i2 = content.indexOf("]");
-						String author = content.substring(0,i1);
-						String noteName=content.substring(i1+1,i2);
-						if (map.get("language").toString().equals("0")) {// 表示英语
-							content = "["+author+"] published ["+ noteName+"]. Check it and get Inspired!";
-						} else if (map.get("language").toString().equals("1")) {// 表示简体
-							content = "["+author+"] 的新画报 ["+noteName+"] 上线，带你换个角度看世界";
-
-						} else {// 表示繁体
-							content ="["+author+"] 的新畫報 ["+noteName+"] 上線，帶妳換個角度看世界";
-						}
-
-						map.put("content", content);
-					}
-					else if (type.equals("13")) {
-						if (map.get("language").toString().equals("0")) {// 表示英语
-							content = map.get("userName")+"'s note is featured";
-						} else if (map.get("language").toString().equals("1")) {// 表示简体
-							content =map.get("userName")+ " 有文章入选精选";
-						} else {// 表示繁体
-							content = map.get("userName")+" 有文章入選精選";
+							}
+							if (map.get("language").toString().equals("2")) {// 繁体
+								content = content.replaceAll("\\[replace\\]","");
+								content = "["+content + "]已接受妳的好友邀請。";
+							}
 						}
 						map.put("content", content);
 					}
+
+
+//					else if (type.equals("10")) {
+//						String topicId = content.substring(content.indexOf('[') + 1);
+//
+//						TopicModel topic = topicManager.getTopicById(Long.valueOf(topicId));
+//						if (map.get("language").toString().equals("0")) {// 表示英语
+//							content = "created a new topic:" + topic.getNameEn();
+//						} else if (map.get("language").toString().equals("1")) {// 表示简体
+//							content = "创建了新的话题:" + topic.getNameCn();
+//						} else {// 表示繁体
+//							content = "創建了新的話題:" + topic.getNameTw();
+//						}
+//						map.put("content", content);
+//					}
+//					else if (type.equals("11")) {
+//						int i1 = content.indexOf("[");
+//						int i2 = content.indexOf("]");
+//						String author = content.substring(0,i1);
+//						String noteName=content.substring(i1+1,i2);
+//						if (map.get("language").toString().equals("0")) {// 表示英语
+//							content = "["+author+"] published ["+ noteName+"]. Check it and get Inspired!";
+//						} else if (map.get("language").toString().equals("1")) {// 表示简体
+//							content = "["+author+"] 的新画报 ["+noteName+"] 上线，带你换个角度看世界";
+//
+//						} else {// 表示繁体
+//							content ="["+author+"] 的新畫報 ["+noteName+"] 上線，帶妳換個角度看世界";
+//						}
+//
+//						map.put("content", content);
+//					}
+//					else if (type.equals("13")) {
+//						if (map.get("language").toString().equals("0")) {// 表示英语
+//							content = map.get("userName")+"'s note is featured";
+//						} else if (map.get("language").toString().equals("1")) {// 表示简体
+//							content =map.get("userName")+ " 有文章入选精选";
+//						} else {// 表示繁体
+//							content = map.get("userName")+" 有文章入選精選";
+//						}
+//						map.put("content", content);
+//					}
 					else if (type.equals("14")) {
 						if (map.get("language").toString().equals("0")) {// 表示英语
-							content =map.get("userName")+ " has become a KOL!";
+							content =" yay! you became our KOL!";
 						} else if (map.get("language").toString().equals("1")) {// 表示简体
-							content = map.get("userName")+"升级成为达人！";
+							content = "耶！你成为yoloboo的女神了!";
 						} else {// 表示繁体
-							content = map.get("userName")+"升級成為達人";
+							content = "耶！你成爲yoloboo的女神了!";
 						}
 						map.put("content", content);
 					}
@@ -280,33 +293,34 @@ public class QuartzController extends BaseController {
 							ActivityModel am = activityDao.getModelByPK(apm.getA_id());
 
 							if (map.get("language").toString().equals("0")) {// 表示英语
-								content = "Your <" + am.getName_en() + "> photo is rewarded!";
+								content = "Congrats! you are a winner of ["+am.getName_en()+"]!";
 							} else if (map.get("language").toString().equals("1")) {// 中文简体
-								content = "号外！你参加<" + am.getName_cn() + ">活动的照片获奖了！";
+								content = "喜大普奔！恭喜你成为了["+ am.getName_cn()+"]活动的获胜者!";
 							} else {// 繁体
-								content = "號外！你參加<" + am.getName_tw() + ">活動的照片獲獎了！";
-							}
-							map.put("content", content);
-
-						}else{
-							int i1 = content.indexOf("[");
-							int i2 = content.indexOf("]");
-							String apId = content.substring(i1 + 1, i2);
-							ActivityPictureModel apm = activityPictureDao.getModelByPK(Long.valueOf(apId));
-
-							ActivityModel am = activityDao.getModelByPK(apm.getA_id());
-
-
-							if (map.get("language").toString().equals("0")) {// 表示英语
-								content = map.get("userName")+"  Is the winner of <" + am.getName_en() + ">!";
-							} else if (map.get("language").toString().equals("1")) {// 中文简体
-								content =  map.get("userName")+"  成为<" + am.getName_cn() + ">活动的获奖者!";
-							} else {// 繁体
-								content = map.get("userName")+"  成爲<" + am.getName_tw() + ">活動的獲獎者!";
+								content = "喜大普奔！恭喜你成爲了["+ am.getName_tw()+"]活動的獲勝者!";
 							}
 							map.put("content", content);
 
 						}
+// else{
+//							int i1 = content.indexOf("[");
+//							int i2 = content.indexOf("]");
+//							String apId = content.substring(i1 + 1, i2);
+//							ActivityPictureModel apm = activityPictureDao.getModelByPK(Long.valueOf(apId));
+//
+//							ActivityModel am = activityDao.getModelByPK(apm.getA_id());
+//
+//
+//							if (map.get("language").toString().equals("0")) {// 表示英语
+//								content = map.get("userName")+"  Is the winner of <" + am.getName_en() + ">!";
+//							} else if (map.get("language").toString().equals("1")) {// 中文简体
+//								content =  map.get("userName")+"  成为<" + am.getName_cn() + ">活动的获奖者!";
+//							} else {// 繁体
+//								content = map.get("userName")+"  成爲<" + am.getName_tw() + ">活動的獲獎者!";
+//							}
+//							map.put("content", content);
+//
+//						}
 					}
 				}
 			if (msgList.size() > 0) {
@@ -320,64 +334,64 @@ public class QuartzController extends BaseController {
 		}
 	}
 
-
-	public void pushActivityMsg() throws Exception {
-
-
-		try {
-			logger.debug("certp12Path:" + targetFolderTemp);
-			System.out.println("定时活动推送" + Commonparam.Date2Str());
-			//先找出没有被推送的新的活动
-			List<ActivityModel>   list=activityDao.getActivityList();
-//			//对于每个人进行发送
-			List<HashMap<String, Object>> userList = new ArrayList<HashMap<String, Object>>();
-
-			userList=userManger.getUserList();
-
-			String content_cn="";
-			String content_en="";
-			String content_tw="";
-			for(ActivityModel  model:list){
-				 content_cn="YOLOBOO邀您参加 ["+model.getName_cn()+"] 活动，照片这么美，晒出来让大家羡慕一下呗!";
-				 content_en= "YOLOBOO invites you to join ["+model.getName_en()+"]. Show us your awesome pics! ";
-				 content_tw="YOLOBOO邀您參加 ["+model.getName_tw()+"] 活動，照片這麽美，曬出來讓大家羨慕壹下呗!";
-				 model.setContent_cn(content_cn);
-				 model.setContent_en(content_en);
-				 model.setContent_tw(content_tw);
-			}
-			//生成所有的消息体
-			List<HashMap<String, Object>> msgList = new ArrayList<HashMap<String, Object>>();
-
-			HashMap<String, Object>  map=null;
-			for(int i = 0; i < userList.size(); i++){
-				for(ActivityModel  activityModel:list){
-					map=new HashMap();
-					map.put("notificationListId",activityModel.getNotification_list_id());
-					map.put("type",12);
-					map.put("pushToken",userList.get(i).get("u_ios_token"));
-					if("0".equals(userList.get(i).get("u_language").toString())){
-						map.put("content",activityModel.getContent_en().toString());
-					}else if("1".equals(userList.get(i).get("u_language").toString())){
-						map.put("content",activityModel.getContent_cn().toString());
-					}else if("2".equals(userList.get(i).get("u_language").toString())){
-						map.put("content",activityModel.getContent_tw().toString());
-					}
-					map.put("appVersion",userList.get(i).get("appVersion"));
-					map.put("language",userList.get(i).get("u_language"));
-					map.put("userName",userList.get(i).get("u_nickname"));
-					msgList.add(map);
-				}
-			}
-			if (msgList.size() > 0) {
-				new PushIphoneActivityThread(targetFolderTemp, msgList, userManger).start();
-			}
-
-		} catch (Exception e) {
-			LogException.printException(e);
-			logger.info("定时推送活动结果异常：" + e.getLocalizedMessage());
-			System.out.println(e.getLocalizedMessage());
-		}
-	}
+//
+//	public void pushActivityMsg() throws Exception {
+//
+//
+//		try {
+//			logger.debug("certp12Path:" + targetFolderTemp);
+//			System.out.println("定时活动推送" + Commonparam.Date2Str());
+//			//先找出没有被推送的新的活动
+//			List<ActivityModel>   list=activityDao.getActivityList();
+////			//对于每个人进行发送
+//			List<HashMap<String, Object>> userList = new ArrayList<HashMap<String, Object>>();
+//
+//			userList=userManger.getUserList();
+//
+//			String content_cn="";
+//			String content_en="";
+//			String content_tw="";
+//			for(ActivityModel  model:list){
+//				 content_cn="YOLOBOO邀您参加 ["+model.getName_cn()+"] 活动，照片这么美，晒出来让大家羡慕一下呗!";
+//				 content_en= "YOLOBOO invites you to join ["+model.getName_en()+"]. Show us your awesome pics! ";
+//				 content_tw="YOLOBOO邀您參加 ["+model.getName_tw()+"] 活動，照片這麽美，曬出來讓大家羨慕壹下呗!";
+//				 model.setContent_cn(content_cn);
+//				 model.setContent_en(content_en);
+//				 model.setContent_tw(content_tw);
+//			}
+//			//生成所有的消息体
+//			List<HashMap<String, Object>> msgList = new ArrayList<HashMap<String, Object>>();
+//
+//			HashMap<String, Object>  map=null;
+//			for(int i = 0; i < userList.size(); i++){
+//				for(ActivityModel  activityModel:list){
+//					map=new HashMap();
+//					map.put("notificationListId",activityModel.getNotification_list_id());
+//					map.put("type",12);
+//					map.put("pushToken",userList.get(i).get("u_ios_token"));
+//					if("0".equals(userList.get(i).get("u_language").toString())){
+//						map.put("content",activityModel.getContent_en().toString());
+//					}else if("1".equals(userList.get(i).get("u_language").toString())){
+//						map.put("content",activityModel.getContent_cn().toString());
+//					}else if("2".equals(userList.get(i).get("u_language").toString())){
+//						map.put("content",activityModel.getContent_tw().toString());
+//					}
+//					map.put("appVersion",userList.get(i).get("appVersion"));
+//					map.put("language",userList.get(i).get("u_language"));
+//					map.put("userName",userList.get(i).get("u_nickname"));
+//					msgList.add(map);
+//				}
+//			}
+//			if (msgList.size() > 0) {
+//				new PushIphoneActivityThread(targetFolderTemp, msgList, userManger).start();
+//			}
+//
+//		} catch (Exception e) {
+//			LogException.printException(e);
+//			logger.info("定时推送活动结果异常：" + e.getLocalizedMessage());
+//			System.out.println(e.getLocalizedMessage());
+//		}
+//	}
 
 
 	// 更新

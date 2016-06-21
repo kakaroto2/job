@@ -453,4 +453,14 @@ public class CountryManagerImpl extends BaseDao implements CountryManager {
 	public Long isYouOrRecent(String notificationListId) {
 		return (Long) sqlSession.selectOne("country.isYouOrRecent",notificationListId);
 	}
+
+	@Override
+	public String getCode(Long notificationListId) {
+		return (String) sqlSession.selectOne("country.getCode",notificationListId);
+	}
+
+	@Override
+	public String getBeCode(Long notificationListId) {
+		return (String) sqlSession.selectOne("country.getBeCode",notificationListId);
+	}
 }

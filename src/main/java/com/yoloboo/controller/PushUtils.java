@@ -191,56 +191,56 @@ public class PushUtils {
      */
     public static synchronized void push2MoreHashMap(String p12File, List<HashMap<String,Object>> tokenData) {
 
-//		PushNotificationManager pushManager = null;
-//		try {
-//			pushManager = PushNotificationManager.getInstance();
-//			// 链接到APNs
-//			pushManager.initializeConnection(host, port, p12File,
-//					p12FilePassword, SSLConnectionHelper.KEYSTORE_TYPE_PKCS12);
-//			// 开始循环推送
-//			for (int i = 0; i < tokenData.size(); i++) {
-//				if (tokenData.get(i).get("pushToken") != null
-//						&& tokenData.get(i).get("pushToken") .toString().trim().length()!= 0)
-//				{
-//					PayLoad payLoad = new PayLoad();
-//					payLoad.addAlert(tokenData.get(i).get("content").toString());// push的内容
-//					payLoad.addBadge(1);// 应用图标上小红圈上的数值
-//					payLoad.addSound("default");// 铃音
-//					// 添加字典
-//					payLoad.addCustomDictionary("type",tokenData.get(i).get("type").toString());
-//					pushManager.addDevice("iphone" + i, tokenData.get(i).get("pushToken").toString());
-//					Device client = pushManager.getDevice("iphone" + i);
-//					pushManager.sendNotification(client, payLoad);
-//				}
-//				//删除该条临时表中的记录
-//				pushUtils.userManger.deleteTemp(Long.valueOf(tokenData.get(i).get("notificationListId").toString()));
-//			}
-//		} catch (Exception e) {
-//			LogException.printException(e);
-//		} finally {
-//			if (pushManager != null) {
-//				// 断开链接
-//				try {
-//					pushManager.stopConnection();
-//					for (int i = 0; i < tokenData.size(); i++) {
-//						pushManager.removeDevice("iphone" + i);
-//					}
-//				} catch (Exception e) {LogException.printException(e);
-//					e.printStackTrace();
-//				}
-//
-//
-//			}
-//		}
+		PushNotificationManager pushManager = null;
+		try {
+			pushManager = PushNotificationManager.getInstance();
+			// 链接到APNs
+			pushManager.initializeConnection(host, port, p12File,
+					p12FilePassword, SSLConnectionHelper.KEYSTORE_TYPE_PKCS12);
+			// 开始循环推送
+			for (int i = 0; i < tokenData.size(); i++) {
+				if (tokenData.get(i).get("pushToken") != null
+						&& tokenData.get(i).get("pushToken") .toString().trim().length()!= 0)
+				{
+					PayLoad payLoad = new PayLoad();
+					payLoad.addAlert(tokenData.get(i).get("content").toString());// push的内容
+					payLoad.addBadge(1);// 应用图标上小红圈上的数值
+					payLoad.addSound("default");// 铃音
+					// 添加字典
+					payLoad.addCustomDictionary("type",tokenData.get(i).get("type").toString());
+					pushManager.addDevice("iphone" + i, tokenData.get(i).get("pushToken").toString());
+					Device client = pushManager.getDevice("iphone" + i);
+					pushManager.sendNotification(client, payLoad);
+				}
+				//删除该条临时表中的记录
+				pushUtils.userManger.deleteTemp(Long.valueOf(tokenData.get(i).get("notificationListId").toString()));
+			}
+		} catch (Exception e) {
+			LogException.printException(e);
+		} finally {
+			if (pushManager != null) {
+				// 断开链接
+				try {
+					pushManager.stopConnection();
+					for (int i = 0; i < tokenData.size(); i++) {
+						pushManager.removeDevice("iphone" + i);
+					}
+				} catch (Exception e) {LogException.printException(e);
+					e.printStackTrace();
+				}
 
-        for (int i = 0; i < tokenData.size(); i++) {
-            //删除该条临时表中的记录
-            if (tokenData.get(i).get("pushToken") != null && tokenData.get(i).get("pushToken") .toString().trim().length()!= 0) {
-                if (i % 2 == 0) {
-                    pushUtils.userManger.deleteTemp(Long.valueOf(tokenData.get(i).get("notificationListId").toString()));
-                }
-            }
-        }
+
+			}
+		}
+
+//        for (int i = 0; i < tokenData.size(); i++) {
+//            //删除该条临时表中的记录
+//            if (tokenData.get(i).get("pushToken") != null && tokenData.get(i).get("pushToken") .toString().trim().length()!= 0) {
+//                if (i % 2 == 0) {
+//                    pushUtils.userManger.deleteTemp(Long.valueOf(tokenData.get(i).get("notificationListId").toString()));
+//                }
+//            }
+//        }
     }
     /**
      * 推送toast通知

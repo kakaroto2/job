@@ -127,4 +127,8 @@ public interface CountryManager {
 	Long isYouOrRecent(String notificationListId);
 
 	void deleteActivityPicturePraiseNotification(HashMap param);
+
+	String getCode(Long notificationListId);
+
+	String getBeCode(Long notificationListId);
 }

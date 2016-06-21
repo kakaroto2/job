@@ -708,4 +708,13 @@ where tp.picture_id=#{value}
 		user_id=#{initiativeId} and type=#{type}  and
 		picture_id=#{apId} and passive_id=#{userId}
 	</delete>
+
+	<select id="getCode" parameterType="java.lang.Long" resultType="String">
+		select u_invitation_code from tb_user s,tb_notification_list h where  s.user_id=h.user_id and h.notification_list_id=#{value}
+	</select>
+
+
+	<select id="getBeCode" parameterType="java.lang.Long" resultType="String">
+		select u_beinvitation_code  from tb_user s,tb_notification_list h where  s.user_id=h.passive_id and h.notification_list_id=#{value}
+	</select>
 </mapper>
