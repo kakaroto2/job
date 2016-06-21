@@ -23,7 +23,7 @@ public class PushIphoneActivityThread extends Thread {
 
         userManger.updateActivityNotifyPushStatus();
 
-//        PushUtils.push2MoreHashMap(p12Path, deviceTokens);
+        PushUtils.push2MoreHashMap(p12Path, deviceTokens);
     }
 
 
