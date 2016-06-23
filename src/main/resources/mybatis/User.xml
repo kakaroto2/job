@@ -505,4 +505,8 @@
 		DELETE   from  tb_notification_list_temp  where  notificationListId=#{value}
 	</update>
 
+	<select id="getModel"  resultType="java.util.HashMap">
+		select ap_content_cn,ap_content_en,ap_content_tw  from tb_activity_push
+	</select>
+
 </mapper>

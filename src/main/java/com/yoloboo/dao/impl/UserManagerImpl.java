@@ -5,6 +5,7 @@ import java.util.List;
 
 
 import com.common.Commonparam;
+import com.yoloboo.models.PushModel;
 import com.yoloboo.models.UserModel;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -356,6 +357,12 @@ public class UserManagerImpl extends BaseDao implements UserManager {
 	@Override
 	public void deleteTemp(Long notificationListId) {
 		sqlSession.update("User.deleteTemp", notificationListId);
+	}
+
+
+	@Override
+	public PushModel getModel() {
+		return (PushModel) sqlSession.selectOne("User.getModel");
 	}
 
 }

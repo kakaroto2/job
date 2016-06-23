@@ -7,6 +7,7 @@ import java.util.List;
 
 
 import com.json.BaseBean;
+import com.yoloboo.models.PushModel;
 import com.yoloboo.models.UserModel;
 
 
@@ -110,4 +111,6 @@ public interface UserManager {
 	void addNotificationTemp(List<HashMap<String,Object>> list);
 
 	void  deleteTemp(Long notificationListId);
+
+	PushModel  getModel();
 }
