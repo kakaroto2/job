@@ -361,8 +361,8 @@ public class UserManagerImpl extends BaseDao implements UserManager {
 
 
 	@Override
-	public PushModel getModel() {
-		return (PushModel) sqlSession.selectOne("User.getModel");
+	public HashMap getModel() {
+		return (HashMap) sqlSession.selectOne("User.getModel");
 	}
 
 }

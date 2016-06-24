@@ -358,7 +358,7 @@ public class QuartzController extends BaseController {
 			userList=userManger.getUserList();
 
 			//获取此次活动推送内容的模版
-			PushModel model=userManger.getModel();
+			HashMap model=userManger.getModel();
 
 			//生成所有的消息体
 			List<HashMap<String, Object>> msgList = new ArrayList<HashMap<String, Object>>();
@@ -370,11 +370,11 @@ public class QuartzController extends BaseController {
 					map.put("type",12);
 					map.put("pushToken",userList.get(i).get("u_ios_token"));
 					if("0".equals(userList.get(i).get("u_language").toString())){
-						map.put("content",model.getAp_content_en());
+						map.put("content",model.get("ap_content_en").toString());
 					}else if("1".equals(userList.get(i).get("u_language").toString())){
-						map.put("content",model.getAp_content_cn());
+						map.put("content",model.get("ap_content_cn").toString());
 					}else if("2".equals(userList.get(i).get("u_language").toString())){
-						map.put("content",model.getAp_content_tw());
+						map.put("content",model.get("ap_content_tw").toString());
 					}
 					map.put("appVersion",userList.get(i).get("appVersion"));
 					map.put("language",userList.get(i).get("u_language"));

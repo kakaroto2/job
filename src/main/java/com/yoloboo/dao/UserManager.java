@@ -112,5 +112,5 @@ public interface UserManager {
 
 	void  deleteTemp(Long notificationListId);
 
-	PushModel  getModel();
+	HashMap  getModel();
 }
