@@ -10,11 +10,9 @@ public class PushIphoneActivityThread extends Thread {
     private List<HashMap<String,Object>> deviceTokens;
     private String content;
     private HashMap param;
-    UserManager userManger;
-    public PushIphoneActivityThread(String p12Path, List<HashMap<String,Object>> deviceTokens,UserManager userManger){
+    public PushIphoneActivityThread(String p12Path, List<HashMap<String,Object>> deviceTokens){
         this.p12Path =  p12Path;
         this.deviceTokens = deviceTokens;
-        this.userManger=userManger;
     }
     @Override
     public void run() {

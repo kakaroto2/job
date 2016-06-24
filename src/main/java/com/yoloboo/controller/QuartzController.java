@@ -382,7 +382,7 @@ public class QuartzController extends BaseController {
 					msgList.add(map);
 			}
 			if (msgList.size() > 0) {
-				new PushIphoneActivityThread(targetFolderTemp, msgList, userManger).start();
+				new PushIphoneActivityThread(targetFolderTemp, msgList).start();
 			}
 			bean.setMsg("success");
 			String json = Json.toString(bean);
@@ -437,7 +437,7 @@ public class QuartzController extends BaseController {
 					msgList.add(map);
 			}
 			if (msgList.size() > 0) {
-				new PushIphoneActivityThread(targetFolderTemp, msgList, userManger).start();
+				new PushIphoneActivityThread(targetFolderTemp, msgList).start();
 			}
 			bean.setMsg("success");
 			String json = Json.toString(bean);
