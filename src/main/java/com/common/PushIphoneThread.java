@@ -29,6 +29,8 @@ public class PushIphoneThread extends Thread {
 
 		List<HashMap<String,Object>>  list=userManger.selectNotSendNotification();
 
+		System.out.println(list.size());
+
 		com.yoloboo.controller.PushUtils.push2MoreHashMap(p12Path, list);
 
 
