@@ -293,7 +293,7 @@
 		tb_user u where
 		u.user_id=nl.user_id) as language,(SELECT u2.u_nickname FROM tb_user u2 WHERE nl.passive_id=u2.user_id) as userName from
 		tb_notification_list nl where
-		notification_status=0 and type!=12
+		notification_status=0 and type!=12  and type!=11
 -- 		and exists(select
 -- 		user_id from tb_user u1 where u1.user_id=nl.user_id and
 -- 		u1.u_ios_token
@@ -322,7 +322,7 @@
 	</select>
 
 	<update id="updateNotifyPushStatus"  parameterType="java.lang.Long">
-		update tb_notification_list set notification_status=1 where  notification_list_id  &lt;= #{value}  and  type!=12
+		update tb_notification_list set notification_status=1 where  notification_list_id  &lt;= #{value}
 	</update>
 
 	<update id="updateActivityNotifyPushStatus" parameterType="java.util.HashMap">
