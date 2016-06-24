@@ -8,38 +8,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.yoloboo.dao.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import javapns.back.PushNotificationManager;
 import javapns.back.SSLConnectionHelper;
 import javapns.data.Device;
 import javapns.data.PayLoad;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
-@Component
 public class PushUtils {
-
-	@Autowired
-	private UserManager userManger;
-
-
-	private static PushUtils pushUtils;
-
-
-	@PostConstruct
-	public void init() {
-		pushUtils = this;
-		pushUtils.userManger = this.userManger;
-
-	}
-
 
 	private static Logger logger = LoggerFactory.getLogger(PushUtils.class);
 
@@ -224,15 +201,6 @@ public class PushUtils {
 
 			}
 		}
-
-//		   for (int i = 0; i < tokenData.size(); i++) {
-//				//删除该条临时表中的记录
-//			    if (tokenData.get(i).get("pushToken") != null && tokenData.get(i).get("pushToken") .toString().trim().length()!= 0) {
-//					if (i % 2 == 0) {
-//						pushUtils.userManger.deleteTemp(Long.valueOf(tokenData.get(i).get("notificationListId").toString()));
-//					}
-//				}
-//			}
 	}
 	/**
 	 * 推送toast通知
