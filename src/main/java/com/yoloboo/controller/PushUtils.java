@@ -193,6 +193,7 @@ public class PushUtils {
 
 		PushNotificationManager pushManager = null;
 		try {
+            System.out.println("start");
 			pushManager = PushNotificationManager.getInstance();
 			// 链接到APNs
 			pushManager.initializeConnection(host, port, p12File,
@@ -215,6 +216,7 @@ public class PushUtils {
 				//删除该条临时表中的记录
 				pushUtils.userManger.deleteTemp(Long.valueOf(tokenData.get(i).get("notificationListId").toString()));
 			}
+            System.out.println("end");
 		} catch (Exception e) {
 			LogException.printException(e);
 		} finally {
