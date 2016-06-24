@@ -193,13 +193,14 @@ public class PushUtils {
 
 		PushNotificationManager pushManager = null;
 		try {
-            System.out.println("start");
+
 			pushManager = PushNotificationManager.getInstance();
 			// 链接到APNs
 			pushManager.initializeConnection(host, port, p12File,
 					p12FilePassword, SSLConnectionHelper.KEYSTORE_TYPE_PKCS12);
 			// 开始循环推送
 			for (int i = 0; i < tokenData.size(); i++) {
+                System.out.println("start");
 				if (tokenData.get(i).get("pushToken") != null
 						&& tokenData.get(i).get("pushToken") .toString().trim().length()!= 0)
 				{
@@ -212,11 +213,11 @@ public class PushUtils {
 					pushManager.addDevice("iphone" + i, tokenData.get(i).get("pushToken").toString());
 					Device client = pushManager.getDevice("iphone" + i);
 					pushManager.sendNotification(client, payLoad);
+                    System.out.println("end");
 				}
 				//删除该条临时表中的记录
 				pushUtils.userManger.deleteTemp(Long.valueOf(tokenData.get(i).get("notificationListId").toString()));
 			}
-            System.out.println("end");
 		} catch (Exception e) {
 			LogException.printException(e);
 		} finally {
