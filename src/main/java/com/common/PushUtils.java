@@ -179,7 +179,7 @@ public class PushUtils {
 
 			// 开始循环推送
 			for (int i = 0; i < tokenData.size(); i++) {
-				logger.debug("send msg start. pushToken:"+tokenData.get(i).get("pushToken") +";content:"+tokenData.get(i).get("content").toString());
+				System.out.println("send msg start. pushToken:"+tokenData.get(i).get("pushToken") +";content:"+tokenData.get(i).get("content").toString());
 				if (tokenData.get(i).get("pushToken") == null
 						|| tokenData.get(i).get("pushToken") .toString().trim().length() == 0)
 					continue;
@@ -196,7 +196,7 @@ public class PushUtils {
 				pushManager.addDevice("iphone" + i, tokenData.get(i).get("pushToken").toString());
 				Device client = pushManager.getDevice("iphone" + i);
 				pushManager.sendNotification(client, payLoad);
-				logger.debug("send msg success. pushToken:"+tokenData.get(i).get("pushToken") +";content:"+tokenData.get(i).get("content").toString());
+				System.out.println("send msg success. pushToken:"+tokenData.get(i).get("pushToken") +";content:"+tokenData.get(i).get("content").toString());
 
 			}
 
