@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.common.LogException;
 import com.yoloboo.dao.UserManager;
+import javapns.exceptions.UnknownDeviceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -210,32 +211,39 @@ public class PushUtils {
 					payLoad.addSound("default");// 铃音
 					// 添加字典
 					payLoad.addCustomDictionary("type",tokenData.get(i).get("type").toString());
+                    try {
+                        pushManager.removeDevice(tokenData.get(i).get("pushToken").toString());
+                    } catch (UnknownDeviceException ex) {
+                        ex.printStackTrace();
+                    }
 					pushManager.addDevice("iphone" + i, tokenData.get(i).get("pushToken").toString());
 					Device client = pushManager.getDevice("iphone" + i);
 					pushManager.sendNotification(client, payLoad);
+                    pushManager.removeDevice("iphone" + i);
                     System.out.println("end");
 				}
 				//删除该条临时表中的记录
 				pushUtils.userManger.deleteTemp(Long.valueOf(tokenData.get(i).get("notificationListId").toString()));
 			}
 		} catch (Exception e) {
-			LogException.printException(e);
-		} finally {
-			if (pushManager != null) {
-				// 断开链接
-				try {
-					pushManager.stopConnection();
-					for (int i = 0; i < tokenData.size(); i++) {
-						pushManager.removeDevice("iphone" + i);
-					}
-				} catch (Exception e) {LogException.printException(e);
-					e.printStackTrace();
-				}
-
-
-			}
-		}
-
+            LogException.printException(e);
+        }
+//		} finally {
+//			if (pushManager != null) {
+//				// 断开链接
+//				try {
+//					pushManager.stopConnection();
+//					for (int i = 0; i < tokenData.size(); i++) {
+//						pushManager.removeDevice("iphone" + i);
+//					}
+//				} catch (Exception e) {LogException.printException(e);
+//					e.printStackTrace();
+//				}
+//
+//
+//			}
+//		}
+//
 //        for (int i = 0; i < tokenData.size(); i++) {
 //            //删除该条临时表中的记录
 //            if (tokenData.get(i).get("pushToken") != null && tokenData.get(i).get("pushToken") .toString().trim().length()!= 0) {
