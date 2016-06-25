@@ -211,11 +211,6 @@ public class PushUtils {
 					payLoad.addSound("default");// 铃音
 					// 添加字典
 					payLoad.addCustomDictionary("type",tokenData.get(i).get("type").toString());
-                    try {
-                        pushManager.removeDevice(tokenData.get(i).get("pushToken").toString());
-                    } catch (UnknownDeviceException ex) {
-                        ex.printStackTrace();
-                    }
 					pushManager.addDevice("iphone" + i, tokenData.get(i).get("pushToken").toString());
 					Device client = pushManager.getDevice("iphone" + i);
 					pushManager.sendNotification(client, payLoad);
