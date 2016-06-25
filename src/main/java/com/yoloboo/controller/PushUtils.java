@@ -228,21 +228,16 @@ public class PushUtils {
 		} catch (Exception e) {
             LogException.printException(e);
         }
-//		} finally {
-//			if (pushManager != null) {
-//				// 断开链接
-//				try {
-//					pushManager.stopConnection();
-//					for (int i = 0; i < tokenData.size(); i++) {
-//						pushManager.removeDevice("iphone" + i);
-//					}
-//				} catch (Exception e) {LogException.printException(e);
-//					e.printStackTrace();
-//				}
-//
-//
-//			}
-//		}
+		 finally {
+			if (pushManager != null) {
+				// 断开链接
+				try {
+					pushManager.stopConnection();
+				} catch (Exception e) {LogException.printException(e);
+					e.printStackTrace();
+				}
+			}
+		}
 //
 //        for (int i = 0; i < tokenData.size(); i++) {
 //            //删除该条临时表中的记录
