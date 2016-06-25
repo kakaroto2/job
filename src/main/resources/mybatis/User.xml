@@ -293,7 +293,7 @@
 		tb_user u where
 		u.user_id=nl.user_id) as language,(SELECT u2.u_nickname FROM tb_user u2 WHERE nl.passive_id=u2.user_id) as userName from
 		tb_notification_list nl where
-		notification_status=0 and type  not   in(11,12,14,18))
+		notification_status=0 and type  in(0,1,2,3,4,32))
 		UNION   ALL (
         select nl.notification_list_id as
 		notificationListId,nl.type, nl.content,(select u.u_ios_token from
