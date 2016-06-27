@@ -32,10 +32,13 @@ public class test {
 //        String s2=" ";
 //        System.out.println(s1.contains(" "));
 //        System.out.println(s2.contains(" "));
-        String   content="Xuan[replace]";
-        content = content.replaceAll("\\[replace\\]","");
-        content = "你和"+content + "成为了好友";
-        System.out.println(content);
+//        String   content="Xuan[replace]";
+//        content = content.replaceAll("\\[replace\\]","");
+//        content = "你和"+content + "成为了好友";
+//        System.out.println(content);
+        String code="123a";
+        String beCode="123a";
+        System.out.println(code.equalsIgnoreCase(beCode));
     }
 
 }

@@ -31,7 +31,7 @@ public class PushIphoneThread extends Thread {
 
 		System.out.println(list.size());
 
-		com.yoloboo.controller.PushUtils.push2MoreHashMap(p12Path, list);
+		//com.yoloboo.controller.PushUtils.push2MoreHashMap(p12Path, list);
 
 
 

@@ -17,7 +17,7 @@ public class PushWinphoneThread extends Thread {
 	public void run() {
 		// TODO Auto-generated method stub
 		super.run();
-		PushUtils.pushWinphoneToastNotifications(uriList, title, content);
+		//PushUtils.pushWinphoneToastNotifications(uriList, title, content);
 		
 	}
 

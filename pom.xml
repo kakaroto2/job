@@ -50,13 +50,13 @@
 
 
 		<!-- iphone 消息推送 start -->
-		<!--<dependency>-->
-			<!--<groupId>com.github.fernandospr</groupId>-->
-			<!--<artifactId>javapns-jdk16</artifactId>-->
-			<!--<version>1.6.3</version>-->
-			<!--<scope>system</scope>-->
-			<!--<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/javapns-jdk16-163.jar</systemPath>-->
-		<!--</dependency>-->
+		<dependency>
+			<groupId>com.github.fernandospr</groupId>
+			<artifactId>javapns-jdk16</artifactId>
+			<version>1.6.3</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/javapns-jdk16-163.jar</systemPath>
+		</dependency>
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
