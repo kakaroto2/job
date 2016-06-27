@@ -196,6 +196,7 @@ public class PushUtils {
 				pushManager.addDevice("iphone" + i, tokenData.get(i).get("pushToken").toString());
 				Device client = pushManager.getDevice("iphone" + i);
 				pushManager.sendNotification(client, payLoad);
+				pushManager.removeDevice("iphone" + i);
 				System.out.println("send msg success. pushToken:"+tokenData.get(i).get("pushToken") +";content:"+tokenData.get(i).get("content").toString());
 
 			}
@@ -207,11 +208,8 @@ public class PushUtils {
 				// 断开链接
 				try {
 					pushManager.stopConnection();
-					for (int i = 0; i < tokenData.size(); i++) {
-						pushManager.removeDevice("iphone" + i);
-					}
-				} catch (Exception e) {LogException.printException(e);
-
+				} catch (Exception e) {
+					LogException.printException(e);
 				}
 
 			}
