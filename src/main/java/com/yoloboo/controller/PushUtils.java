@@ -130,8 +130,9 @@ public class PushUtils {
 
             List<Device>   list=feedbackServiceManager.getDevices(new AppleFeedbackServerBasicImpl(p12File, p12FilePassword, true));
 
-            //针对list  暂时存在数据库
-            pushUtils.userManger.addBatchUseLessToken(list);
+            if(list.size()>0){
+                pushUtils.userManger.addBatchUseLessToken(list);
+            }
             // true：表示的是产品测试推送服务 false：表示的是产品发布推送服务
 
             // 开始循环推送
@@ -215,7 +216,9 @@ public class PushUtils {
             List<Device>   list=feedbackServiceManager.getDevices(new AppleFeedbackServerBasicImpl(p12File, p12FilePassword, true));
 
             //针对list  暂时存在数据库
-            pushUtils.userManger.addBatchUseLessToken(list);
+            if(list.size()>0){
+                pushUtils.userManger.addBatchUseLessToken(list);
+            }
 
             //对于feedback和fail产生的无效token进行处理
             List<HashMap<String,Object>>    tokenList=pushUtils.userManger.getUseLessToken();
