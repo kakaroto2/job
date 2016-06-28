@@ -118,17 +118,17 @@ public class PushUtils {
     public static synchronized void pushMoreHashMap(String p12File, List<HashMap<String,Object>> tokenData) {
 
         PushNotificationManager pushManager = null;
-        FeedbackServiceManager feedbackServiceManager=null;
+       // FeedbackServiceManager feedbackServiceManager=null;
         try {
 
             pushManager = new PushNotificationManager();
 
-            feedbackServiceManager=new FeedbackServiceManager();
+       //     feedbackServiceManager=new FeedbackServiceManager();
 
-            List<Device>   list=feedbackServiceManager.getDevices(new AppleFeedbackServerBasicImpl(p12File, p12FilePassword, true));
+      //      List<Device>   list=feedbackServiceManager.getDevices(new AppleFeedbackServerBasicImpl(p12File, p12FilePassword, true));
 
             //针对list  暂时存在数据库
-            pushUtils.userManger.addBatchUseLessToken(list);
+       //     pushUtils.userManger.addBatchUseLessToken(list);
             // true：表示的是产品测试推送服务 false：表示的是产品发布推送服务
             pushManager.initializeConnection(new AppleNotificationServerBasicImpl(
                     p12File, p12FilePassword, true));
