@@ -217,6 +217,14 @@ public class PushUtils {
             //针对list  暂时存在数据库
             pushUtils.userManger.addBatchUseLessToken(list);
 
+            //对于feedback和fail产生的无效token进行处理
+            List<HashMap<String,Object>>    tokenList=pushUtils.userManger.getUseLessToken();
+
+            if(tokenList.size()>0){
+                for(HashMap map:tokenList){
+                    pushUtils.userManger.updateUseLessToken(map);
+                }
+            }
 
         } catch (Exception e) {
             LogException.printException(e);
