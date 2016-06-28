@@ -167,6 +167,7 @@ public class PushUtils {
                         //结束循环  全部发送完毕
                         pushManager.stopConnection();
                     }
+                    break;
                 }else{
                     System.out.println("success: "+notification.getDevice().getToken());
                 }
@@ -201,17 +202,38 @@ public class PushUtils {
     }
     public static void main(String[] args) {
         List<HashMap<String,Object>>  list=new ArrayList<HashMap<String, Object>>();
-        List<HashMap<String,Object>>  sublist=new ArrayList<HashMap<String, Object>>();
+
         HashMap<String,Object>  map=new HashMap<>();
-        map.put("1","1");
+        HashMap<String,Object>  map1=new HashMap<>();
+        HashMap<String,Object>  map2=new HashMap<>();
+        HashMap<String,Object>  map3=new HashMap<>();
+        HashMap<String,Object>  map4=new HashMap<>();
+
+        map.put("0","0");
+        map1.put("1","1");
+        map2.put("2","2");
+        map3.put("3","3");
+        map4.put("4","4");
+
         list.add(0,map);
-        for(int i = 0; i < list.size(); i++){
-            if(i==0){
-                sublist=list.subList(i+1,list.size());
-            }
-        }
-        System.out.println("hello");
+        list.add(1,map1);
+        list.add(2,map2);
+        list.add(3,map3);
+        list.add(4,map4);
+
+        test(list);
 
     }
+    public  static void test(List<HashMap<String,Object>>  list){
+        List<HashMap<String,Object>>  sublist=new ArrayList<HashMap<String, Object>>();
+        for(int i = 0; i < list.size(); i++){
+            if(i==1){
+                sublist=list.subList(i+1,list.size());
+                test(sublist);
+            }
+        }
+
+    }
+
 
 }
