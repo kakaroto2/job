@@ -352,6 +352,15 @@ public class QuartzController extends BaseController {
 		try {
 			logger.debug("certp12Path:" + targetFolderTemp);
 
+			//对于feedback和fail产生的无效token进行处理
+			List<HashMap<String,Object>>    list=userManger.getUseLessToken();
+
+			if(list.size()>0){
+				for(HashMap map:list){
+					userManger.updateUseLessToken(map);
+				}
+			}
+
 			//对于每个人进行发送
 			List<HashMap<String, Object>> userList = new ArrayList<HashMap<String, Object>>();
 
@@ -411,6 +420,14 @@ public class QuartzController extends BaseController {
 		try {
 			logger.debug("certp12Path:" + targetFolderTemp);
 
+			//对于feedback和fail产生的无效token进行处理
+			List<HashMap<String,Object>>    list=userManger.getUseLessToken();
+
+			if(list.size()>0){
+				for(HashMap map:list){
+					userManger.updateUseLessToken(map);
+				}
+			}
 			//对于每个人进行发送
 			List<HashMap<String, Object>> userList = new ArrayList<HashMap<String, Object>>();
 

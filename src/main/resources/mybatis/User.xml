@@ -519,14 +519,18 @@
 		<selectKey resultType="long" keyProperty="id" order="AFTER">
 			SELECT LAST_INSERT_ID()
 		</selectKey>
-		insert into tb_useless_token (token)
+		insert into tb_useless_token (token,sign)
 		values
 		<foreach collection="list" item="item" index="index" separator="," >
-			(#{item.token})
+			(#{item.token},'feedback')
 		</foreach>
 	</insert>
 
-
+	<insert id="insertFailToken" parameterType="java.lang.String">
+		insert into
+		tb_useless_token(token,sign)
+		values(#{value},'fail')
+	</insert>
 
 	<update id="deleteTemp" parameterType="java.lang.Long">
 		DELETE   from  tb_notification_list_temp  where  notificationListId=#{value}
@@ -536,4 +540,17 @@
 		select ap_content_cn,ap_content_en,ap_content_tw  from tb_activity_push
 	</select>
 
+
+	<select id="getUseLessToken" resultType="java.util.HashMap">
+			select  *  from  tb_useless_token
+	</select>
+
+
+	<update id="updateUseLessToken" parameterType="java.util.HashMap">
+		update tb_user set u_ios_token = null where u_ios_token = #{token}
+	</update>
+
+	<update id="deleteUseLessToken" parameterType="java.util.HashMap">
+		DELETE   from  tb_useless_token  where  token = #{token}
+	</update>
 </mapper>

@@ -116,4 +116,10 @@ public interface UserManager {
 	void  deleteTemp(Long notificationListId);
 
 	HashMap  getModel();
+
+	void insertFailToken(String token);
+
+	List<HashMap<String,Object>> getUseLessToken();
+
+	void updateUseLessToken(HashMap map);
 }

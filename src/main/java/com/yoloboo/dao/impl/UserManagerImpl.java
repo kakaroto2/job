@@ -372,4 +372,25 @@ public class UserManagerImpl extends BaseDao implements UserManager {
 		return (HashMap) sqlSession.selectOne("User.getModel");
 	}
 
+
+	//将无效的token插入到临时表中
+	@Override
+	public void insertFailToken(String token) {
+		sqlSession.insert("User.insertFailToken",token);
+	}
+
+	@Override
+	public List<HashMap<String, Object>> getUseLessToken() {
+		// TODO Auto-generated method stub
+		return (List<HashMap<String, Object>>) sqlSession.selectList("User.getUseLessToken");
+	}
+
+	@Override
+	public void updateUseLessToken(HashMap param) {
+		sqlSession.update("User.updateUseLessToken", param);
+
+		sqlSession.update("User.deleteUseLessToken", param);
+	}
+
+
 }

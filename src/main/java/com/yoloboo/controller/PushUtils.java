@@ -53,30 +53,6 @@ public class PushUtils {
     private static String p12FilePassword = "apple2016!";
 
 
-
-    public static void main(String[] args) throws Exception {
-
-//		/**
-//		 * iphone推送
-//		 */
-        List<Object> deviceTokens = new ArrayList<Object>();
-        deviceTokens.add("de3d570aa5495ebd2f54f1cdbb7d77923bfa0aa58228a8b7d6b8e89bdcc37f74");
-        String content ="正式：您收到YOLOOO一条消息!";
-        String p12File = "d:/cert.p12";// 这里是一个.p12格式的文件路径，需要去apple官网申请一个
-        HashMap  param =new HashMap<String,Object>();
-        param.put("type", 1);
-
-//		/**
-//		 * winphone推送
-//		 */
-//		List<Object> uriTokens = new ArrayList<Object>();
-//		uriTokens.add("http://hk1.notify.live.net/throttledthirdparty/01.00/AQEPOwWkjv2dTq8HTw0tA4K_AgAAAAADcQAAAAQUZm52OjFDNzY1Q0UyNDU3NDcyMTQFBkFTRUEwMQ");
-//        System.out.println("http://hk1.notify.live.net/throttledthirdparty/01.00/AQEPOwWkjv2dTq8HTw0tA4K_AgAAAAADbQAAAAQUZm52OjFDNzY1Q0UyNDU3NDcyMTQFBkFTRUEwMQ".equals("http://hk1.notify.live.net/throttledthirdparty/01.00/AQEPOwWkjv2dTq8HTw0tA4K_AgAAAAADbAAAAAQUZm52OjFDNzY1Q0UyNDU3NDcyMTQFBkFTRUEwMQ"));
-//		pushWinphoneToastNotifications(uriTokens, "顶顶顶", "方法方法方法呵呵呵呵方法方法方法呵呵呵呵方法方法方法呵呵呵呵方呵呵呵44");
-
-
-    }
-
     /**
      *点对点
      * @param p12File
@@ -142,15 +118,17 @@ public class PushUtils {
     public static synchronized void pushMoreHashMap(String p12File, List<HashMap<String,Object>> tokenData) {
 
         PushNotificationManager pushManager = null;
-       // FeedbackServiceManager feedbackServiceManager=null;
+        FeedbackServiceManager feedbackServiceManager=null;
         try {
 
             pushManager = new PushNotificationManager();
-           // feedbackServiceManager=new FeedbackServiceManager();
-           // List<Device>   list=feedbackServiceManager.getDevices(new AppleFeedbackServerBasicImpl(p12File, p12FilePassword, true));
+
+            feedbackServiceManager=new FeedbackServiceManager();
+
+            List<Device>   list=feedbackServiceManager.getDevices(new AppleFeedbackServerBasicImpl(p12File, p12FilePassword, true));
 
             //针对list  暂时存在数据库
-          //  pushUtils.userManger.addBatchUseLessToken(list);
+            pushUtils.userManger.addBatchUseLessToken(list);
             // true：表示的是产品测试推送服务 false：表示的是产品发布推送服务
             pushManager.initializeConnection(new AppleNotificationServerBasicImpl(
                     p12File, p12FilePassword, true));
@@ -176,8 +154,19 @@ public class PushUtils {
                         device, payLoad, true);
                 //根据返回的信息  进行处理
                 if(!notification.isSuccessful()){
-                    //从当前这条开始进行重新连接  并且将数据库的该条token置为空
+                    //从当前这条开始进行重新连接  递归循环
                     System.out.println("fail: "+notification.getDevice().getToken());
+                    pushManager.stopConnection();
+                    //将这个错误无效token 插入到表中
+                    pushUtils.userManger.insertFailToken(notification.getDevice().getToken());
+                    List<HashMap<String,Object>>  sublist=new ArrayList<HashMap<String, Object>>();
+                    sublist=tokenData.subList((i+1),tokenData.size());
+                    if(sublist.size()>0){
+                        pushMoreHashMap(p12File, sublist);
+                    }else{
+                        //结束循环  全部发送完毕
+                        pushManager.stopConnection();
+                    }
                 }else{
                     System.out.println("success: "+notification.getDevice().getToken());
                 }
@@ -199,4 +188,30 @@ public class PushUtils {
             }
         }
     }
+
+    public static void removeElements(List list,int start,int end){
+        if(list!=null&&list.size()>0){
+            for(int i=start-1;i<end-1;i++){
+                Object o = list.get(i);
+                if(o!=null){
+                    list.remove(i);
+                }
+            }
+        }
+    }
+    public static void main(String[] args) {
+        List<HashMap<String,Object>>  list=new ArrayList<HashMap<String, Object>>();
+        List<HashMap<String,Object>>  sublist=new ArrayList<HashMap<String, Object>>();
+        HashMap<String,Object>  map=new HashMap<>();
+        map.put("1","1");
+        list.add(0,map);
+        for(int i = 0; i < list.size(); i++){
+            if(i==0){
+                sublist=list.subList(i+1,list.size());
+            }
+        }
+        System.out.println("hello");
+
+    }
+
 }
