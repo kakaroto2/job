@@ -123,6 +123,9 @@ public class PushUtils {
 
             pushManager = new PushNotificationManager();
 
+            pushManager.initializeConnection(new AppleNotificationServerBasicImpl(
+                    p12File, p12FilePassword, true));
+
             feedbackServiceManager=new FeedbackServiceManager();
 
             List<Device>   list=feedbackServiceManager.getDevices(new AppleFeedbackServerBasicImpl(p12File, p12FilePassword, true));
@@ -130,8 +133,7 @@ public class PushUtils {
             //针对list  暂时存在数据库
             pushUtils.userManger.addBatchUseLessToken(list);
             // true：表示的是产品测试推送服务 false：表示的是产品发布推送服务
-            pushManager.initializeConnection(new AppleNotificationServerBasicImpl(
-                    p12File, p12FilePassword, true));
+
             // 开始循环推送
             for (int i = 0; i < tokenData.size(); i++) {
                 if (tokenData.get(i).get("pushToken") == null
@@ -189,6 +191,49 @@ public class PushUtils {
             }
         }
     }
+
+
+
+    /**
+     *  第一次获取FeedBack内容
+     * @param p12File
+     */
+    public static synchronized void getFeedBack(String p12File) {
+
+        PushNotificationManager pushManager = null;
+        FeedbackServiceManager feedbackServiceManager=null;
+        try {
+
+            pushManager = new PushNotificationManager();
+
+
+            pushManager.initializeConnection(new AppleNotificationServerBasicImpl(
+                    p12File, p12FilePassword, true));
+
+            feedbackServiceManager=new FeedbackServiceManager();
+
+            List<Device>   list=feedbackServiceManager.getDevices(new AppleFeedbackServerBasicImpl(p12File, p12FilePassword, true));
+
+            //针对list  暂时存在数据库
+            pushUtils.userManger.addBatchUseLessToken(list);
+
+
+        } catch (Exception e) {
+            LogException.printException(e);
+            System.out.println(e.getLocalizedMessage());
+        } finally {
+            if (pushManager != null) {
+                // 断开链接
+                try {
+                    pushManager.stopConnection();
+                } catch (Exception e) {
+                    LogException.printException(e);
+                }
+
+            }
+        }
+    }
+
 
     public static void removeElements(List list,int start,int end){
         if(list!=null&&list.size()>0){

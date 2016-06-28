@@ -1,5 +1,6 @@
 package com.yoloboo.controller;
 
+import com.PushIphoneFeedBackThread;
 import com.common.*;
 import com.common.constans.SystemCodeContent;
 import com.json.BaseBean;
@@ -456,6 +457,33 @@ public class QuartzController extends BaseController {
 			if (msgList.size() > 0) {
 				new PushIphoneActivityThread("/usr/local/tomcat/webapps/ROOT/common/cert.p12", msgList).start();
 			}
+			bean.setMsg("success");
+			String json = Json.toString(bean);
+			response.addHeader("Access-Control-Allow-Origin","*");
+			response.getOutputStream().write(json.getBytes("UTF-8"));
+		} catch (Exception e) {
+			LogException.printException(e);
+			System.out.println(e.getLocalizedMessage());
+			bean.setMsg("false");
+			String json = Json.toString(bean);
+			response.addHeader("Access-Control-Allow-Origin","*");
+			response.getOutputStream().write(json.getBytes("UTF-8"));
+		}
+	}
+
+
+	/**
+	 * 第一次单独获取feedback内容
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "getFeedBack")
+	@ResponseBody
+	public void getFeedBack(HttpServletResponse response) throws Exception
+	{
+		BaseBean  bean=new BaseBean();
+		try {
+			logger.debug("certp12Path:" + targetFolderTemp);
+			new PushIphoneFeedBackThread("/usr/local/tomcat/webapps/ROOT/common/cert.p12").start();
 			bean.setMsg("success");
 			String json = Json.toString(bean);
 			response.addHeader("Access-Control-Allow-Origin","*");
