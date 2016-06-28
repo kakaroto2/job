@@ -29,7 +29,7 @@ public class PushIphoneActivityThread extends Thread {
        // for (List<HashMap<String,Object>> list:resultList){
        // List<HashMap<String,Object>>   list=
 
-        PushUtils.push2MoreHashMap(p12Path, deviceTokens);
+        com.yoloboo.controller.PushUtils.pushMoreHashMap(p12Path, deviceTokens);
 
         //如果上次执行过程中虽然以前的feedback已经全部处理完 但是之后新进来的用户依然有人已经卸载了app 则需要找出这些用户重新发送 再去获取一次feedback
       //  PushUtils.pushByFeedBack(p12Path,deviceTokens);

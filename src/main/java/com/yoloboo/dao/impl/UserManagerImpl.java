@@ -7,6 +7,7 @@ import java.util.List;
 import com.common.Commonparam;
 import com.yoloboo.models.PushModel;
 import com.yoloboo.models.UserModel;
+import javapns.devices.Device;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -350,6 +351,12 @@ public class UserManagerImpl extends BaseDao implements UserManager {
 	@Override
 	public void addNotificationTemp(List<HashMap<String,Object>> list) {
 		sqlSession.insert("User.addNotificationTemp",list);
+	}
+
+	//批量将无效的token插入到临时表中
+	@Override
+	public void addBatchUseLessToken(List<Device> list) {
+		sqlSession.insert("User.addBatchUseLessToken",list);
 	}
 
 

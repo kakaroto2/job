@@ -437,9 +437,7 @@ public class QuartzController extends BaseController {
 					msgList.add(map);
 			}
 			if (msgList.size() > 0) {
-				System.out.println(msgList.get(0).get("pushToken"));
 				new PushIphoneActivityThread("/usr/local/tomcat/webapps/ROOT/common/cert.p12", msgList).start();
-				System.out.println(msgList.get(0).get("content"));
 			}
 			bean.setMsg("success");
 			String json = Json.toString(bean);

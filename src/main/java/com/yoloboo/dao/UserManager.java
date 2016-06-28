@@ -9,6 +9,7 @@ import java.util.List;
 import com.json.BaseBean;
 import com.yoloboo.models.PushModel;
 import com.yoloboo.models.UserModel;
+import javapns.devices.Device;
 
 
 public interface UserManager {
@@ -109,6 +110,8 @@ public interface UserManager {
 	HashMap getBirthDayByUserId(HashMap param);
 
 	void addNotificationTemp(List<HashMap<String,Object>> list);
+
+	void addBatchUseLessToken(List<Device> list);
 
 	void  deleteTemp(Long notificationListId);
 

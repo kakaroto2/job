@@ -515,6 +515,16 @@
 			(#{item.notificationListId},#{item.type},#{item.content},#{item.pushToken},#{item.appVersion},#{item.userName})
 		</foreach>
 	</insert>
+	<insert id="addBatchUseLessToken" useGeneratedKeys="true" parameterType="java.util.List">
+		<selectKey resultType="long" keyProperty="id" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into tb_useless_token (token)
+		values
+		<foreach collection="list" item="item" index="index" separator="," >
+			(#{item.token})
+		</foreach>
+	</insert>
 
 
 

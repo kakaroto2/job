@@ -6,10 +6,10 @@ import java.util.List;
 
 import javapns.devices.Device;
 import javapns.devices.implementations.basic.BasicDevice;
-import javapns.notification.AppleNotificationServerBasicImpl;
-import javapns.notification.PushNotificationManager;
-import javapns.notification.PushNotificationPayload;
-import javapns.notification.PushedNotification;
+import javapns.feedback.AppleFeedbackServer;
+import javapns.feedback.AppleFeedbackServerBasicImpl;
+import javapns.feedback.FeedbackServiceManager;
+import javapns.notification.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,64 +53,71 @@ public class PushUtils {
 	}
 
 
-	/**
-	 *
-	 * @param p12File
-	 * @param tokenData:{content,pushToken,type}
-	 */
-	public static synchronized void push2MoreHashMap(String p12File, List<HashMap<String,Object>> tokenData) {
-
-		PushNotificationManager pushManager = null;
-		try {
-
-			pushManager = new PushNotificationManager();
-			// true：表示的是产品测试推送服务 false：表示的是产品发布推送服务
-			pushManager.initializeConnection(new AppleNotificationServerBasicImpl(
-					p12File, p12FilePassword, true));
-			// 开始循环推送
-			for (int i = 0; i < tokenData.size(); i++) {
-				if (tokenData.get(i).get("pushToken") == null
-						|| tokenData.get(i).get("pushToken") .toString().trim().length() == 0)
-					continue;
-
-				PushNotificationPayload payLoad = new PushNotificationPayload();
-				payLoad.addAlert(tokenData.get(i).get("content").toString());// push的内容
-				payLoad.addBadge(1);// 应用图标上小红圈上的数值
-				payLoad.addSound("default");// 铃音
-
-				// 添加字典
-				payLoad.addCustomDictionary("type",tokenData.get(i).get("type").toString());
-
-				Device device = new BasicDevice();
-
-				device.setToken(tokenData.get(i).get("pushToken").toString());
-
-				PushedNotification notification = pushManager.sendNotification(
-						device, payLoad, true);
-
-				//根据返回的信息  进行处理
-				if(!notification.isSuccessful()){
-					//从当前这条开始进行重新连接  并且将数据库的该条token置为空
-					System.out.println("fail: "+notification.getDevice().getToken());
-				}else{
-					System.out.println("success: "+notification.getDevice().getToken());
-				}
-
-			}
-
-		} catch (Exception e) {
-			LogException.printException(e);
-			System.out.println(e.getLocalizedMessage());
-		} finally {
-			if (pushManager != null) {
-				// 断开链接
-				try {
-					pushManager.stopConnection();
-				} catch (Exception e) {
-					LogException.printException(e);
-				}
-
-			}
-		}
-	}
+//	/**
+//	 *
+//	 * @param p12File
+//	 * @param tokenData:{content,pushToken,type}
+//	 */
+//	public static synchronized void push2MoreHashMap(String p12File, List<HashMap<String,Object>> tokenData) {
+//
+//		PushNotificationManager pushManager = null;
+//		FeedbackServiceManager  feedbackServiceManager=null;
+//		try {
+//
+//			pushManager = new PushNotificationManager();
+//			feedbackServiceManager=new FeedbackServiceManager();
+//			List<Device>   list=feedbackServiceManager.getDevices(new AppleFeedbackServerBasicImpl(p12File, p12FilePassword, true));
+//
+//			//针对list  暂时存在数据库
+//			for(Device device :list){
+//
+//			}
+//			// true：表示的是产品测试推送服务 false：表示的是产品发布推送服务
+//			pushManager.initializeConnection(new AppleNotificationServerBasicImpl(
+//					p12File, p12FilePassword, true));
+//			// 开始循环推送
+//			for (int i = 0; i < tokenData.size(); i++) {
+//				if (tokenData.get(i).get("pushToken") == null
+//						|| tokenData.get(i).get("pushToken") .toString().trim().length() == 0)
+//					continue;
+//
+//				PushNotificationPayload payLoad = new PushNotificationPayload();
+//				payLoad.addAlert(tokenData.get(i).get("content").toString());// push的内容
+//				payLoad.addBadge(1);// 应用图标上小红圈上的数值
+//				payLoad.addSound("default");// 铃音
+//
+//				// 添加字典
+//				payLoad.addCustomDictionary("type",tokenData.get(i).get("type").toString());
+//
+//				Device device = new BasicDevice();
+//
+//				device.setToken(tokenData.get(i).get("pushToken").toString());
+//
+//				PushedNotification notification = pushManager.sendNotification(
+//						device, payLoad, true);
+//				//根据返回的信息  进行处理
+//				if(!notification.isSuccessful()){
+//					//从当前这条开始进行重新连接  并且将数据库的该条token置为空
+//					System.out.println("fail: "+notification.getDevice().getToken());
+//				}else{
+//					System.out.println("success: "+notification.getDevice().getToken());
+//				}
+//
+//			}
+//
+//		} catch (Exception e) {
+//			LogException.printException(e);
+//			System.out.println(e.getLocalizedMessage());
+//		} finally {
+//			if (pushManager != null) {
+//				// 断开链接
+//				try {
+//					pushManager.stopConnection();
+//				} catch (Exception e) {
+//					LogException.printException(e);
+//				}
+//
+//			}
+//		}
+//	}
 }
