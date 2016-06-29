@@ -153,6 +153,8 @@ public class PushUtils {
 
                 device.setToken(tokenData.get(i).get("pushToken").toString());
 
+                System.out.println(payLoad.getPayloadAsBytes().length);
+
                 PushedNotification notification = pushManager.sendNotification(
                         device, payLoad, true);
                 //根据返回的信息  进行处理

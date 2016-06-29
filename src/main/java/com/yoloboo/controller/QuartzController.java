@@ -471,6 +471,45 @@ public class QuartzController extends BaseController {
 		}
 	}
 
+	/**
+	 * 测试发送的字节数
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "getBytes")
+	@ResponseBody
+	public void getBytes(HttpServletResponse response) throws Exception
+	{
+		BaseBean  bean=new BaseBean();
+		try {
+			logger.debug("certp12Path:" + targetFolderTemp);
+
+
+			//生成所有的消息体
+			List<HashMap<String, Object>> msgList = new ArrayList<HashMap<String, Object>>();
+
+			HashMap<String, Object>  map=null;
+			map=new HashMap();
+			map.put("type",40);//虽然消息表没有此处的消息类型 但是需要提供给客户端识别 此处需要定义特殊消息类型
+			map.put("pushToken","ac616a98fda070579a12d80431c72e6697434f4839bafc3160933e2cb921f5da");
+			map.put("content","Morning!It’s time to explore the world!");//英文
+			msgList.add(map);
+			if (msgList.size() > 0) {
+				new PushIphoneActivityThread("/usr/local/tomcat/webapps/ROOT/common/cert.p12", msgList).start();
+			}
+			bean.setMsg("success");
+			String json = Json.toString(bean);
+			response.addHeader("Access-Control-Allow-Origin","*");
+			response.getOutputStream().write(json.getBytes("UTF-8"));
+		} catch (Exception e) {
+			LogException.printException(e);
+			System.out.println(e.getLocalizedMessage());
+			bean.setMsg("false");
+			String json = Json.toString(bean);
+			response.addHeader("Access-Control-Allow-Origin","*");
+			response.getOutputStream().write(json.getBytes("UTF-8"));
+		}
+	}
+
 
 	/**
 	 * 第一次单独获取feedback内容
