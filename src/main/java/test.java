@@ -9,9 +9,10 @@ import java.util.*;
  * Created by CoderZhao on 2015/10/15.
  */
 public class test {
+    static int i;
     public static void main(String[] args){
       //String s={"keyList": "+8615850242850"};
-        String s="[\"+86?18601662369\",\"+86 1850343443\"]";
+        //String s="[\"+86?18601662369\",\"+86 1850343443\"]";
 //       String s="hello";
 //        String s1="hello";
 //        System.out.println(s.equals(s1));
@@ -36,9 +37,23 @@ public class test {
 //        content = content.replaceAll("\\[replace\\]","");
 //        content = "你和"+content + "成为了好友";
 //        System.out.println(content);
-        String code="123a";
-        String beCode="123a";
-        System.out.println(code.equalsIgnoreCase(beCode));
+//        String code="123a";
+//        String beCode="123a";
+//        System.out.println(code.equalsIgnoreCase(beCode));
+
+        for(i=0;i<10;i++){
+            System.out.println(i);
+            try{
+                if(i==1){
+                    System.out.println(1/0);
+                }
+                Thread.currentThread().sleep(5000);
+            }catch(Exception e){
+                e.printStackTrace();
+                continue;
+            }
+
+        }
     }
 
 }
