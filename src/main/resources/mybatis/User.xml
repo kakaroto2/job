@@ -285,15 +285,17 @@
 
 	<select id="findNotifyMsgList" parameterType="java.util.HashMap"
 		resultType="java.util.HashMap">
-	(select nl.notification_list_id as
+	(   select nl.notification_list_id as
 		notificationListId,nl.type, nl.content,(select u.u_ios_token from
 		tb_user u where
 		u.user_id=nl.user_id) as pushToken,(SELECT u.appVersion from tb_user u where
 		u.user_id=nl.user_id) as appVersion, (select u.u_language from
 		tb_user u where
 		u.user_id=nl.user_id) as language,(SELECT u2.u_nickname FROM tb_user u2 WHERE nl.passive_id=u2.user_id) as userName from
-		tb_notification_list nl where
-		notification_status=0 and type  in(0,1,2,3,4,32))
+		tb_notification_list nl,tb_system_notification h where  nl.user_id=h.user_id and h.IsAllowedPush=1 and
+		notification_status=0 and type  in(0,1,2,3,4,32)
+
+		)
 		UNION   ALL (
         select nl.notification_list_id as
 		notificationListId,nl.type, nl.content,(select u.u_ios_token from
@@ -302,7 +304,7 @@
 		u.user_id=nl.user_id) as appVersion, (select u.u_language from
 		tb_user u where
 		u.user_id=nl.user_id) as language,(SELECT u2.u_nickname FROM tb_user u2 WHERE nl.passive_id=u2.user_id) as userName from
-		tb_notification_list nl where
+		tb_notification_list nl ,tb_system_notification h where  nl.user_id=h.user_id and h.IsAllowedPush=1 and
 		notification_status=0 and type=14 and nl.user_id=nl.passive_id
 		)
 		UNION   ALL (
@@ -313,7 +315,7 @@
 		u.user_id=nl.user_id) as appVersion, (select u.u_language from
 		tb_user u where
 		u.user_id=nl.user_id) as language,(SELECT u2.u_nickname FROM tb_user u2 WHERE nl.passive_id=u2.user_id) as userName from
-		tb_notification_list nl where
+		tb_notification_list nl ,tb_system_notification h where  nl.user_id=h.user_id and h.IsAllowedPush=1 and
 		notification_status=0 and type=18 and nl.passive_id is  null
 		)
 		ORDER BY notificationListId desc
@@ -331,7 +333,9 @@
 	</select>
 
 	<select id="getUserList"  resultType="java.util.HashMap">
- 	    select  *  from  tb_user  where  u_ios_token  is  not  null  and  u_ios_token !=''
+--  	    select  *  from  tb_user  where  u_ios_token  is  not  null  and  u_ios_token !=''
+ select  t.*  from  tb_user t, tb_system_notification h where  t.u_ios_token  is  not  null  and  t.u_ios_token !=''
+ and t.user_id=h.user_id and h.IsAllowedPush=1
 	</select>
 
 	<select id="selectNotSendNotification"  resultType="java.util.HashMap">

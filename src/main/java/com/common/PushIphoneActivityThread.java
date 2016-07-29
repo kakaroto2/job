@@ -74,5 +74,28 @@ public class PushIphoneActivityThread extends Thread {
 
             }
 
+    public static void main(String[] args) {
+        List<HashMap<String,Object>>  list=new ArrayList<HashMap<String, Object>>();
 
+        HashMap<String,Object>  map=new HashMap<>();
+        HashMap<String,Object>  map1=new HashMap<>();
+        HashMap<String,Object>  map2=new HashMap<>();
+        HashMap<String,Object>  map3=new HashMap<>();
+        HashMap<String,Object>  map4=new HashMap<>();
+
+        map.put("0","0");
+        map1.put("1","1");
+        map2.put("2","2");
+        map3.put("3","3");
+        map4.put("4","4");
+
+        list.add(0,map);
+        list.add(1,map1);
+        list.add(2,map2);
+        list.add(3,map3);
+        list.add(4,map4);
+
+        List<List<HashMap<String,Object>>>  resultList= getSubList(list,2);
+        System.out.println("ok");
+    }
 }
