@@ -557,4 +557,8 @@
 	<update id="deleteUseLessToken" parameterType="java.util.HashMap">
 		DELETE   from  tb_useless_token  where  token = #{token}
 	</update>
+
+	<update id="updateTicket" parameterType="java.lang.String">
+		UPDATE tb_ticket SET ticket=#{value}
+	</update>
 </mapper>

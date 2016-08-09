@@ -393,4 +393,10 @@ public class UserManagerImpl extends BaseDao implements UserManager {
 	}
 
 
+	//每隔2小时更新一次ticket
+	@Override
+	public void updateTicket(String jaspticket) {
+		sqlSession.update("User.updateTicket", jaspticket);
+	}
+
 }

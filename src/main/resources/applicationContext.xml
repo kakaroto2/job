@@ -106,6 +106,21 @@
 	</bean>
 
 
+	<bean id="getTicketTrigger"
+		  class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="getTicketJobDetail" />
+		<property name="cronExpression" value="0 0/59 * * * ?" />
+		<!--<property name="cronExpression" value="0 0/2 * * * ?" />-->
+	</bean>
+
+	<bean id="getTicketJobDetail"
+		  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="QuartzAction" />
+		<property name="targetMethod" value="updateTicket" />
+		<property name="concurrent" value="false" />
+	</bean>
+
+
 	<!--<bean id="pushActivityMsgTrigger"-->
 		  <!--class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">-->
 		<!--<property name="jobDetail" ref="pushActivityMsgJobDetail" />-->
@@ -126,6 +141,7 @@
 			<list>
 				<ref bean="pushMsgTrigger" />
 				<ref bean="recommendFriendsTrigger" />
+				<ref bean="getTicketTrigger" />
 				<!--<ref bean="pushActivityMsgTrigger" />-->
 			</list>
 		</property>

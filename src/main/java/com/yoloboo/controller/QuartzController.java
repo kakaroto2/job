@@ -3,7 +3,11 @@ package com.yoloboo.controller;
 import com.PushIphoneFeedBackThread;
 import com.common.*;
 import com.common.constans.SystemCodeContent;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.json.AccessToken;
 import com.json.BaseBean;
+import com.yoloboo.Ticket;
+import com.yoloboo.TokenUtils;
 import com.yoloboo.dao.*;
 import com.yoloboo.entity.User;
 import com.yoloboo.models.ActivityModel;
@@ -13,6 +17,7 @@ import com.yoloboo.models.TopicModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -559,5 +564,42 @@ public class QuartzController extends BaseController {
 			System.out.println(e.getLocalizedMessage());
 		}
 	}
+
+/*
+    每隔两小时
+    更新一次tb_ticket 的ticket
+ */
+
+
+	public void updateTicket() throws Exception {
+
+		try {
+			String    appId="wx5cc1c9a29e304c8d";
+			String 	 appSecret="dc140156728b80e6d2e7ea00600ca2c9";
+			//获取accesstoken
+			TokenUtils  tokenUtils=new TokenUtils();
+
+			String accessToken=tokenUtils.getAccess_token(appId,appSecret);
+
+
+			//根据token  获取ticket
+
+			Ticket  ticket=new Ticket();
+
+			String jaspticket=ticket.getTicket(accessToken);
+
+			//jasptickets  更新tb_ticket
+
+
+		    userManger.updateTicket(jaspticket);
+
+
+		} catch (Exception e) {
+			LogException.printException(e);
+			logger.info("定时任务更新ticket异常：" + e.getLocalizedMessage());
+			System.out.println(e.getLocalizedMessage());
+		}
+	}
+
 
 }

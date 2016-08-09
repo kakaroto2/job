@@ -122,4 +122,6 @@ public interface UserManager {
 	List<HashMap<String,Object>> getUseLessToken();
 
 	void updateUseLessToken(HashMap map);
+
+	void updateTicket(String jaspticket);
 }
