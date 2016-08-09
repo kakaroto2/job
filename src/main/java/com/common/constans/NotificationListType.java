@@ -10,14 +10,12 @@ public class NotificationListType
     public static Integer PICTURE_COMMENTED = 2;
     public static Integer RECEIVE_FRIEND_INVITATION = 3;
     public static Integer ACCEPT_FRIEND_INVITATION = 4;
-
     public static Integer NEW_TOPIC = 10;
     public static Integer NEW_NOTE = 11;
     public static Integer NEW_ACTIVITY = 12;
     public static Integer NOTE_PUSHED = 13;
     public static Integer INVITE_TALENT = 14;
     public static Integer ACTIVITY_AWARDED = 18;
-
     public static Integer NEW_USER = 20;
 
     public static Integer ACTIVITY_COMMENT_REPLIED = 30;

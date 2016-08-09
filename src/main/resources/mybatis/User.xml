@@ -285,8 +285,8 @@
 
 	<select id="findNotifyMsgList" parameterType="java.util.HashMap"
 		resultType="java.util.HashMap">
-	(   select nl.notification_list_id as
-		notificationListId,nl.type, nl.content,(select u.u_ios_token from
+	(   select nl.notification_list_id as notificationListId,nl.skip_type as skipType,nl.skip_id as skipId,
+	    nl.type, nl.content,(select u.u_ios_token from
 		tb_user u where
 		u.user_id=nl.user_id) as pushToken,(SELECT u.appVersion from tb_user u where
 		u.user_id=nl.user_id) as appVersion, (select u.u_language from
@@ -297,8 +297,8 @@
 
 		)
 		UNION   ALL (
-        select nl.notification_list_id as
-		notificationListId,nl.type, nl.content,(select u.u_ios_token from
+        select nl.notification_list_id as notificationListId,nl.skip_type as skipType,nl.skip_id as skipId,
+        nl.type, nl.content,(select u.u_ios_token from
 		tb_user u where
 		u.user_id=nl.user_id) as pushToken,(SELECT u.appVersion from tb_user u where
 		u.user_id=nl.user_id) as appVersion, (select u.u_language from
@@ -308,8 +308,8 @@
 		notification_status=0 and type=14 and nl.user_id=nl.passive_id
 		)
 		UNION   ALL (
-        select nl.notification_list_id as
-		notificationListId,nl.type, nl.content,(select u.u_ios_token from
+        select nl.notification_list_id as notificationListId,nl.skip_type as skipType,nl.skip_id as skipId,
+        nl.type, nl.content,(select u.u_ios_token from
 		tb_user u where
 		u.user_id=nl.user_id) as pushToken,(SELECT u.appVersion from tb_user u where
 		u.user_id=nl.user_id) as appVersion, (select u.u_language from
@@ -513,10 +513,10 @@
 		<selectKey resultType="long" keyProperty="id" order="AFTER">
 			SELECT LAST_INSERT_ID()
 		</selectKey>
-		insert into tb_notification_list_temp (notificationListId,type,content,pushToken,appVersion,userName)
+		insert into tb_notification_list_temp (notificationListId,type,content,pushToken,appVersion,userName,skip_type,skip_id)
 		values
 		<foreach collection="list" item="item" index="index" separator="," >
-			(#{item.notificationListId},#{item.type},#{item.content},#{item.pushToken},#{item.appVersion},#{item.userName})
+			(#{item.notificationListId},#{item.type},#{item.content},#{item.pushToken},#{item.appVersion},#{item.userName},#{item.skipType},#{item.skipId})
 		</foreach>
 	</insert>
 	<insert id="addBatchUseLessToken" useGeneratedKeys="true" parameterType="java.util.List">

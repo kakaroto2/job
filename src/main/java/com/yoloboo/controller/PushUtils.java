@@ -78,8 +78,10 @@ public class PushUtils {
 					payLoad.addSound("default");// 铃音
 					// 添加字典
 					payLoad.addCustomDictionary("type",tokenData.get(i).get("type").toString());
-                    Device device = new BasicDevice();
 
+                    payLoad.addCustomDictionary("skipType",tokenData.get(i).get("skip_type").toString());
+                    payLoad.addCustomDictionary("skipId",tokenData.get(i).get("skip_id").toString());
+                    Device device = new BasicDevice();
                     device.setToken(tokenData.get(i).get("pushToken").toString());
                     PushedNotification notification = pushManager.sendNotification(
                             device, payLoad, true);
