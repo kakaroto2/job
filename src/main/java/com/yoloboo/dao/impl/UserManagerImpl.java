@@ -399,4 +399,8 @@ public class UserManagerImpl extends BaseDao implements UserManager {
 		sqlSession.update("User.updateTicket", jaspticket);
 	}
 
+	@Override
+	public HashMap getModelById(Long param) {
+		return (HashMap) sqlSession.selectOne("User.getModelById",param);
+	}
 }

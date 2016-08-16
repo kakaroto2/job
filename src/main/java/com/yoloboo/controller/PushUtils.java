@@ -151,6 +151,9 @@ public class PushUtils {
                 // 添加字典
                 payLoad.addCustomDictionary("type",tokenData.get(i).get("type").toString());
 
+                payLoad.addCustomDictionary("skipType",tokenData.get(i).get("m_type").toString());
+                payLoad.addCustomDictionary("skipId",tokenData.get(i).get("m_key").toString());
+
                 Device device = new BasicDevice();
 
                 device.setToken(tokenData.get(i).get("pushToken").toString());

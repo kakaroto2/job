@@ -544,6 +544,10 @@
 		select ap_content_cn,ap_content_en,ap_content_tw  from tb_activity_push
 	</select>
 
+	<select id="getModelById" parameterType="java.lang.Long" resultType="java.util.HashMap">
+		select * FROM tb_officer_messag WHERE m_id = #{value} AND  m_statue=0
+	</select>
+
 
 	<select id="getUseLessToken" resultType="java.util.HashMap">
 			select  *  from  tb_useless_token

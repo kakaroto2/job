@@ -117,6 +117,8 @@ public interface UserManager {
 
 	HashMap  getModel();
 
+	HashMap getModelById(Long param);
+
 	void insertFailToken(String token);
 
 	List<HashMap<String,Object>> getUseLessToken();

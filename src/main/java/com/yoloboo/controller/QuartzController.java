@@ -2,6 +2,7 @@ package com.yoloboo.controller;
 
 import com.PushIphoneFeedBackThread;
 import com.common.*;
+import com.common.constans.NotificationListType;
 import com.common.constans.SystemCodeContent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.json.AccessToken;
@@ -348,12 +349,12 @@ public class QuartzController extends BaseController {
 
 
 	/**
-	 * 管理员管理系统发布活动 调用群发消息
+	 * 管理员按照类型群发消息
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "pushActivityMsg")
+	@RequestMapping(value = "pushMsgByType")
 	@ResponseBody
-	public void pushActivityMsg(HttpServletResponse response) throws Exception
+	public void pushMsgByType(@RequestParam(required = true) Long msgId,HttpServletResponse response) throws Exception
 	{
 		BaseBean  bean=new BaseBean();
 		try {
@@ -374,94 +375,37 @@ public class QuartzController extends BaseController {
 			userList=userManger.getUserList();
 
 			//获取此次活动推送内容的模版
-			HashMap model=userManger.getModel();
+			HashMap model=userManger.getModelById(msgId);
 
 			//生成所有的消息体
 			List<HashMap<String, Object>> msgList = new ArrayList<HashMap<String, Object>>();
 
 			HashMap<String, Object>  map=null;
 			for(int i = 0; i < userList.size(); i++){
-					map=new HashMap();
-					//map.put("notificationListId",activityModel.getNotification_list_id());
-					map.put("type",12);
-					map.put("pushToken",userList.get(i).get("u_ios_token"));
-					if("0".equals(userList.get(i).get("u_language").toString())){
-						map.put("content",model.get("ap_content_en").toString());
-					}else if("1".equals(userList.get(i).get("u_language").toString())){
-						map.put("content",model.get("ap_content_cn").toString());
-					}else if("2".equals(userList.get(i).get("u_language").toString())){
-						map.put("content",model.get("ap_content_tw").toString());
-					}
-					map.put("appVersion",userList.get(i).get("appVersion"));
-					map.put("language",userList.get(i).get("u_language"));
-					map.put("userName",userList.get(i).get("u_nickname"));
-					msgList.add(map);
-			}
-			if (msgList.size() > 0) {
-				new PushIphoneActivityThread("/usr/local/tomcat/webapps/ROOT/common/cert.p12", msgList).start();
-			}
-			bean.setMsg("success");
-			String json = Json.toString(bean);
-			response.addHeader("Access-Control-Allow-Origin","*");
-			response.getOutputStream().write(json.getBytes("UTF-8"));
-		} catch (Exception e) {
-			LogException.printException(e);
-			System.out.println(e.getLocalizedMessage());
-			bean.setMsg("false");
-			String json = Json.toString(bean);
-			response.addHeader("Access-Control-Allow-Origin","*");
-			response.getOutputStream().write(json.getBytes("UTF-8"));
-		}
-	}
-
-
-	/**
-	 * 管理员管理系统首页更新内容 调用群发消息
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "pushIndexUpdateMsg")
-	@ResponseBody
-	public void pushIndexUpdateMsg(HttpServletResponse response) throws Exception
-	{
-		BaseBean  bean=new BaseBean();
-		try {
-			logger.debug("certp12Path:" + targetFolderTemp);
-
-			//对于feedback和fail产生的无效token进行处理
-			List<HashMap<String,Object>>    list=userManger.getUseLessToken();
-
-			if(list.size()>0){
-				for(HashMap map:list){
-					userManger.updateUseLessToken(map);
+				map=new HashMap();
+				//map.put("notificationListId",activityModel.getNotification_list_id());
+				if(null == model.get("type") ||("").equals(model.get("type"))){//默认为管理员类型
+					map.put("type", NotificationListType.ADMIN_MSG);
+				}else{
+					map.put("type",model.get("type").toString());
 				}
-			}
-			//对于每个人进行发送
-			List<HashMap<String, Object>> userList = new ArrayList<HashMap<String, Object>>();
-
-			userList=userManger.getUserList();
-
-			//生成所有的消息体
-			List<HashMap<String, Object>> msgList = new ArrayList<HashMap<String, Object>>();
-
-			HashMap<String, Object>  map=null;
-			for(int i = 0; i < userList.size(); i++){
-					map=new HashMap();
-					map.put("type",40);//虽然消息表没有此处的消息类型 但是需要提供给客户端识别 此处需要定义特殊消息类型
-					map.put("pushToken",userList.get(i).get("u_ios_token"));
-					if("0".equals(userList.get(i).get("u_language").toString())){
-						map.put("content","Morning!It’s time to explore the world!");//英文
-					}else if("1".equals(userList.get(i).get("u_language").toString())){
-						map.put("content","早！发现新世界的时间到了!");//简体
-					}else if("2".equals(userList.get(i).get("u_language").toString())){
-						map.put("content","早！發現新世界的時間到了!");//繁体
-					}
-					map.put("appVersion",userList.get(i).get("appVersion"));
-					map.put("language",userList.get(i).get("u_language"));
-					map.put("userName",userList.get(i).get("u_nickname"));
-					msgList.add(map);
+				map.put("m_type",model.get("m_type").toString());
+				map.put("m_key",model.get("m_key").toString());
+				map.put("pushToken",userList.get(i).get("u_ios_token"));
+				if("0".equals(userList.get(i).get("u_language").toString())){
+					map.put("content",model.get("m_en").toString());
+				}else if("1".equals(userList.get(i).get("u_language").toString())){
+					map.put("content",model.get("m_cn").toString());
+				}else if("2".equals(userList.get(i).get("u_language").toString())){
+					map.put("content",model.get("m_tw").toString());
+				}
+				map.put("appVersion",userList.get(i).get("appVersion"));
+				map.put("language",userList.get(i).get("u_language"));
+				map.put("userName",userList.get(i).get("u_nickname"));
+				msgList.add(map);
 			}
 			if (msgList.size() > 0) {
-				new PushIphoneActivityThread("/usr/local/tomcat/webapps/ROOT/common/cert.p12", msgList).start();
+				new PushIphoneMessageThread("/usr/local/tomcat/webapps/ROOT/common/cert.p12", msgList).start();
 			}
 			bean.setMsg("success");
 			String json = Json.toString(bean);
@@ -476,6 +420,8 @@ public class QuartzController extends BaseController {
 			response.getOutputStream().write(json.getBytes("UTF-8"));
 		}
 	}
+
+
 
 	/**
 	 * 测试发送的字节数
@@ -500,7 +446,7 @@ public class QuartzController extends BaseController {
 			map.put("content","Morning!It’s time to explore the world!");//英文
 			msgList.add(map);
 			if (msgList.size() > 0) {
-				new PushIphoneActivityThread("/usr/local/tomcat/webapps/ROOT/common/cert.p12", msgList).start();
+				new PushIphoneMessageThread("/usr/local/tomcat/webapps/ROOT/common/cert.p12", msgList).start();
 			}
 			bean.setMsg("success");
 			String json = Json.toString(bean);
