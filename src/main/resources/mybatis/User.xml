@@ -293,7 +293,7 @@
 		tb_user u where
 		u.user_id=nl.user_id) as language,(SELECT u2.u_nickname FROM tb_user u2 WHERE nl.passive_id=u2.user_id) as userName from
 		tb_notification_list nl,tb_system_notification h where  nl.user_id=h.user_id and h.IsAllowedPush=1 and
-		notification_status=0 and type  in(0,1,2,3,4,32,25)
+		notification_status=0 and type  in(0,1,2,3,4,32,25,13)
 
 		)
 		UNION   ALL (
