@@ -67,6 +67,9 @@ public class QuartzController extends BaseController {
 				System.out.println("定时推送" + Commonparam.Date2Str() + ",msg count:" + msgList.size());
 				for (int i = 0; i < msgList.size(); i++) {
 					HashMap map = msgList.get(i);
+					if(null == map.get("language")){
+						map.put("language",1);
+					}
 					String content = (String) map.get("content");
 					String type = map.get("type").toString();
 
