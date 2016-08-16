@@ -390,8 +390,12 @@ public class QuartzController extends BaseController {
 				}else{
 					map.put("type",model.get("type").toString());
 				}
-				map.put("m_type",model.get("m_type").toString());
-				map.put("m_key",model.get("m_key").toString());
+				if(null != model.get("m_type")){
+					map.put("m_type",model.get("m_type").toString());
+				}
+				if(null != model.get("m_key")){
+					map.put("m_key",model.get("m_key").toString());
+				}
 				map.put("pushToken",userList.get(i).get("u_ios_token"));
 				if("0".equals(userList.get(i).get("u_language").toString())){
 					map.put("content",model.get("m_en").toString());
