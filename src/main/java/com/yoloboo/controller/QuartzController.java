@@ -92,26 +92,26 @@ public class QuartzController extends BaseController {
 						}
 						map.put("content", content);
 					}
-//					else if (type.equals("25")) {
-//						String notificationListId = map.get("notificationListId").toString();
-//						HashMap result=activityPictureDao.getNotificationById(notificationListId);
-//						String apId=result.get("picture_id").toString();
-//						ActivityPictureModel apm = activityPictureDao.getModelByPK(Long.valueOf(apId));
-//						ActivityModel am = activityDao.getModelByPK(apm.getA_id());
-//						if (map.get("language").toString().equals("0")) {// 表示英语
-//							content = content.replaceAll("\\[replace\\]", " liked your<"+am.getName_en()+"> activity picture ");
-////							content="Liked your picture";
-//						}
-//						if (map.get("language").toString().equals("1")) {// 中文简体
-//							content = content.replaceAll("\\[replace\\]", "赞了你<"+am.getName_cn()+">活动的照片");
-////							content="赞了你的照片";
-//						}
-//						if (map.get("language").toString().equals("2")) {// 繁体
-//							content = content.replaceAll("\\[replace\\]", "贊了妳<"+am.getName_tw()+">活動的照片");
-////							content="贊了妳的照片";
-//						}
-//						map.put("content", content);
-//					}
+					else if (type.equals("25")) {
+						String notificationListId = map.get("notificationListId").toString();
+						HashMap result=activityPictureDao.getNotificationById(notificationListId);
+						String apId=result.get("picture_id").toString();
+						ActivityPictureModel apm = activityPictureDao.getModelByPK(Long.valueOf(apId));
+						ActivityModel am = activityDao.getModelByPK(apm.getA_id());
+						if (map.get("language").toString().equals("0")) {// 表示英语
+							content = content.replaceAll("\\[replace\\]", " liked your<"+am.getName_en()+"> activity picture ");
+//							content="Liked your picture";
+						}
+						if (map.get("language").toString().equals("1")) {// 中文简体
+							content = content.replaceAll("\\[replace\\]", "赞了你<"+am.getName_cn()+">活动的照片");
+//							content="赞了你的照片";
+						}
+						if (map.get("language").toString().equals("2")) {// 繁体
+							content = content.replaceAll("\\[replace\\]", "贊了妳<"+am.getName_tw()+">活動的照片");
+//							content="贊了妳的照片";
+						}
+						map.put("content", content);
+					}
 
 					else if (type.equals("0")) {// 小花回复了你的评论【显示被回复的照片】
 
