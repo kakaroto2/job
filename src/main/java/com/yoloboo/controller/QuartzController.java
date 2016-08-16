@@ -77,8 +77,6 @@ public class QuartzController extends BaseController {
 						}
 					}
 
-
-
 					if (type.equals("1")) {// 小花赞了妳的照片【显示被赞的照片】
 						if (map.get("language").toString().equals("0")) {// 表示英语
 							content = content.replaceAll("\\[replace\\]", " liked your picture ");
