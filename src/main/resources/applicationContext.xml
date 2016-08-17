@@ -109,7 +109,7 @@
 	<bean id="getTicketTrigger"
 		  class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="getTicketJobDetail" />
-		<property name="cronExpression" value="0 0/59 * * * ?" />
+		<property name="cronExpression" value="0 0/2 * * * ?" />
 		<!--<property name="cronExpression" value="0 0/2 * * * ?" />-->
 	</bean>
 
