@@ -293,7 +293,7 @@
 		tb_user u where
 		u.user_id=nl.user_id) as language,(SELECT u2.u_nickname FROM tb_user u2 WHERE nl.passive_id=u2.user_id) as userName from
 		tb_notification_list nl,tb_system_notification h where  nl.user_id=h.user_id and h.IsAllowedPush=1 and
-		notification_status=0 and type  in(0,1,2,3,4,32)
+		notification_status=0 and type  in(0,1,2,3,4,32,25,13)
 
 		)
 		UNION   ALL (
@@ -542,6 +542,10 @@
 
 	<select id="getModel"  resultType="java.util.HashMap">
 		select ap_content_cn,ap_content_en,ap_content_tw  from tb_activity_push
+	</select>
+
+	<select id="getModelById" parameterType="java.lang.Long" resultType="java.util.HashMap">
+		select * FROM tb_officer_messag WHERE m_id = #{value} AND  m_statue=0
 	</select>
 
 

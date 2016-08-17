@@ -6,12 +6,12 @@ import java.util.List;
 
 import com.yoloboo.dao.UserManager;
 
-public class PushIphoneActivityThread extends Thread {
+public class PushIphoneMessageThread extends Thread {
     private String p12Path;
     private List<HashMap<String,Object>> deviceTokens;
     private String content;
     private HashMap param;
-    public PushIphoneActivityThread(String p12Path, List<HashMap<String,Object>> deviceTokens){
+    public PushIphoneMessageThread(String p12Path, List<HashMap<String,Object>> deviceTokens){
         this.p12Path =  p12Path;
         this.deviceTokens = deviceTokens;
     }

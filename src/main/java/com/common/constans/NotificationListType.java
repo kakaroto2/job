@@ -17,7 +17,7 @@ public class NotificationListType
     public static Integer INVITE_TALENT = 14;
     public static Integer ACTIVITY_AWARDED = 18;
     public static Integer NEW_USER = 20;
-
+    public static Integer ADMIN_MSG = 88;
     public static Integer ACTIVITY_COMMENT_REPLIED = 30;
     public static Integer ACTIVITY_PICTURE_COMMENTED = 31;
 
