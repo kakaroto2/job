@@ -575,8 +575,8 @@ public class QuartzController extends BaseController {
 	public void updateTicket() throws Exception {
 
 		try {
-			String    appId="wx5cc1c9a29e304c8d";
-			String 	 appSecret="dc140156728b80e6d2e7ea00600ca2c9";
+			String    appId="wxcc378e02c15daf33";
+			String 	 appSecret="2ed59dcbd68bc1f885b4eebc87a2ce9a";
 			//获取accesstoken
 			TokenUtils  tokenUtils=new TokenUtils();
 
