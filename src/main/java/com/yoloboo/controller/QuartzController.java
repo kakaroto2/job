@@ -11,10 +11,7 @@ import com.yoloboo.Ticket;
 import com.yoloboo.TokenUtils;
 import com.yoloboo.dao.*;
 import com.yoloboo.entity.User;
-import com.yoloboo.models.ActivityModel;
-import com.yoloboo.models.ActivityPictureModel;
-import com.yoloboo.models.PushModel;
-import com.yoloboo.models.TopicModel;
+import com.yoloboo.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,6 +52,8 @@ public class QuartzController extends BaseController {
 	private ActivityDao activityDao;
 	@Resource
 	private ActivityPictureDao activityPictureDao;
+	@Resource
+	private TravelNoteDao travelNoteDao;
 
 	public void pushMsg() throws Exception {
 
@@ -264,12 +263,16 @@ public class QuartzController extends BaseController {
 //						map.put("content", content);
 //					}
 					else if (type.equals("13")) {
+						int i2 = content.indexOf("]");
+						String tnId = content.substring(i2 + 1);
+						TravelNoteModel tnm = travelNoteDao.getModelByPK(Long.valueOf(tnId));
+
 						if (map.get("language").toString().equals("0")) {// 表示英语
-							content = map.get("userName")+"'s note is featured";
+							content = "Your note<" + tnm.getTitle() + "> is featured！";
 						} else if (map.get("language").toString().equals("1")) {// 表示简体
-							content =map.get("userName")+ " 有文章入选精选";
+							content = "恭喜你的文章<" + tnm.getTitle() + ">被选入精选！";
 						} else {// 表示繁体
-							content = map.get("userName")+" 有文章入選精選";
+							content = "恭喜你的文章<" + tnm.getTitle() + ">被選入精選！";
 						}
 						map.put("content", content);
 					}

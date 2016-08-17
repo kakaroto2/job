@@ -293,7 +293,7 @@
 		tb_user u where
 		u.user_id=nl.user_id) as language,(SELECT u2.u_nickname FROM tb_user u2 WHERE nl.passive_id=u2.user_id) as userName from
 		tb_notification_list nl,tb_system_notification h where  nl.user_id=h.user_id and h.IsAllowedPush=1 and
-		notification_status=0 and type  in(0,1,2,3,4,32,25,13)
+		notification_status=0 and type  in(0,1,2,3,4,32,25)
 
 		)
 		UNION   ALL (
@@ -305,7 +305,7 @@
 		tb_user u where
 		u.user_id=nl.user_id) as language,(SELECT u2.u_nickname FROM tb_user u2 WHERE nl.passive_id=u2.user_id) as userName from
 		tb_notification_list nl ,tb_system_notification h where  nl.user_id=h.user_id and h.IsAllowedPush=1 and
-		notification_status=0 and type=14 and nl.user_id=nl.passive_id
+		notification_status=0 and type  in(13,14) and nl.user_id=nl.passive_id
 		)
 		UNION   ALL (
         select nl.notification_list_id as notificationListId,nl.skip_type as skipType,nl.skip_id as skipId,
