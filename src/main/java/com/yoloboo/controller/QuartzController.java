@@ -451,7 +451,7 @@ public class QuartzController extends BaseController {
 			map=new HashMap();
 			map.put("type",40);//虽然消息表没有此处的消息类型 但是需要提供给客户端识别 此处需要定义特殊消息类型
 			map.put("pushToken","cd906e98846b1936a78ebc4d34fc7a365f47a2cd7977bc35a0b37d729d3e0d68");
-			map.put("content","早安，细数属于好莱坞的8个独立品牌|去这些餐厅偶遇明星吧|这间梦露最爱的酒店到底有多奢华|她是缔造电影传奇的绝色王妃 开始阅读>>");//英文
+			map.put("content","今日精彩内容:细数属于好莱坞的8个独立品牌|去这些餐厅偶遇明星吧|这间梦露最爱的酒店到底有多奢华|她是缔造电影传奇的绝色王妃 开始阅读>>");//英文
 			msgList.add(map);
 			if (msgList.size() > 0) {
 				System.out.println("start******************************************************");
