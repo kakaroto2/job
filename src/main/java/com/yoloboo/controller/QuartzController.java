@@ -450,11 +450,13 @@ public class QuartzController extends BaseController {
 			HashMap<String, Object>  map=null;
 			map=new HashMap();
 			map.put("type",40);//虽然消息表没有此处的消息类型 但是需要提供给客户端识别 此处需要定义特殊消息类型
-			map.put("pushToken","ac616a98fda070579a12d80431c72e6697434f4839bafc3160933e2cb921f5da");
-			map.put("content","Morning!It’s time to explore the world!");//英文
+			map.put("pushToken","cd906e98846b1936a78ebc4d34fc7a365f47a2cd7977bc35a0b37d729d3e0d68");
+			map.put("content","早安，YOLOBOO为你带来：细数属于好莱坞的8个独立品牌|去这些餐厅偶遇明星吧|这间梦露最爱的酒店到底有多奢华|她是缔造电影传奇的绝色王妃 开始阅读>>");//英文
 			msgList.add(map);
 			if (msgList.size() > 0) {
+				System.out.println("start******************************************************");
 				new PushIphoneMessageThread("/usr/local/tomcat/webapps/ROOT/common/cert.p12", msgList).start();
+				System.out.println("end******************************************************");
 			}
 			bean.setMsg("success");
 			String json = Json.toString(bean);
