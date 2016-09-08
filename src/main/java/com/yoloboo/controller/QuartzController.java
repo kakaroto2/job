@@ -286,6 +286,16 @@ public class QuartzController extends BaseController {
 						}
 						map.put("content", content);
 					}
+					else if (type.equals("15")) {
+						if (map.get("language").toString().equals("0")) {// 表示英语
+							content =" yay! you are one step closer to becoming YOLOBOO goddness!";
+						} else if (map.get("language").toString().equals("1")) {// 表示简体
+							content = "耶！你在成长为女神的路上又前进了一步！";
+						} else {// 表示繁体
+							content = "耶！你在成長為女神的路上又前進了一步！";
+						}
+						map.put("content", content);
+					}
 					else if (type.equals("32")) {
 						if (map.get("language").toString().equals("0")) {// 表示英语
 							content ="BOO sent you a message, please check~";

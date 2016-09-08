@@ -689,10 +689,6 @@ where tp.picture_id=#{value}
 		SELECT tn.tn_isno_delete as tn_isno_delete FROM tb_travel_notes as tn,tb_picture as p WHERE tn.travel_notes_id=p.travel_notes_id and picture_id=#{pictureId}
 	</select>
 
-
-	<select id="insertManage">
-		INSERT INTO tb_user_travel_notes VALUES (1,2,3)
-	</select>
 	<!--##################新增2.0#####################-->
 	<select id="obtainCountryIdByName" parameterType="String" resultType="String">
 		SELECT country_id FROM tb_country WHERE c_simple=#{value} OR c_traditional=#{value} OR c_english=#{value}

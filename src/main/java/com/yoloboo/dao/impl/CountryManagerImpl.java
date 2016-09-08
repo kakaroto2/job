@@ -415,11 +415,6 @@ public class CountryManagerImpl extends BaseDao implements CountryManager {
 	}
 
 	@Override
-	public void insertManage() {
-		sqlSession.insert("country.insertManage");
-	}
-
-	@Override
 	public HashMap obtainPicInfo(Long aLong) {
 		return (HashMap) sqlSession.selectOne("travel.obtainPictureInfo",aLong);
 	}

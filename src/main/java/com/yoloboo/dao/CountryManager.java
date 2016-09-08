@@ -110,8 +110,6 @@ public interface CountryManager {
 
 	HashMap obtainNotesDelete(HashMap oneMap);
 
-	void insertManage();
-
 	HashMap obtainPicInfo(Long aLong);
 
 	String obtainCountryIdByName(String input);
