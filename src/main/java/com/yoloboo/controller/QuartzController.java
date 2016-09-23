@@ -4,6 +4,7 @@ import com.PushIphoneFeedBackThread;
 import com.common.*;
 import com.common.constans.NotificationListType;
 import com.common.constans.SystemCodeContent;
+import com.common.constans.SystemContent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.json.AccessToken;
 import com.json.BaseBean;
@@ -23,6 +24,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -47,13 +56,14 @@ public class QuartzController extends BaseController {
 	@Resource
 	private CountryManager countryManager;
 	@Resource
-	private TopicManager topicManager;
-	@Resource
 	private ActivityDao activityDao;
 	@Resource
 	private ActivityPictureDao activityPictureDao;
 	@Resource
 	private TravelNoteDao travelNoteDao;
+	@Resource
+	private RobotJobDao robotJobDao;
+
 
 	public void pushMsg() throws Exception {
 
@@ -184,15 +194,15 @@ public class QuartzController extends BaseController {
 						// 【显示邀请人头像】
 						if (map.get("language").toString().equals("0")) {// 表示英语
 							content = content.replaceAll("\\[replace\\]", "");
-							content="["+content+"]"+"invited you to be her friend.";
+							content="["+content+"]"+"followed you.";
 						}
 						if (map.get("language").toString().equals("1")) {// 中文简体
 							content = content.replaceAll("\\[replace\\]", "");
-							content="["+content+"]"+"向你发出了好友邀请.";
+							content="["+content+"]"+"剛剛關註了妳.";
 						}
 						if (map.get("language").toString().equals("2")) {// 繁体
 							content = content.replaceAll("\\[replace\\]", "");
-							content="["+content+"]"+"向你發出了好友邀請.";
+							content="["+content+"]"+"刚刚关注了你.";
 
 						}
 						map.put("content", content);
@@ -276,16 +286,16 @@ public class QuartzController extends BaseController {
 						}
 						map.put("content", content);
 					}
-					else if (type.equals("14")) {
-						if (map.get("language").toString().equals("0")) {// 表示英语
-							content =" yay! you became our KOL!";
-						} else if (map.get("language").toString().equals("1")) {// 表示简体
-							content = "耶！你成为yoloboo的女神了!";
-						} else {// 表示繁体
-							content = "耶！你成爲yoloboo的女神了!";
-						}
-						map.put("content", content);
-					}
+//					else if (type.equals("14")) {
+//						if (map.get("language").toString().equals("0")) {// 表示英语
+//							content =" yay! you became our KOL!";
+//						} else if (map.get("language").toString().equals("1")) {// 表示简体
+//							content = "耶！你成为yoloboo的女神了!";
+//						} else {// 表示繁体
+//							content = "耶！你成爲yoloboo的女神了!";
+//						}
+//						map.put("content", content);
+//					}
 					else if (type.equals("15")) {
 						if (map.get("language").toString().equals("0")) {// 表示英语
 							content =" yay! you are one step closer to becoming YOLOBOO goddness!";
@@ -524,8 +534,8 @@ public class QuartzController extends BaseController {
 			// 如果是相同的，更新ID
 			countryManager.updateRecommendFriendsListNum();//
 
-			// 好友的好友录入到推荐列表中
-			countryManager.updateFriendsFriends();//
+			// 好友的好友录入到推荐列表中(VERSION2.1.6及之后版本取消好友的好友)
+			//countryManager.updateFriendsFriends();//
 
 		} catch (Exception e) {
 			LogException.printException(e);
@@ -570,5 +580,217 @@ public class QuartzController extends BaseController {
 		}
 	}
 
+	/**
+	 * 更新机器人所需要执行的任务表
+	 */
+	public void updateRobotJob(){
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date now = new Date();
+		Date beforeDate = new Date(now.getTime() -180000);
+		String startTime = Commonparam.Date2Str(beforeDate);
+
+		HashMap param = new HashMap();
+		HashMap jopParam = new HashMap();
+		param.put("startTime",startTime);
+
+		List<RobotJob> list = robotJobDao.getRobotJobs(param);
+		List<String> timeStr = new ArrayList();
+		List<Long> robots = new ArrayList();
+
+		if(!list.isEmpty()){
+			for(RobotJob robotJob :list){
+				if(("note").equals(robotJob.getJobType())){
+
+					if(4 <robotJobDao.getNumByUserAndNoteType(robotJob.getUserId().toString())){
+						continue;
+					}
+					Long picId = robotJobDao.getRandomPicIdByNote(robotJob.getTypeId());
+					Date jobTime = Commonparam.StringtoDate(robotJob.getJobTime().toString());
+					Date after3m = new Date(jobTime.getTime()  +180000);
+					Date after8m = new Date(jobTime.getTime()  +480000);
+					Date after10m = new Date(jobTime.getTime() +600000);
+					Date after70m = new Date(jobTime.getTime() +4200000);
+					Date after110m = new Date(jobTime.getTime()+6600000);
+					Date after25h = new Date(jobTime.getTime() +90000000);
+
+					timeStr.add(0,Commonparam.Date2Str(after3m));
+					timeStr.add(1, Commonparam.Date2Str(after8m));
+					timeStr.add(2,Commonparam.Date2Str(after10m));
+					timeStr.add(3,Commonparam.Date2Str(after70m));
+					timeStr.add(4,Commonparam.Date2Str(after110m));
+					timeStr.add(5,Commonparam.Date2Str(after25h));
+
+					for(int i=0;i<6;i++){
+						jopParam.put("jobTime",timeStr.get(i));
+						jopParam.put("userId",robotJobDao.getRobotForNote(robotJob.getUserId().toString(),picId.toString()));
+						jopParam.put("jobType",robotJob.getJobType());
+						jopParam.put("picId",picId);
+						robotJobDao.addRobotJob(jopParam);
+						jopParam.clear();
+					}
+					//更新用户被发布文章被机器人点赞的次数
+					robotJobDao.updateRobertsNum(robotJob.getUserId().toString());
+					//更新文章的阅读量
+					robotJobDao.updteReadNum(robotJob.getTypeId().toString());
+
+					timeStr.clear();
+					robots.clear();
+				}else{
+					Date jobTime = Commonparam.StringtoDate(robotJob.getJobTime().toString());
+
+					Date after3m = new Date(jobTime.getTime()  +180000);
+					Date after55m = new Date(jobTime.getTime()  +3300000);
+					Date after50m = new Date(jobTime.getTime()  +3000000);
+					timeStr.add(0,Commonparam.Date2Str(after3m));
+					timeStr.add(1,Commonparam.Date2Str(after3m));
+					timeStr.add(2,Commonparam.Date2Str(after3m));
+					timeStr.add(3, Commonparam.Date2Str(after50m));
+					timeStr.add(4, Commonparam.Date2Str(after50m));
+					timeStr.add(5, Commonparam.Date2Str(after50m));
+					timeStr.add(6, Commonparam.Date2Str(after55m));
+					timeStr.add(7, Commonparam.Date2Str(after55m));
+					timeStr.add(8, Commonparam.Date2Str(after55m));
+
+					for(int i=0;i<9;i++){
+						jopParam.put("jobTime",timeStr.get(i));
+						jopParam.put("userId",robotJobDao.getRobotForActivity(robotJob.getUserId().toString(),robotJob.getTypeId().toString()));
+						jopParam.put("jobType",robotJob.getJobType());
+						jopParam.put("picId",robotJob.getTypeId());
+						robotJobDao.addRobotJob(jopParam);
+						jopParam.clear();
+					}
+					timeStr.clear();
+					robots.clear();
+				}
+			}
+		}
+	}
+
+
+	/**
+	 * 机器人执行任务
+	 */
+
+	public void robotExecute(){
+		PrintWriter out = null;
+		BufferedReader in = null;
+		String result = "";
+		String endTime = Commonparam.Date2Str();
+		List<HashMap> list = robotJobDao.getJobs(endTime);
+		if(!list.isEmpty()){
+			for(HashMap map:list){
+				if(("note").equals(map.get("jobType"))){
+					try {
+						StringBuilder param = new StringBuilder();
+						param.append("&userId="+map.get("userId"));
+						param.append("&tipsId="+map.get("picId"));
+						URL realUrl = new URL(SystemContent.NOTEPICPRAISE_URL);
+						//打开和Url之间的连接
+						URLConnection conn = realUrl.openConnection();
+						//设置的通用请求属性
+						conn.setRequestProperty("accept","*/*");
+						conn.setRequestProperty("connection","Keep-Alive");
+						conn.setRequestProperty("user-agent","Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+
+						conn.setDoOutput(true);
+						conn.setDoInput(true);
+
+						// 获取URLConnection对象对应的输出流
+						out = new PrintWriter(conn.getOutputStream());
+						//发送请求参数
+						out.print(param);
+						//flush输出流的缓存
+						out.flush();
+						//定义Buffer输入流来读取Url的响应
+						in =  new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+						String line;
+						while((line = in.readLine())!= null){
+							result +=line;
+						}
+						//更新任务状态
+						robotJobDao.updateFlag(map.get("id").toString());
+
+					} catch (Exception e) {
+						LogException.printException(e);
+						logger.info("定时机器人执行异常"+e.getLocalizedMessage());
+						System.out.println(e.getLocalizedMessage());
+					}
+					finally {
+						try {
+							if(out != null){
+								out.close();
+							}
+							if(in != null){
+								in.close();
+							}
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+
+						System.out.println(result);
+					}
+
+				}else{
+					try {
+						StringBuilder param = new StringBuilder();
+						param.append("&userId="+map.get("userId"));
+						param.append("&apId="+map.get("picId"));
+						param.append("&userPicture="+map.get("userPicture"));
+						param.append("&userName="+map.get("userName"));
+						URL realUrl = new URL(SystemContent.ACTIVITYPICPRAISE_URL);
+						//打开和Url之间的连接
+						URLConnection conn = realUrl.openConnection();
+						//设置的通用请求属性
+						conn.setRequestProperty("accept","*/*");
+						conn.setRequestProperty("connection","Keep-Alive");
+						conn.setRequestProperty("user-agent","Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+
+						conn.setDoOutput(true);
+						conn.setDoInput(true);
+
+						// 获取URLConnection对象对应的输出流
+						out = new PrintWriter(conn.getOutputStream());
+						//发送请求参数
+						out.print(param);
+						//flush输出流的缓存
+						out.flush();
+						//定义Buffer输入流来读取Url的响应
+						in =  new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+						String line;
+						while((line = in.readLine())!= null){
+							result +=line;
+						}
+						//更新任务状态
+						robotJobDao.updateFlag(map.get("id").toString());
+
+					} catch (Exception e) {
+						LogException.printException(e);
+						logger.info("定时机器人执行异常"+e.getLocalizedMessage());
+						System.out.println(e.getLocalizedMessage());
+					}
+					finally {
+						try {
+							if(out != null){
+								out.close();
+							}
+							if(in != null){
+								in.close();
+							}
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+
+						System.out.println(result);
+					}
+
+
+				}
+
+			}
+		}
+
+	}
 
 }

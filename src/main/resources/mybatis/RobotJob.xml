@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="RobotJobDao">
+
+    <resultMap id="RobotJobMap" type="com.yoloboo.models.RobotJob" />
+
+    <select id="getRobotJobs" resultMap="RobotJobMap" parameterType="HashMap">
+        (SELECT travel_notes_id as typeId,user_id as userId, 'note' as jobType,tn_newtime as jobTime
+         from tb_travel_notes where can_publish =0 and tn_isno_delete =0 and tn_newtime  <![CDATA[ >= ]]> #{startTime})
+         union all
+        (select ap_id as typeId,user_id as userId, 'activity' as jobType,ap_date as jobTime
+         from tb_activity_picture where ap_date  <![CDATA[ >= ]]> #{startTime}  )
+
+    </select>
+
+    <select id="getRandomPicIdByNote" parameterType="java.lang.Long" resultType="java.lang.Long">
+        SELECT picture_id from tb_picture where travel_notes_id =#{noteId} and  p_isno_delete =0 ORDER BY RAND() LIMIT 1
+    </select>
+
+    <insert id="addRobotJob" parameterType="HashMap">
+        INSERT INTO tb_robot_job (rj_pic,user_Id,rj_time,job_type) VALUES (#{picId},#{userId},#{jobTime},#{jobType})
+    </insert>
+
+    <select id="getRobotForNote" parameterType="HashMap" resultType="java.lang.Long">
+        SELECT user_id FROM tb_user where user_id not in (select user_id from tb_robot_job where rj_pic = #{picId} and job_type ='note') and u_type=0
+        order by rand() limit 1
+    </select>
+
+    <select id="getRobotForActivity" parameterType="HashMap" resultType="java.lang.Long">
+        SELECT user_id FROM tb_user where user_id not in (select user_id from tb_robot_job where rj_pic = #{picId} and job_type ='activity') and u_type=0
+        order by rand() limit 1
+    </select>
+
+    <select id="getNumByUserAndNoteType" resultType="java.lang.Integer" parameterType="java.lang.String">
+        select robot_noteCount from tb_user_point where user_id = #{userId}
+    </select>
+
+    <update id="updateRobertsNum" parameterType="java.lang.String" >
+        UPDATE tb_user_point set robot_noteCount = robot_noteCount+1 where user_id= #{param}
+    </update>
+
+    <select id="getJobs" parameterType="String" resultType="HashMap">
+        SELECT rj_id as id,rj_time as jobTime, user_Id as userId,job_type as jobType,rj_pic as picId,
+        (SELECT u.u_picture from tb_user u where u.user_id = tb_robot_job.user_id ) as userPicture,
+        (SELECT u.u_nickname from tb_user u where u.user_id = tb_robot_job.user_id ) as userName
+         from tb_robot_job where job_flag=0 and rj_time  <![CDATA[ <= ]]> #{endTime}
+    </select>
+
+    <select id="updateFlag" parameterType="java.lang.String">
+        UPDATE tb_robot_job set job_flag =1 where rj_id =#{id}
+    </select>
+
+    <update id="updteReadNum" parameterType="java.lang.String">
+        update tb_travel_notes SET  tn_views_num  = tn_views_num + 3 where  travel_notes_id =#{param}
+    </update>
+</mapper>
+
+
