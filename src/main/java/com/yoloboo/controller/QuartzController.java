@@ -625,14 +625,12 @@ public class QuartzController extends BaseController {
 						jopParam.put("userId",robotJobDao.getRobotForNote(robotJob.getUserId().toString(),picId.toString()));
 						jopParam.put("jobType",robotJob.getJobType());
 						jopParam.put("picId",picId);
+						jopParam.put("noteId",robotJob.getTypeId().toString());
 						robotJobDao.addRobotJob(jopParam);
 						jopParam.clear();
 					}
 					//更新用户被发布文章被机器人点赞的次数
 					robotJobDao.updateRobertsNum(robotJob.getUserId().toString());
-					//更新文章的阅读量
-					robotJobDao.updteReadNum(robotJob.getTypeId().toString());
-
 					timeStr.clear();
 					robots.clear();
 				}else{
@@ -710,6 +708,9 @@ public class QuartzController extends BaseController {
 						while((line = in.readLine())!= null){
 							result +=line;
 						}
+
+						//更新文章的阅读量
+						robotJobDao.updteReadNum(map.get("noteId").toString());
 						//更新任务状态
 						robotJobDao.updateFlag(map.get("id").toString());
 

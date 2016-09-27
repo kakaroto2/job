@@ -19,7 +19,7 @@
     </select>
 
     <insert id="addRobotJob" parameterType="HashMap">
-        INSERT INTO tb_robot_job (rj_pic,user_Id,rj_time,job_type) VALUES (#{picId},#{userId},#{jobTime},#{jobType})
+        INSERT INTO tb_robot_job (rj_pic,user_Id,rj_time,job_type,travel_notes_id) VALUES (#{picId},#{userId},#{jobTime},#{jobType},#{noteId})
     </insert>
 
     <select id="getRobotForNote" parameterType="HashMap" resultType="java.lang.Long">
@@ -42,6 +42,7 @@
 
     <select id="getJobs" parameterType="String" resultType="HashMap">
         SELECT rj_id as id,rj_time as jobTime, user_Id as userId,job_type as jobType,rj_pic as picId,
+        travel_notes_id AS noteId,
         (SELECT u.u_picture from tb_user u where u.user_id = tb_robot_job.user_id ) as userPicture,
         (SELECT u.u_nickname from tb_user u where u.user_id = tb_robot_job.user_id ) as userName
          from tb_robot_job where job_flag=0 and rj_time  <![CDATA[ <= ]]> #{endTime}
