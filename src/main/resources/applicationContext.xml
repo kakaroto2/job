@@ -131,10 +131,6 @@
 		<property name="concurrent" value="false" />
 	</bean>
 
-
-
-
-
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
