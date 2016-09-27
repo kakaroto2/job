@@ -67,4 +67,9 @@ public class RobotJobDaoImpl extends BaseDao implements RobotJobDao {
     public void updteReadNum(String noteId) {
         sqlSession.update("RobotJobDao.updteReadNum",noteId);
     }
+
+    @Override
+    public Integer getUserIdByPic(String picId) {
+        return (Integer) sqlSession.selectOne("RobotJobDao.getUserIdByPic",picId);
+    }
 }

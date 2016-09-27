@@ -680,6 +680,61 @@ public class QuartzController extends BaseController {
 		if(!list.isEmpty()){
 			for(HashMap map:list){
 				if(("note").equals(map.get("jobType"))){
+                        //关注用户
+					try {
+						StringBuilder param = new StringBuilder();
+						Integer passiveId = robotJobDao.getUserIdByPic(map.get("picId").toString());
+						param.append("&passiveId="+passiveId);
+						param.append("&userId="+map.get("userId"));
+						URL realUrl = new URL(SystemContent.FOLLOWUSER_URL);
+						//打开和Url之间的连接
+						URLConnection conn = realUrl.openConnection();
+						//设置的通用请求属性
+						conn.setRequestProperty("accept","*/*");
+						conn.setRequestProperty("connection","Keep-Alive");
+						conn.setRequestProperty("user-agent","Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+
+						conn.setDoOutput(true);
+						conn.setDoInput(true);
+
+						// 获取URLConnection对象对应的输出流
+						out = new PrintWriter(conn.getOutputStream());
+						//发送请求参数
+						out.print(param);
+						//flush输出流的缓存
+						out.flush();
+						//定义Buffer输入流来读取Url的响应
+						in =  new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+						String line;
+						while((line = in.readLine())!= null){
+							result +=line;
+						}
+						//更新任务状态
+						robotJobDao.updateFlag(map.get("id").toString());
+
+					} catch (Exception e) {
+						LogException.printException(e);
+						logger.info("定时机器人执行异常"+e.getLocalizedMessage());
+						System.out.println(e.getLocalizedMessage());
+					}
+					finally {
+						try {
+							if(out != null){
+								out.close();
+							}
+							if(in != null){
+								in.close();
+							}
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+
+						System.out.println(result);
+					}
+
+
+					//点赞
 					try {
 						StringBuilder param = new StringBuilder();
 						param.append("&userId="+map.get("userId"));

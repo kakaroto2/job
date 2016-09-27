@@ -11,7 +11,11 @@ public class SystemContent
 
 	public static String YOLOBOO_KEY = "yolobooHi5";
 
-	public static String NOTEPICPRAISE_URL ="http://yoloboo-api-test-3.daoapp.io/country/addTipsPraise.do?";
+	public static String HOST = "http://yoloboo-api-test-3.daoapp.io/";
 
-	public static String ACTIVITYPICPRAISE_URL ="http://yoloboo-api-test-3.daoapp.io/activity/addActivityPicturePraise.do?";
+	public static String NOTEPICPRAISE_URL =HOST+"country/addTipsPraise.do?";
+
+	public static String ACTIVITYPICPRAISE_URL =HOST+"activity/addActivityPicturePraise.do?";
+
+	public static String FOLLOWUSER_URL =HOST+"friends/followUser.do?";
 }

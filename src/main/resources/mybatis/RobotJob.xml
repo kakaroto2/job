@@ -54,6 +54,11 @@
     <update id="updteReadNum" parameterType="java.lang.String">
         update tb_travel_notes SET  tn_views_num  = tn_views_num + 3 where  travel_notes_id =#{param}
     </update>
+
+    <select id="getUserIdByPic" parameterType="String" resultType="java.lang.Integer">
+        select user_id from tb_travel_notes where travel_notes_id = (select travel_notes_id from tb_picture
+       where picture_id= #{value})
+    </select>
 </mapper>
 
 

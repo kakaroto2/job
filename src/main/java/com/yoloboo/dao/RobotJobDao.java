@@ -31,5 +31,8 @@ public interface RobotJobDao {
 
     //更新画报的阅读量
     void updteReadNum(String noteId);
+
+    //通过画报照片找出用户的Id
+    Integer getUserIdByPic(String picId);
 }
 
