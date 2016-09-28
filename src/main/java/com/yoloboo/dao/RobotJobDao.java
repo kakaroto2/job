@@ -22,7 +22,7 @@ public interface RobotJobDao {
     //查看该用户第几次发布画报被机器人点赞
     Integer getNumByUserAndNoteType(String userId);
 
-    void updateRobertsNum(String userId);
+    void updateRobertsNum(String userId,int num);
 
     List<HashMap> getJobs(String endTime);
 
@@ -34,5 +34,17 @@ public interface RobotJobDao {
 
     //通过画报照片找出用户的Id
     Integer getUserIdByPic(String picId);
+
+    //验证画报是否已被删除
+    Integer verifyNote (String noteId);
+
+    //验证画报照片是否已被删除
+    Integer verifyNotePic (String notePicId);
+
+    //验证活动照片是否被删除
+    Integer verifyActPic (String noteActId);
+
+    //销毁失效的job
+    void destroyJob(String jobId);
 }
 

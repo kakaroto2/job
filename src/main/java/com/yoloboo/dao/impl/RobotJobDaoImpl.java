@@ -49,8 +49,11 @@ public class RobotJobDaoImpl extends BaseDao implements RobotJobDao {
     }
 
     @Override
-    public void updateRobertsNum(String userId) {
-        sqlSession.update("RobotJobDao.updateRobertsNum",userId);
+    public void updateRobertsNum(String userId,int num) {
+        HashMap param = new HashMap();
+        param.put("userId",userId);
+        param.put("num",num);
+        sqlSession.update("RobotJobDao.updateRobertsNum",param);
     }
 
     @Override
@@ -71,5 +74,25 @@ public class RobotJobDaoImpl extends BaseDao implements RobotJobDao {
     @Override
     public Integer getUserIdByPic(String picId) {
         return (Integer) sqlSession.selectOne("RobotJobDao.getUserIdByPic",picId);
+    }
+
+    @Override
+    public Integer verifyNote(String noteId) {
+        return (Integer) sqlSession.selectOne("RobotJobDao.verifyNote",noteId);
+    }
+
+    @Override
+    public Integer verifyNotePic(String notePicId) {
+        return (Integer) sqlSession.selectOne("RobotJobDao.verifyNotePic",notePicId);
+    }
+
+    @Override
+    public Integer verifyActPic(String noteActId) {
+        return (Integer) sqlSession.selectOne("RobotJobDao.verifyActPic",noteActId);
+    }
+
+    @Override
+    public void destroyJob(String jobId) {
+        sqlSession.update("RobotJobDao.destroyJob",jobId);
     }
 }

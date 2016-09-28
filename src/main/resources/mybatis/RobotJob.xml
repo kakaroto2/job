@@ -36,8 +36,8 @@
         select robot_noteCount from tb_user_point where user_id = #{userId}
     </select>
 
-    <update id="updateRobertsNum" parameterType="java.lang.String" >
-        UPDATE tb_user_point set robot_noteCount = robot_noteCount+1 where user_id= #{param}
+    <update id="updateRobertsNum" parameterType="HashMap" >
+        UPDATE tb_user_point set robot_noteCount = robot_noteCount+#{num} where user_id= #{userId}
     </update>
 
     <select id="getJobs" parameterType="String" resultType="HashMap">
@@ -60,6 +60,23 @@
         select user_id from tb_travel_notes where travel_notes_id = (select travel_notes_id from tb_picture
        where picture_id= #{value})
     </select>
+
+    <select id="verifyNote" parameterType="String" resultType="java.lang.Integer">
+        select count(*) from tb_travel_notes where travel_notes_id = #{value} and tn_isno_delete = 0
+    </select>
+
+    <select id="verifyNotePic" parameterType="String" resultType="java.lang.Integer">
+        select count(*) from tb_picture where picture_id =#{value} and p_isno_delete = 0
+    </select>
+
+    <select id="verifyActPic" parameterType="String" resultType="java.lang.Integer">
+        select count(*) from tb_activity_picture where ap_id =#{value} and ap_is_no_delete = 0
+    </select>
+
+    <select id="destroyJob" parameterType="java.lang.String">
+        UPDATE tb_robot_job set job_flag =2 where rj_id =#{id}
+    </select>
+
 </mapper>
 
 

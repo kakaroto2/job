@@ -629,8 +629,11 @@ public class QuartzController extends BaseController {
 						robotJobDao.addRobotJob(jopParam);
 						jopParam.clear();
 					}
+
 					//更新用户被发布文章被机器人点赞的次数
-					robotJobDao.updateRobertsNum(robotJob.getUserId().toString());
+
+					robotJobDao.updateRobertsNum(robotJob.getUserId().toString(),1);
+
 					timeStr.clear();
 					robots.clear();
 				}else{
@@ -680,8 +683,19 @@ public class QuartzController extends BaseController {
 				if(("note").equals(map.get("jobType"))){
                         //关注用户
 					try {
+
 						StringBuilder param = new StringBuilder();
 						Integer passiveId = robotJobDao.getUserIdByPic(map.get("picId").toString());
+
+						if(robotJobDao.verifyNote(map.get("noteId").toString())==0 ){
+							robotJobDao.destroyJob(map.get("id").toString());
+							robotJobDao.updateRobertsNum(passiveId.toString(),-1);
+							continue;
+						}
+						if(robotJobDao.verifyNotePic(map.get("picId").toString())==0 ){
+							robotJobDao.destroyJob(map.get("id").toString());
+							continue;
+						}
 						param.append("&passiveId="+passiveId);
 						param.append("&userId="+map.get("userId"));
 						URL realUrl = new URL(SystemContent.FOLLOWUSER_URL);
@@ -789,6 +803,11 @@ public class QuartzController extends BaseController {
 
 				}else{
 					try {
+						if(robotJobDao.verifyActPic(map.get("picId").toString())==0 ){
+							robotJobDao.destroyJob(map.get("id").toString());
+							continue;
+						}
+
 						StringBuilder param = new StringBuilder();
 						param.append("&userId="+map.get("userId"));
 						param.append("&apId="+map.get("picId"));
