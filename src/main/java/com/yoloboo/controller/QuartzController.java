@@ -723,8 +723,6 @@ public class QuartzController extends BaseController {
 							result +=line;
 						}
 
-						//更新文章的阅读量
-						robotJobDao.updteReadNum(map.get("noteId").toString());
 						//更新任务状态
 						robotJobDao.updateFlag(map.get("id").toString());
 
