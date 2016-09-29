@@ -194,7 +194,7 @@ public class QuartzController extends BaseController {
 						// 【显示邀请人头像】
 						if (map.get("language").toString().equals("0")) {// 表示英语
 							content = content.replaceAll("\\[replace\\]", "");
-							content="["+content+"]"+"followed you.";
+							content="["+content+"]"+" followed you.";
 						}
 						if (map.get("language").toString().equals("1")) {// 中文简体
 							content = content.replaceAll("\\[replace\\]", "");
