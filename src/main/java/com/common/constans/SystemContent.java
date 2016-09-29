@@ -11,9 +11,9 @@ public class SystemContent
 
 	public static String YOLOBOO_KEY = "yolobooHi5";
 
-	public static String HOST = "http://yoloboo-api-test-3.daoapp.io/";
+	//public static String HOST = "http://yoloboo-api-test-3.daoapp.io/";
 
-	//public static String HOST = "http://yoloboo-product-api-20.daoapp.io/";
+	public static String HOST = "http://yoloboo-product-api-20.daoapp.io/";
 
 	public static String NOTEPICPRAISE_URL =HOST+"country/addTipsPraise.do?";
 
