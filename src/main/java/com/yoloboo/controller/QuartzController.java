@@ -196,13 +196,13 @@ public class QuartzController extends BaseController {
 							content = content.replaceAll("\\[replace\\]", "");
 							content="["+content+"]"+" followed you.";
 						}
-						if (map.get("language").toString().equals("1")) {// 中文简体
+						if (map.get("language").toString().equals("1")) {// 简体
 							content = content.replaceAll("\\[replace\\]", "");
-							content="["+content+"]"+"剛剛關註了妳.";
+							content="["+content+"]"+"刚刚关注了你.";
 						}
 						if (map.get("language").toString().equals("2")) {// 繁体
 							content = content.replaceAll("\\[replace\\]", "");
-							content="["+content+"]"+"刚刚关注了你.";
+							content="["+content+"]"+"剛剛關注了你.";
 
 						}
 						map.put("content", content);
