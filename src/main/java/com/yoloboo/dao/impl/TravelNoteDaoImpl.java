@@ -5,7 +5,9 @@ import com.yoloboo.controller.BaseBean.TopicBean;
 import com.yoloboo.controller.BaseBean.UserBean;
 import com.yoloboo.dao.BaseDao;
 import com.yoloboo.dao.TravelNoteDao;
+import com.yoloboo.models.TravelNote;
 import com.yoloboo.models.TravelNoteModel;
+import com.yoloboo.models.TravelNotePic;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
@@ -43,26 +45,6 @@ public class TravelNoteDaoImpl extends BaseDao implements TravelNoteDao
 		return (List<TravelNoteModel>) sqlSession.selectList("TravelNoteDao.selectModelsByTopicUser", bean);
 	}
 
-	@Override
-	public Integer countPushedTravelNotes(Long userId) {
-		return (Integer) sqlSession.selectOne("TravelNoteDao.countPushedTravelNotes", userId);
-	}
-
-	@Override
-	public Integer isNoteReported(Long travelNoteId) {
-		return (Integer) sqlSession.selectOne("TravelNoteDao.isNoteReported", travelNoteId);
-	}
-
-	@Override
-	public Integer isPicReported(Long pId) {
-		return (Integer) sqlSession.selectOne("TravelNoteDao.isPicReported", pId);
-	}
-
-	@Override
-	public List<Long> selectRelationNotesCountry(PictureBean bean)
-	{
-		return (List<Long>) sqlSession.selectList("TravelNoteDao.selectRelationNotesCountry", bean);
-	}
 
 	@Override
 	public List<Long> selectRelationNotesLocation(PictureBean bean)
@@ -77,12 +59,32 @@ public class TravelNoteDaoImpl extends BaseDao implements TravelNoteDao
 	}
 
 	@Override
-	public String getTitleByNoteId(Long travelNoteId) {
-		return (String) sqlSession.selectOne("TravelNoteDao.getTitleByNoteId", travelNoteId);
+	public List<TravelNoteModel> getUnPublishedNoteForHome(Long subjectId) {
+		return (List<TravelNoteModel>) sqlSession.selectList("TravelNoteDao.getUnPublishedNoteForHome",subjectId) ;
 	}
 
 	@Override
-	public String getPictureByNoteId(Long travelNoteId) {
-		return (String) sqlSession.selectOne("TravelNoteDao.getPictureByNoteId", travelNoteId);
+	public Long getSubjectIdByTime(String nowTime) {
+		return (Long)sqlSession.selectOne("TravelNoteDao.getSubjectIdByTime",nowTime);
+	}
+
+	@Override
+	public void pushNote(String noteId) {
+		sqlSession.update("TravelNoteDao.pushNote",noteId);
+	}
+
+	@Override
+	public TravelNote searchTravelNoteByID(String noteId) {
+		return (TravelNote)sqlSession.selectOne("TravelNoteDao.searchTravelNoteByID",noteId);
+	}
+
+	@Override
+	public TravelNotePic getCoverPicByNote(String noteId) {
+		return (TravelNotePic)sqlSession.selectOne("TravelNoteDao.getCoverPicByNote",noteId);
+	}
+
+	@Override
+	public void addNotification(HashMap param) {
+		sqlSession.insert("TravelNoteDao.addNotification",param);
 	}
 }

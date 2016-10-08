@@ -131,6 +131,19 @@
 		<property name="concurrent" value="false" />
 	</bean>
 
+	<bean id="publishNoteTrigger"
+		  class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="publishNoteDetail" />
+		<property name="cronExpression" value="0 58 23 * * ?" />
+	</bean>
+
+	<bean id="publishNoteDetail"
+		  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="QuartzAction" />
+		<property name="targetMethod" value="publishNote" />
+		<property name="concurrent" value="false" />
+	</bean>
+
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
@@ -142,6 +155,8 @@
 				<ref bean ="updateRobotJobTrigger"/>
 				<!-- 机器人定时执行任务-->
 				<ref bean ="robotExecuteTrigger"/>
+				<!--定时发布官方画报-->
+				<ref bean="publishNoteTrigger"/>
 			</list>
 		</property>
 	</bean>

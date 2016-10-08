@@ -34,11 +34,44 @@
         <association property="theme" column="themeId" select="ThemeDao.getModelByPK"/>
     </resultMap>
 
+    <resultMap id="NotePicMap" type="com.yoloboo.models.TravelNotePic"></resultMap>
+    <resultMap id="NoteMap" type="com.yoloboo.models.TravelNote"></resultMap>
+
+
     <sql id="Base_Column_List">
         DISTINCT(travel_notes_id) AS id, country_id AS countryId, tn_date AS date, tn_isno_complete AS isNoComplete, user_id AS userId,
         theme_id as themeId, tn_comments_num AS commentsNum, tn_praise_num AS praiseNum, tn_title AS title, string_id AS stringId,
         tn_newtime AS newTime, tn_views_num AS viewsNum, tn_description AS description, location_id AS locationId,
         topic_id AS topicId,can_publish AS canPublish,is_pushed AS isPushed
+    </sql>
+
+    <sql id="base_sql">
+        SELECT
+        tn.travel_notes_id,
+        tn.tn_title,
+        tn.tn_date,
+        tn.tn_newtime,
+        tn.can_publish,
+        tn.is_pushed,
+        tn.location_id,
+        tn.country_id,
+        tn.tn_praise_num,
+        tn.tn_comments_num,
+        tn.tn_views_num,
+        tn.tn_description,
+        tn.user_id,
+        tn.recommendNoteId1,
+        tn.recommendNoteId2,
+        tn.recommendNoteId3,
+        tn.theme_id as themeId,
+        tn.topic_id as topic_id,
+        (SELECT u.u_nickname FROM tb_user u WHERE u.user_id=tn.user_id) AS userName,
+        (SELECT l.l_name_cn FROM tb_location l WHERE l.l_id =tn.location_id ) AS locationName,
+        (SELECT t.t_name FROM tb_theme t Where t.theme_id =tn.theme_id) AS themeName,
+        (SELECT t.t_name_cn FROM tb_topic t WHERE t.t_id = tn.topic_id) AS topicName,
+        (SELECT c_simple FROM tb_country WHERE country_id = tn.country_id) AS countryName,
+        (SELECT COUNT(*) FROM tb_notes_collect n WHERE n.note_id = tn.travel_notes_id) AS collect_num
+        FROM tb_travel_notes tn
     </sql>
 
     <select id="getModelByPK" resultMap="ResultMapNormal" parameterType="java.lang.Long">
@@ -148,4 +181,40 @@
         select  p_picture  from tb_picture  where  travel_notes_id=#{travelNoteId} and  p_isno_cover=1 and p_isno_delete=0
     </select>
 
+    <select id="getUnPublishedNoteForHome" resultMap="ResultMapCoverModel">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tb_travel_notes
+        WHERE travel_notes_id IN(
+        SELECT hc_nav_id from tb_home_cms where subject_id= #{subjectId}
+        ) and can_publish =1
+
+    </select>
+
+    <select id="getSubjectIdByTime" parameterType="java.lang.String" resultType="java.lang.Long">
+        SELECT ts_id from tb_subject WHERE ts_date  <![CDATA[ <= ]]> #{date} ORDER  BY ts_date DESC limit 0,1
+    </select>
+
+    <update id="pushNote" parameterType="Object">
+        UPDATE  tb_travel_notes SET can_publish=0 WHERE travel_notes_id=#{value}
+    </update>
+
+    <select id="searchTravelNoteByID" resultMap="NoteMap" parameterType="String">
+        <include refid="base_sql"/>
+        WHERE tn.travel_notes_id =#{value}
+    </select>
+
+    <select id="getCoverPicByNote" parameterType="Object" resultMap="NotePicMap">
+        SELECT * FROM  tb_picture pic
+        WHERE travel_notes_id =#{value}  AND  p_isno_delete = 0 AND p_isno_cover=1
+    </select>
+
+    <insert id="addNotification" parameterType="Object">
+        INSERT  INTO  tb_notification_list
+        (user_id,picture,type,content,time,passive_id,picture_id,skip_type,skip_id)
+        VALUES
+        (#{receiveUser},#{picture},#{type},#{content},#{addTime},#{sendUser},#{picture_id},#{skipType},#{skipId})
+    </insert>
+
 </mapper>
+

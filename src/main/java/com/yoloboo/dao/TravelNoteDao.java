@@ -3,9 +3,13 @@ package com.yoloboo.dao;
 import com.yoloboo.controller.BaseBean.PictureBean;
 import com.yoloboo.controller.BaseBean.TopicBean;
 import com.yoloboo.controller.BaseBean.UserBean;
+import com.yoloboo.models.TravelNote;
 import com.yoloboo.models.TravelNoteModel;
+import com.yoloboo.models.TravelNotePic;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Handler;
 
 
 /**
@@ -21,19 +25,19 @@ public interface TravelNoteDao
 
 	List<TravelNoteModel>  getModelsByTopicUser(TopicBean bean);
 
-	Integer countPushedTravelNotes(Long userId);
-
-	Integer isNoteReported(Long travelNoteId);
-
-	Integer isPicReported(Long pId);
-
-	List<Long> selectRelationNotesCountry(PictureBean bean);
-
 	List<Long> selectRelationNotesLocation(PictureBean bean);
 
 	List<Long> selectRelationNotesLocation2(List<Long> idList);
 
-	String getTitleByNoteId(Long travelNoteId);
+	List<TravelNoteModel> getUnPublishedNoteForHome(Long subjectId);
 
-	String getPictureByNoteId(Long travelNoteId);
+	Long getSubjectIdByTime(String nowTime);
+
+	void pushNote (String noteId);
+
+	TravelNote searchTravelNoteByID(String noteId);
+
+	TravelNotePic getCoverPicByNote(String noteId);
+
+	void addNotification(HashMap param);
 }

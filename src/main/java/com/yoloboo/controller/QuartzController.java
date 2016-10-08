@@ -866,4 +866,40 @@ public class QuartzController extends BaseController {
 
 	}
 
+
+	/**
+	 * 定时
+	 */
+	public void publishNote(){
+		String date = Commonparam.Date2Str();
+		Long subjectId = travelNoteDao.getSubjectIdByTime(date);
+	    List<TravelNoteModel> list = travelNoteDao.getUnPublishedNoteForHome(subjectId);
+		for(int i=0;i<list.size();i++){
+
+			String noteId = list.get(i).getId().toString();
+			TravelNote  travelNote =  travelNoteDao.searchTravelNoteByID(noteId);
+			TravelNotePic coverPic = travelNoteDao.getCoverPicByNote(noteId);
+
+			travelNoteDao.pushNote(noteId);
+			//推送消息
+			HashMap param1 = new HashMap();
+			String id = null;
+			if(null == travelNote.getLocation_id()){
+				id = travelNote.getCountry_id().toString();
+			}else{
+				id =  travelNote.getLocation_id().toString();
+			}
+			param1.put("receiveUser","-2");
+			param1.put("sendUser", travelNote.getUser_id());
+			param1.put("addTime", Commonparam.Date2Str());
+			param1.put("type", NotificationListType.NEW_NOTE);
+			param1.put("picture_id",coverPic.getPicture_id());
+			param1.put("picture", coverPic.getP_picture());
+			String content;
+			content=travelNote.getUserName()+"["+travelNote.getTn_title()+"]"+id;
+			param1.put("content",content);
+			travelNoteDao.addNotification(param1);
+		}
+	}
+
 }
