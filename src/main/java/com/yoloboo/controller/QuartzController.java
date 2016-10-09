@@ -631,7 +631,6 @@ public class QuartzController extends BaseController {
 					}
 
 					//更新用户被发布文章被机器人点赞的次数
-
 					robotJobDao.updateRobertsNum(robotJob.getUserId().toString(),1);
 
 					timeStr.clear();
