@@ -32,7 +32,7 @@ public class RobotJobDaoImpl extends BaseDao implements RobotJobDao {
         HashMap param = new HashMap();
         param.put("userId",userId);
         param.put("picId",picId);
-        return (Long) sqlSession.selectOne("RobotJobDao.getRobotForNote",userId);
+        return (Long) sqlSession.selectOne("RobotJobDao.getRobotForNote",param);
     }
 
     @Override

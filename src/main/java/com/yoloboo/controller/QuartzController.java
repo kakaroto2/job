@@ -604,7 +604,6 @@ public class QuartzController extends BaseController {
 					if(4 <robotJobDao.getNumByUserAndNoteType(robotJob.getUserId().toString())){
 						continue;
 					}
-					Long picId = robotJobDao.getRandomPicIdByNote(robotJob.getTypeId());
 					Date jobTime = Commonparam.StringtoDate(robotJob.getJobTime().toString());
 					Date after3m = new Date(jobTime.getTime()  +180000);
 					Date after8m = new Date(jobTime.getTime()  +480000);
@@ -621,6 +620,7 @@ public class QuartzController extends BaseController {
 					timeStr.add(5,Commonparam.Date2Str(after25h));
 
 					for(int i=0;i<6;i++){
+						Long picId = robotJobDao.getRandomPicIdByNote(robotJob.getTypeId());
 						jopParam.put("jobTime",timeStr.get(i));
 						jopParam.put("userId",robotJobDao.getRobotForNote(robotJob.getUserId().toString(),picId.toString()));
 						jopParam.put("jobType",robotJob.getJobType());
