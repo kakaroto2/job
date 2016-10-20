@@ -620,14 +620,19 @@ public class QuartzController extends BaseController {
 					timeStr.add(5,Commonparam.Date2Str(after25h));
 
 					for(int i=0;i<6;i++){
-						Long picId = robotJobDao.getRandomPicIdByNote(robotJob.getTypeId());
-						jopParam.put("jobTime",timeStr.get(i));
-						jopParam.put("userId",robotJobDao.getRobotForNote(robotJob.getUserId().toString(),picId.toString()));
-						jopParam.put("jobType",robotJob.getJobType());
-						jopParam.put("picId",picId);
-						jopParam.put("noteId",robotJob.getTypeId().toString());
-						robotJobDao.addRobotJob(jopParam);
-						jopParam.clear();
+						try {
+							Long picId = robotJobDao.getRandomPicIdByNote(robotJob.getTypeId());
+							jopParam.put("jobTime",timeStr.get(i));
+							jopParam.put("userId",robotJobDao.getRobotForNote(robotJob.getUserId().toString(),picId.toString()));
+							jopParam.put("jobType",robotJob.getJobType());
+							jopParam.put("picId",picId);
+							jopParam.put("noteId",robotJob.getTypeId().toString());
+							robotJobDao.addRobotJob(jopParam);
+							Thread.currentThread().sleep(2000);
+							jopParam.clear();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 
 					//更新用户被发布文章被机器人点赞的次数
@@ -651,12 +656,19 @@ public class QuartzController extends BaseController {
 					timeStr.add(8, Commonparam.Date2Str(after55m));
 
 					for(int i=0;i<9;i++){
-						jopParam.put("jobTime",timeStr.get(i));
-						jopParam.put("userId",robotJobDao.getRobotForActivity(robotJob.getUserId().toString(),robotJob.getTypeId().toString()));
-						jopParam.put("jobType",robotJob.getJobType());
-						jopParam.put("picId",robotJob.getTypeId());
-						robotJobDao.addRobotJob(jopParam);
-						jopParam.clear();
+						try {
+							Thread.currentThread().sleep(2000);
+							jopParam.put("jobTime",timeStr.get(i));
+							jopParam.put("userId",robotJobDao.getRobotForActivity(robotJob.getUserId().toString(),robotJob.getTypeId().toString()));
+							jopParam.put("jobType",robotJob.getJobType());
+							jopParam.put("picId",robotJob.getTypeId());
+							robotJobDao.addRobotJob(jopParam);
+							jopParam.clear();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+
+
 					}
 					timeStr.clear();
 					robots.clear();
