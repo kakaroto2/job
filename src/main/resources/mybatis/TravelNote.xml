@@ -192,7 +192,7 @@
     </select>
 
     <select id="getSubjectIdByTime" parameterType="java.lang.String" resultType="java.lang.Long">
-        SELECT ts_id from tb_subject WHERE ts_date  <![CDATA[ >= ]]> #{date} ORDER  BY ts_date DESC limit 0,1
+        SELECT ts_id from tb_subject WHERE ts_date  <![CDATA[ >= ]]> #{date} ORDER  BY ts_date ASC limit 0,1
     </select>
 
     <update id="pushNote" parameterType="Object">
